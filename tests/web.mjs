@@ -10,15 +10,15 @@ const js=fs.readFileSync(new URL('../web/app.js',import.meta.url),'utf8');
 const lib=fs.readFileSync(new URL('../web/lib.js',import.meta.url),'utf8');
 
 // --- markup / wiring contract
-for(const label of ['Overview','Health','Network Map','Applications','Flows','DNS','Interfaces','Routes','VPN','Local Network','FluxVM','Security','Time Machine','Investigator','Settings']){
+for(const label of ['Overview','Health','Network Map','Applications','Flows','DNS','Interfaces','Routes','VPN','Local Network','FluxVM','Security','Time Machine','Capture','Investigator','Settings']){
   assert(html.includes(label), `missing nav label ${label}`);
 }
-for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','sidebarBtn','alertBadge']){
+for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','exportDialog','exportForm','sidebarBtn','alertBadge']){
   assert(html.includes(`id="${id}"`), `missing #${id}`);
 }
 assert(css.includes('backdrop-filter'), 'glass UI contract missing');
 assert(css.includes('prefers-reduced-motion'), 'reduced-motion rule missing');
-for(const needle of ["'/v1/snapshot'","'/v1/query'","'/v1/series?limit=80'","networkMap","'/v1/rules'"]){
+for(const needle of ["'/v1/snapshot'","'/v1/query'","'/v1/series?limit=80'","networkMap","'/v1/rules'","'/v1/captures'"]){
   assert(js.includes(needle), `app.js missing ${needle}`);
 }
 assert(!/\balert\(/.test(js), 'alert() must be replaced by toasts');
@@ -69,3 +69,38 @@ assert.deepEqual(L.rateAlerts([{name:'A',total_bps:2e6},{name:'B',total_bps:10}]
 assert.deepEqual(L.rateAlerts([{name:'A',total_bps:2e6}],0),[]);
 
 console.log('web contract + lib unit tests: PASS');
+
+// --- shared filter vectors (also run by tests/test_filter.py and native XCTest)
+{
+  const vec = JSON.parse(fs.readFileSync(new URL('./fixtures/filter-vectors.json', import.meta.url), 'utf8'));
+  for (const c of vec.cases) {
+    const got = L.filterFlows(vec.flows, c.q).map(f => f.id);
+    assert.deepEqual(got, c.expect, `filter vector ${JSON.stringify(c.q)}`);
+  }
+}
+
+// --- saved views: validated, capped, never carry the token
+{
+  const p = L.mergePrefs({ views: [{ name: ' A ', query: 'port:443' }, { name: '', query: 'x' }, { name: 5, query: 'y' }, ...Array.from({ length: 30 }, (_, i) => ({ name: `v${i}`, query: 'q' }))] });
+  assert.equal(p.views[0].name, 'A');
+  assert(p.views.length <= 20);
+  assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 0), 'port:443');
+  assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 1), 'app:"Google Chrome"');
+}
+
+// --- grouping + compare
+{
+  const fl = [
+    { id: 'a', process: 'Safari', remote: '1.1.1.1:443', interface: 'en0', rx_bps: 10, tx_bps: 5, total_bps: 15 },
+    { id: 'b', process: 'Safari', remote: '1.1.1.1:80', interface: 'en0', rx_bps: 1, tx_bps: 1, total_bps: 2 },
+    { id: 'c', process: 'ssh', remote: '[2001:db8::7]:22', interface: 'utun4', rx_bps: 100, tx_bps: 0, total_bps: 100 },
+  ];
+  const g = L.groupFlows(fl, 'app');
+  assert.deepEqual(g.map(x => [x.key, x.count]), [['ssh', 1], ['Safari', 2]]);
+  assert.equal(L.groupFlows(fl, 'host')[1].key, '1.1.1.1');
+  assert.deepEqual(L.groupFlows(fl, 'nope'), []);
+  const d = L.diffFlows(fl.slice(0, 2), [{ ...fl[0], total_bps: 40 }, fl[2]]);
+  assert.deepEqual(d.added.map(f => f.id), ['c']);
+  assert.deepEqual(d.removed.map(f => f.id), ['b']);
+  assert.equal(d.changed[0].delta, 25);
+}

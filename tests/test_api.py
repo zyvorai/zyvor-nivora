@@ -45,6 +45,55 @@ class APITests(unittest.TestCase):
             data=json.loads(r.read()); self.assertEqual(data["host"]["os"],"macOS")
             self.assertEqual(r.headers.get("Access-Control-Allow-Origin"),"http://example.test")
 
+    def test_flows_filter_param(self):
+        with self.req("/v1/flows") as r: allf=json.loads(r.read())
+        proto=allf[0]["protocol"]
+        with self.req("/v1/flows?filter=proto%3A"+proto) as r: only=json.loads(r.read())
+        self.assertTrue(only and all(f["protocol"]==proto for f in only))
+        with self.req("/v1/flows?filter=app%3Anope-does-not-exist") as r: self.assertEqual(json.loads(r.read()),[])
+
+    def test_export_formats_filter_and_redaction(self):
+        import io, zipfile
+        with self.req("/v1/export?kind=flows&format=csv") as r:
+            self.assertIn("attachment", r.headers["Content-Disposition"])
+            rows=r.read().decode().strip().split("\n")
+        self.assertTrue(rows[0].startswith("process,protocol"))
+        with self.req("/v1/export?kind=flows&format=ndjson&filter=app%3Anope-nothing") as r:
+            self.assertEqual(r.read(),b"")
+        with self.req("/v1/export?kind=snapshot&format=json&redact=1") as r:
+            snap=json.loads(r.read())
+        self.assertTrue(snap["host"]["name"].startswith("host-"))
+        self.assertNotRegex(json.dumps(snap), r"\b192\.168\.\d+\.\d+\b")
+        with self.req("/v1/export?kind=bundle&format=zip") as r:
+            names=zipfile.ZipFile(io.BytesIO(r.read())).namelist()
+        self.assertEqual(sorted(names),["README.txt","flows.csv","snapshot.json","timeline.ndjson"])
+        with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/export?kind=flows&format=xml")
+        self.assertEqual(c.exception.code,400)
+
+    def test_capture_demo_flow_and_guards(self):
+        def post(path, body):
+            return self.req(path, "POST", body)
+        with self.req("/v1/captures") as r:
+            info = json.loads(r.read())
+        self.assertTrue(info["available"] and info["demo"])
+        with self.assertRaises(urllib.error.HTTPError) as c:          # no explicit confirmation
+            post("/v1/captures", {"iface": "en0"})
+        self.assertEqual(c.exception.code, 400)
+        with self.assertRaises(urllib.error.HTTPError) as c:          # injection attempt
+            post("/v1/captures", {"iface": "en0; id", "confirm": True})
+        self.assertEqual(c.exception.code, 400)
+        with post("/v1/captures", {"iface": "en0", "host": "142.250.183.14", "proto": "tcp", "port": 443, "seconds": 5, "confirm": True}) as r:
+            sess = json.loads(r.read())
+        self.assertEqual(sess["snaplen"], 96)
+        with self.req(f"/v1/captures/{sess['id']}/pcap") as r:
+            self.assertEqual(r.headers["Content-Type"], "application/vnd.tcpdump.pcap")
+            self.assertEqual(r.read()[:4], b"\xd4\xc3\xb2\xa1")
+        with self.req(f"/v1/captures/{sess['id']}", "DELETE") as r:
+            self.assertTrue(json.loads(r.read())["deleted"])
+        with self.req("/v1/timeline") as r:
+            kinds = [e["kind"] for e in json.loads(r.read())]
+        self.assertIn("capture", kinds)
+
     def test_requires_token(self):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/snapshot",token=False)
         self.assertEqual(c.exception.code,401)

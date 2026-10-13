@@ -16,6 +16,7 @@ struct NivoraSnapshot: Decodable {
         let `protocol`: String; let local: String; let remote: String; let state: String
         let bytes_in: Int; let bytes_out: Int; let rx_bps: Double; let tx_bps: Double; let total_bps: Double
         let interface: String; let rtt_ms: Double; let source: String
+        let first_seen: String?
     }
     struct Interface: Decodable, Identifiable {
         var id: String { name }

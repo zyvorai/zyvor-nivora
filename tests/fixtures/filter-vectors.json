@@ -1,0 +1,195 @@
+{
+ "flows": [
+  {
+   "id": "a",
+   "process": "Safari",
+   "protocol": "tcp",
+   "local": "10.0.0.2:50001",
+   "remote": "17.253.144.10:443",
+   "state": "ESTABLISHED",
+   "interface": "en0",
+   "source": "nettop",
+   "rx_bps": 500000,
+   "tx_bps": 100000,
+   "total_bps": 600000,
+   "pid": 100,
+   "bytes_in": 0,
+   "bytes_out": 0,
+   "rtt_ms": 0.0
+  },
+  {
+   "id": "b",
+   "process": "Google Chrome",
+   "protocol": "tcp",
+   "local": "10.0.0.2:50002",
+   "remote": "142.250.1.1:8443",
+   "state": "ESTABLISHED",
+   "interface": "utun4",
+   "source": "nettop",
+   "rx_bps": 20000,
+   "tx_bps": 5000,
+   "total_bps": 25000,
+   "pid": 101,
+   "bytes_in": 0,
+   "bytes_out": 0,
+   "rtt_ms": 0.0
+  },
+  {
+   "id": "c",
+   "process": "mDNSResponder",
+   "protocol": "udp",
+   "local": "10.0.0.2:5353",
+   "remote": "224.0.0.251:5353",
+   "state": "",
+   "interface": "en0",
+   "source": "lsof",
+   "rx_bps": 0,
+   "tx_bps": 0,
+   "total_bps": 0,
+   "pid": 102,
+   "bytes_in": 0,
+   "bytes_out": 0,
+   "rtt_ms": 0.0
+  },
+  {
+   "id": "d",
+   "process": "ssh",
+   "protocol": "tcp",
+   "local": "[fe80::1]:50003",
+   "remote": "[2001:db8::7]:22",
+   "state": "ESTABLISHED",
+   "interface": "en0",
+   "source": "lsof",
+   "rx_bps": 1000,
+   "tx_bps": 1000,
+   "total_bps": 2000,
+   "pid": 103,
+   "bytes_in": 0,
+   "bytes_out": 0,
+   "rtt_ms": 0.0
+  }
+ ],
+ "cases": [
+  {
+   "q": "",
+   "expect": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  {
+   "q": "safari",
+   "expect": [
+    "a"
+   ]
+  },
+  {
+   "q": "app:chrome",
+   "expect": [
+    "b"
+   ]
+  },
+  {
+   "q": "app:\"google chrome\"",
+   "expect": [
+    "b"
+   ]
+  },
+  {
+   "q": "port:443",
+   "expect": [
+    "a"
+   ]
+  },
+  {
+   "q": "port:5000-9000",
+   "expect": [
+    "b",
+    "c"
+   ]
+  },
+  {
+   "q": "proto:udp",
+   "expect": [
+    "c"
+   ]
+  },
+  {
+   "q": "iface:en0 proto:tcp",
+   "expect": [
+    "a",
+    "d"
+   ]
+  },
+  {
+   "q": "!iface:en0",
+   "expect": [
+    "b"
+   ]
+  },
+  {
+   "q": "-proto:tcp",
+   "expect": [
+    "c"
+   ]
+  },
+  {
+   "q": "app:safari app:ssh",
+   "expect": [
+    "a",
+    "d"
+   ]
+  },
+  {
+   "q": "host:2001:db8",
+   "expect": [
+    "d"
+   ]
+  },
+  {
+   "q": "host:142.250",
+   "expect": [
+    "b"
+   ]
+  },
+  {
+   "q": ">1mbps",
+   "expect": [
+    "a"
+   ]
+  },
+  {
+   "q": ">100kbps",
+   "expect": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "q": "<1kbps proto:udp",
+   "expect": [
+    "c"
+   ]
+  },
+  {
+   "q": "state:established !app:safari",
+   "expect": [
+    "b",
+    "d"
+   ]
+  },
+  {
+   "q": "source:lsof",
+   "expect": [
+    "c",
+    "d"
+   ]
+  },
+  {
+   "q": "bogus:thing",
+   "expect": []
+  }
+ ]
+}

@@ -7,6 +7,7 @@ import hmac
 import json
 import mimetypes
 import os
+import re
 import secrets
 import signal
 import threading
@@ -16,7 +17,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, timeline_events
+from capture import CaptureClient, CaptureError, manual_command, synthetic_pcap, validate_request, validate_session_id, MAX_SECONDS, MAX_MB, MAX_SNAPLEN
+from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
 class State:
@@ -32,10 +34,94 @@ class State:
             fallback = os.path.expanduser("~/.local/share/nivora/rules.json")
             self.rules = RuleStore(fallback)
             args.rules = fallback
+        self.capture = CaptureClient()
+        self.demo_captures = {}
+        self._capture_ok = (0.0, False)
         self.snapshot = None
         self.timeline = []
         self.lock = threading.Lock()
         self.stop = threading.Event()
+
+    # ---- packet capture (opt-in, headers-only by default; see agent/capture.py) ----
+    def capture_available(self):
+        if self.args.demo:
+            return True
+        checked, ok = self._capture_ok
+        if time.time() - checked > 5:
+            ok = self.capture.available()
+            self._capture_ok = (time.time(), ok)
+        return ok
+
+    def _capture_event(self, title, detail):
+        event = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime()), "kind": "capture", "title": title, "detail": detail}
+        with self.lock:
+            self.timeline.append(event)
+            self.timeline = self.timeline[-1000:]
+        if self.history:
+            self.history.add_events([event])
+
+    def capture_list(self):
+        if self.args.demo:
+            now = time.time()
+            out = []
+            for c in self.demo_captures.values():
+                sess = dict(c["session"])
+                if sess["state"] == "running" and now - c["t0"] >= min(sess["seconds"], 3):
+                    sess["state"] = "finished"
+                    c["session"]["state"] = "finished"
+                sess["bytes"] = len(c["pcap"])
+                out.append(sess)
+            return out
+        return self.capture.list()
+
+    def capture_start(self, body):
+        if body.get("confirm") is not True:
+            raise CaptureError("confirmation required: capture records packet headers of this traffic")
+        with self.lock:
+            ifaces = {i.get("name") for i in (self.snapshot or {}).get("interfaces", [])}
+        req = validate_request(body, ifaces or None)
+        if not self.capture_available():
+            err = CaptureError("capture helper is not installed or not running. Equivalent manual command: " + manual_command(req), 501)
+            raise err
+        flt = " ".join(x for x in [req.get("host") and f"host {req['host']}", req["proto"] != "any" and req["proto"], req.get("port") and f"port {req['port']}"] if x) or "all traffic"
+        if self.args.demo:
+            sid = os.urandom(8).hex()
+            session = {"id": sid, "iface": req["iface"], "filter": flt, "snaplen": req["snaplen"], "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                       "seconds": req["seconds"], "max_bytes": req["max_mb"] * 1048576, "state": "running", "bytes": 0}
+            self.demo_captures[sid] = {"session": session, "t0": time.time(), "pcap": synthetic_pcap(48, req["snaplen"])}
+        else:
+            session = self.capture.start(req)
+        self._capture_event("Packet capture started", f"{req['iface']} · {flt} · {req['snaplen']} bytes/packet · ≤{req['seconds']} s")
+        return session
+
+    def capture_stop(self, sid):
+        validate_session_id(sid)
+        if self.args.demo:
+            c = self.demo_captures.get(sid)
+            if not c:
+                raise CaptureError("no such capture", 404)
+            c["session"]["state"] = "stopped"
+        else:
+            self.capture.stop(sid)
+        self._capture_event("Packet capture stopped", sid)
+
+    def capture_delete(self, sid):
+        validate_session_id(sid)
+        if self.args.demo:
+            if self.demo_captures.pop(sid, None) is None:
+                raise CaptureError("no such capture", 404)
+        else:
+            self.capture.delete(sid)
+        self._capture_event("Packet capture deleted", sid)
+
+    def capture_pcap(self, sid):
+        validate_session_id(sid)
+        if self.args.demo:
+            c = self.demo_captures.get(sid)
+            if not c:
+                raise CaptureError("no such capture", 404)
+            return c["pcap"]
+        return self.capture.fetch(sid)
 
     def sample(self):
         with self.lock:
@@ -53,6 +139,7 @@ class State:
                     "detail": event["detail"], "app": event.get("app"), "remote": event.get("remote")
                 })
         current["behavior"] = behavior
+        current.setdefault("capabilities", {})["capture"] = self.capture_available()
         current["rules"] = self.rules.list()
         current["rule_hits"] = apply_rule_preview(current.get("flows", []), current["rules"])
         current["recent_events"] = (existing_timeline + events)[-20:]
@@ -128,6 +215,14 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _capture_call(self, fn):
+        """Runs a capture operation; maps CaptureError to an HTTP error (and returns None)."""
+        try:
+            return fn()
+        except CaptureError as exc:
+            self._json({"error": str(exc)}, exc.status)
+            return None
+
     def _read_json(self):
         n = int(self.headers.get("Content-Length", "0") or "0")
         if n > 1_000_000:
@@ -163,7 +258,7 @@ class Handler(BaseHTTPRequestHandler):
                 snap = self.state.sample()
             mapping = {
                 "/v1/snapshot": snap,
-                "/v1/flows": snap.get("flows", []),
+                "/v1/flows": filter_flows(snap.get("flows", []), parse_qs(u.query).get("filter", [""])[0][:400]),
                 "/v1/apps": snap.get("apps", []),
                 "/v1/interfaces": snap.get("interfaces", []),
                 "/v1/routes": snap.get("routes", []),
@@ -183,6 +278,34 @@ class Handler(BaseHTTPRequestHandler):
             }
             if path in mapping:
                 return self._json(mapping[path])
+            if path == "/v1/captures":
+                available = self.state.capture_available()
+                sessions = []
+                if available:
+                    try:
+                        sessions = self.state.capture_list()
+                    except CaptureError:
+                        available = False
+                return self._json({"available": available, "demo": bool(self.state.args.demo),
+                                   "limits": {"max_seconds": MAX_SECONDS, "max_mb": MAX_MB, "max_snaplen": MAX_SNAPLEN},
+                                   "sessions": sessions})
+            m = re.match(r"^/v1/captures/([0-9a-f]{16})/pcap$", path)
+            if m:
+                data = self._capture_call(lambda: self.state.capture_pcap(m.group(1)))
+                if data is None:
+                    return
+                self.send_response(200)
+                self._cors()
+                self.send_header("Content-Type", "application/vnd.tcpdump.pcap")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Content-Disposition", f'attachment; filename="nivora-{m.group(1)}.pcap"')
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("X-Content-Type-Options", "nosniff")
+                self.end_headers()
+                self.wfile.write(data)
+                return
+            if path == "/v1/export":
+                return self._export(parse_qs(u.query), snap, timeline)
             if path in {"/v1/history", "/v1/series"}:
                 try: limit = int(parse_qs(u.query).get("limit", [120])[0])
                 except (TypeError, ValueError): limit = 120
@@ -190,6 +313,37 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.state.history.series(limit) if path == "/v1/series" else self.state.history.history(limit))
             return self._json({"error":"not found"}, 404)
         return self._static(path)
+
+    def _export(self, q, snap, timeline):
+        kind = q.get("kind", ["flows"])[0]
+        fmt = q.get("format", ["csv"])[0]
+        query = q.get("filter", [""])[0][:400]
+        redactor = Redactor() if q.get("redact", ["0"])[0] in {"1", "true", "yes"} else None
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        try:
+            if kind in {"bundle", "snapshot"} and fmt in {"zip", "json"}:
+                if kind == "bundle" or fmt == "zip":
+                    body, ctype, name = build_bundle(snap, timeline, query, redactor), "application/zip", f"nivora-bundle-{stamp}.zip"
+                else:
+                    data = redactor.walk(snap) if redactor else snap
+                    body, ctype, name = json.dumps(data, indent=2).encode(), "application/json", f"nivora-snapshot-{stamp}.json"
+            else:
+                rows = export_rows(snap, timeline, kind, query)
+                if redactor:
+                    rows = redactor.walk(rows)
+                body, ctype = render_export(rows, kind, fmt)
+                name = f"nivora-{kind}-{stamp}.{fmt}"
+        except (ValueError, KeyError) as exc:
+            return self._json({"error": str(exc)}, 400)
+        self.send_response(200)
+        self._cors()
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_POST(self):
         if not self._guard():
@@ -205,6 +359,16 @@ class Handler(BaseHTTPRequestHandler):
             if snap is None:
                 snap = self.state.sample()
             return self._json(answer_query(snap, str(data.get("question", ""))))
+        if path == "/v1/captures":
+            session = self._capture_call(lambda: self.state.capture_start(data))
+            if session is not None:
+                self._json(session, 201)
+            return
+        m = re.match(r"^/v1/captures/([0-9a-f]{16})/stop$", path)
+        if m:
+            if self._capture_call(lambda: self.state.capture_stop(m.group(1)) or True):
+                self._json({"stopped": True})
+            return
         if path == "/v1/rules":
             try:
                 rule = self.state.rules.add(data)
@@ -217,6 +381,11 @@ class Handler(BaseHTTPRequestHandler):
         if not self._guard():
             return
         path = urlparse(self.path).path
+        m = re.match(r"^/v1/captures/([0-9a-f]{16})$", path)
+        if m:
+            if self._capture_call(lambda: self.state.capture_delete(m.group(1)) or True):
+                self._json({"deleted": True})
+            return
         prefix = "/v1/rules/"
         if path.startswith(prefix):
             ok = self.state.rules.remove(path[len(prefix):])

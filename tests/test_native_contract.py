@@ -59,6 +59,28 @@ class NativeContractTests(unittest.TestCase):
         self.assertEqual(set(json.loads(out)), set(fixture),
                          "regenerate native/Tests/Fixtures/demo-snapshot.json from `nivora.py --demo --once`")
 
+    def test_capture_helper_is_shell_free_and_limits_match_collector(self):
+        """The helper only execs tcpdump with a fixed argv; Swift and Python validators share limits."""
+        helper = (ROOT / "native" / "CaptureHelper" / "main.swift").read_text()
+        validator = (ROOT / "native" / "CaptureHelper" / "Validator.swift").read_text()
+        for banned in ["/bin/sh", "/bin/bash", "system(", "popen(", "-c\""]:
+            self.assertNotIn(banned, helper + validator)
+        self.assertIn('static let tcpdump = "/usr/sbin/tcpdump"', helper)
+        self.assertIn("getpeereid", helper)          # peer credentials are checked
+        self.assertIn("0o700", helper)               # captures directory is root-only
+        import sys
+        sys.path.insert(0, str(ROOT / "agent"))
+        import capture
+        pairs = {
+            "defaultSnaplen": capture.DEFAULT_SNAPLEN, "maxSnaplen": capture.MAX_SNAPLEN, "minSnaplen": capture.MIN_SNAPLEN,
+            "defaultSeconds": capture.DEFAULT_SECONDS, "maxSeconds": capture.MAX_SECONDS,
+            "defaultMB": capture.DEFAULT_MB, "maxMB": capture.MAX_MB,
+        }
+        for name, value in pairs.items():
+            m = re.search(rf"{name} = (\d+)", validator)
+            self.assertIsNotNone(m, name)
+            self.assertEqual(int(m.group(1)), value, name)
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

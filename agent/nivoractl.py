@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: BUSL-1.1
 from __future__ import annotations
-import argparse, json, os, subprocess, urllib.error, urllib.request
+import argparse, json, os, subprocess, urllib.error, urllib.parse, urllib.request
 
 DEFAULT = os.getenv("NIVORA_URL", "http://127.0.0.1:9857")
 
@@ -33,7 +33,8 @@ def main():
     p=argparse.ArgumentParser(prog="nivoractl",description="Nivora local CLI")
     p.add_argument("--url",default=DEFAULT);p.add_argument("--token",default=keychain_token())
     sub=p.add_subparsers(dest="cmd",required=True)
-    for c in ["status","apps","flows","interfaces","routes","dns","vpn","fluxvm","findings","timeline","rules","health","traffic","topology","neighbors","listeners","behavior","diagnose","series"]: sub.add_parser(c)
+    for c in ["status","apps","interfaces","routes","dns","vpn","fluxvm","findings","timeline","rules","health","traffic","topology","neighbors","listeners","behavior","diagnose","series"]: sub.add_parser(c)
+    sub.add_parser("flows").add_argument("--filter", default="", help='e.g. app:Safari port:443 proto:tcp >1mbps')
     a=sub.add_parser("ask");a.add_argument("question",nargs="+")
     a=sub.add_parser("rule-add");a.add_argument("--action",choices=["observe","allow","block"],default="observe");a.add_argument("--app");a.add_argument("--domain");a.add_argument("--ip");a.add_argument("--port",type=int);a.add_argument("--expires-at");a.add_argument("--duration",type=int,help="block lease seconds (default 3600)");a.add_argument("--permanent",action="store_true")
     a=sub.add_parser("rule-delete");a.add_argument("id")
@@ -44,7 +45,7 @@ def main():
         if args.cmd=="apps":
             rows=request(args.url,"/v1/apps",args.token); table(rows,[("name","APP"),("connections","CONN"),("bytes_in","RX"),("bytes_out","TX")]); return
         if args.cmd=="flows":
-            rows=request(args.url,"/v1/flows",args.token); table(rows,[("process","APP"),("protocol","PROTO"),("remote","REMOTE"),("interface","IFACE"),("state","STATE")]); return
+            rows=request(args.url,"/v1/flows"+("?"+urllib.parse.urlencode({"filter":args.filter}) if args.filter else ""),args.token); table(rows,[("process","APP"),("protocol","PROTO"),("remote","REMOTE"),("interface","IFACE"),("state","STATE")]); return
         path={"interfaces":"/v1/interfaces","routes":"/v1/routes","dns":"/v1/dns","vpn":"/v1/vpn","fluxvm":"/v1/fluxvm","findings":"/v1/findings","timeline":"/v1/timeline","rules":"/v1/rules","health":"/v1/health","traffic":"/v1/traffic","topology":"/v1/topology","neighbors":"/v1/neighbors","listeners":"/v1/listeners","behavior":"/v1/behavior","diagnose":"/v1/diagnose","series":"/v1/series"}.get(args.cmd)
         if path: print(json.dumps(request(args.url,path,args.token),indent=2)); return
         if args.cmd=="ask": print(json.dumps(request(args.url,"/v1/query",args.token,"POST",{"question":" ".join(args.question)}),indent=2)); return

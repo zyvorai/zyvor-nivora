@@ -9,7 +9,7 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 ## Focused reads
 
 - `GET /v1/apps`
-- `GET /v1/flows`
+- `GET /v1/flows[?filter=<query>]` — optional server-side filter, see *Filter grammar*
 - `GET /v1/interfaces`
 - `GET /v1/routes`
 - `GET /v1/dns`
@@ -57,3 +57,33 @@ A rule needs at least one of `app`, `domain`, `ip`, or `port`. `action` is `obse
 `DELETE /v1/rules/{id}` removes one rule.
 
 Collector-only deployments preview matches but do not alter traffic. Signed NetworkExtension deployments can enforce active `block` rules.
+
+## Captures
+
+See `docs/CAPTURE.md`: `GET/POST /v1/captures`, `POST /v1/captures/{id}/stop`, `GET /v1/captures/{id}/pcap`, `DELETE /v1/captures/{id}`. Capture requires `confirm: true`, is headers-only by default and returns `501` plus a manual command when the helper is missing.
+
+## Export
+
+`GET /v1/export?kind=flows|apps|timeline|snapshot|bundle&format=csv|json|ndjson|zip[&filter=<query>][&redact=1]`
+
+Returns an attachment (`Content-Disposition`). `bundle`/`zip` contains `README.txt`, `snapshot.json`, `flows.csv` and `timeline.ndjson`. CSV cells that start with `= + - @` are prefixed with `'` so spreadsheets do not evaluate them. `redact=1` replaces private IPv4/link-local IPv6 addresses, MACs, SSIDs, DNS names/search domains and this Mac's hostname with per-export salted hash tokens (`ip-1a2b3c4d`); the same value maps to the same token within one export only. Exports never contain packet payloads. Unknown kind/format returns `400`.
+
+## Filter grammar
+
+One grammar is shared by the collector (`parse_filter`/`match_flow` in `agent/nivora_core.py`), the web UI (`parseFilter`/`matchFilter` in `web/lib.js`) and the native app (`FlowFilter` in `native/App/Model/Filter.swift`). Parity is enforced by `tests/fixtures/filter-vectors.json`.
+
+| Token | Meaning |
+|---|---|
+| `app:Safari` | process name or bundle id contains the value (alias `process:`) |
+| `host:example.com` | remote host contains the value |
+| `port:443`, `port:8000-9000` | local or remote port equals / is within range |
+| `proto:tcp` | protocol equals (alias `protocol:`) |
+| `iface:en0` | interface equals (alias `interface:`) |
+| `state:established`, `source:nettop` | equals |
+| `>1mbps`, `<500kbps` | live total rate in bits/s (`bps`, `kbps`, `mbps`, `gbps`) |
+| `!key:value` or `-key:value` | exclude |
+| `"quoted value"` | keep spaces: `app:"Google Chrome"` |
+| anything else | free text over every field |
+
+Different keys combine with AND; repeating a key (`app:safari app:ssh`) is OR; exclusions always win.
+

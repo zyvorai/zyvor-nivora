@@ -473,6 +473,8 @@ def annotate_rates(flows: list[dict[str, Any]], previous: dict[str, Any] | None,
     for flow in flows:
         rx = tx = 0.0
         old = prev_flows.get(flow.get("id"))
+        flow["first_seen"] = (old or {}).get("first_seen") or (old or {}).get("last_seen") or timestamp
+        flow["last_seen"] = timestamp
         if old and elapsed:
             rx = max(0, as_int(flow.get("bytes_in")) - as_int(old.get("bytes_in"))) / elapsed
             tx = max(0, as_int(flow.get("bytes_out")) - as_int(old.get("bytes_out"))) / elapsed
@@ -618,6 +620,194 @@ def endpoint_port(endpoint: str) -> int:
     if endpoint.count(":") == 1:
         return as_int(endpoint.rsplit(":", 1)[1])
     return 0
+
+
+_FILTER_KEYS = {"app": "app", "process": "app", "host": "host", "port": "port", "proto": "proto",
+                "protocol": "proto", "iface": "iface", "interface": "iface", "state": "state", "source": "source"}
+_RATE_RE = re.compile(r"^([<>])(\d+(?:\.\d+)?)(bps|kbps|mbps|gbps)$", re.I)
+_RATE_UNITS = {"bps": 1, "kbps": 1e3, "mbps": 1e6, "gbps": 1e9}
+
+
+def _filter_tokens(query: str) -> list[str]:
+    """Whitespace split that keeps double-quoted values together: app:"Google Chrome"."""
+    out, cur, quoted = [], "", False
+    for ch in query:
+        if ch == '"':
+            quoted = not quoted
+        elif ch.isspace() and not quoted:
+            if cur:
+                out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    if cur:
+        out.append(cur)
+    return out
+
+
+def parse_filter(query: str) -> list[dict[str, Any]]:
+    """Parse the shared flow-filter grammar (see docs/API.md). Mirrored by web/lib.js parseFilter."""
+    terms: list[dict[str, Any]] = []
+    for tok in _filter_tokens(str(query or "")):
+        negate = tok[0] in "!-" and len(tok) > 1
+        body = tok[1:] if negate else tok
+        m = _RATE_RE.match(tok)
+        if m:
+            terms.append({"kind": "rate", "op": m.group(1), "bits": float(m.group(2)) * _RATE_UNITS[m.group(3).lower()], "negate": False})
+            continue
+        key, sep, value = body.partition(":")
+        if sep and key.lower() in _FILTER_KEYS and value:
+            terms.append({"kind": _FILTER_KEYS[key.lower()], "value": value.lower(), "negate": negate})
+        else:
+            terms.append({"kind": "text", "value": tok.lower().lstrip("!") if tok.startswith("!") else tok.lower(),
+                          "negate": tok.startswith("!") and len(tok) > 1})
+    return terms
+
+
+def _term_hit(flow: dict[str, Any], t: dict[str, Any]) -> bool:
+    kind, value = t["kind"], t.get("value", "")
+    remote, local = str(flow.get("remote", "")), str(flow.get("local", ""))
+    if kind == "app":
+        return value in str(flow.get("process", "")).lower() or value in str(flow.get("bundle_id", "") or "").lower()
+    if kind == "host":
+        return value in endpoint_host(remote).lower()
+    if kind == "port":
+        ports = {endpoint_port(remote), endpoint_port(local)}
+        lo, _, hi = value.partition("-")
+        try:
+            a, b = int(lo), int(hi or lo)
+        except ValueError:
+            return False
+        return any(a <= p <= b for p in ports if p)
+    if kind in {"proto", "iface", "state", "source"}:
+        field = {"proto": "protocol", "iface": "interface"}.get(kind, kind)
+        return str(flow.get(field, "")).lower() == value
+    return value in json.dumps(flow, sort_keys=True).lower()
+
+
+def match_flow(flow: dict[str, Any], terms: list[dict[str, Any]]) -> bool:
+    """AND across keys, OR across repeated values of the same key, negations always exclude."""
+    includes: dict[str, list[dict[str, Any]]] = {}
+    for t in terms:
+        if t["kind"] == "rate":
+            bps = float(flow.get("total_bps") or 0) * 8
+            if (t["op"] == ">" and not bps > t["bits"]) or (t["op"] == "<" and not bps < t["bits"]):
+                return False
+        elif t["negate"]:
+            if _term_hit(flow, t):
+                return False
+        else:
+            includes.setdefault(t["kind"], []).append(t)
+    return all(any(_term_hit(flow, t) for t in group) for group in includes.values())
+
+
+def filter_flows(flows: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
+    terms = parse_filter(query)
+    return [f for f in flows if match_flow(f, terms)] if terms else list(flows)
+
+
+# ---- exports -----------------------------------------------------------------------------------
+
+EXPORT_COLUMNS = {
+    "flows": ["process", "protocol", "local", "remote", "state", "interface", "rtt_ms", "rx_bps", "tx_bps", "bytes_in", "bytes_out"],
+    "apps": ["name", "pid", "bundle_id", "connections", "rx_bps", "tx_bps", "bytes_in", "bytes_out", "domains"],
+    "timeline": ["ts", "kind", "title", "detail"],
+}
+_PRIVATE_V4 = re.compile(r"\b(?:10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2})\b")
+_MAC = re.compile(r"\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b")
+_LINK_LOCAL_V6 = re.compile(r"\bfe80::[0-9a-fA-F:]*")
+_SENSITIVE_KEYS = {"ssid", "domains", "search", "nameservers"}
+
+
+class Redactor:
+    """Replaces private addresses, MACs, SSIDs and hostnames with stable per-export tokens."""
+
+    def __init__(self, salt: bytes | None = None):
+        self.salt = salt or os.urandom(8)
+
+    def token(self, kind: str, value: str) -> str:
+        digest = hashlib.sha256(self.salt + kind.encode() + value.encode()).hexdigest()[:8]
+        return f"{kind}-{digest}"
+
+    def text(self, value: str) -> str:
+        value = _MAC.sub(lambda m: self.token("mac", m.group(0).lower()), value)
+        value = _LINK_LOCAL_V6.sub(lambda m: self.token("ip6", m.group(0)), value)
+        return _PRIVATE_V4.sub(lambda m: self.token("ip", m.group(0)), value)
+
+    def walk(self, obj: Any, key: str = "") -> Any:
+        if isinstance(obj, dict):
+            out = {k: self.walk(v, str(k)) for k, v in obj.items()}
+            if key == "host" and isinstance(obj.get("name"), str) and obj["name"]:
+                out["name"] = self.token("host", obj["name"])   # this Mac's hostname
+            return out
+        if isinstance(obj, list):
+            return [self.walk(v, key) for v in obj]
+        if isinstance(obj, str):
+            if key in _SENSITIVE_KEYS and obj:
+                return self.token(key.rstrip("s") or "name", obj)
+            return self.text(obj)
+        return obj
+
+
+def export_rows(snapshot: dict[str, Any], timeline: list[dict[str, Any]], kind: str, query: str = "") -> list[dict[str, Any]]:
+    if kind == "flows":
+        return filter_flows(snapshot.get("flows", []), query)
+    if kind == "apps":
+        apps = snapshot.get("apps", [])
+        terms = parse_filter(query)
+        if not terms:
+            return list(apps)
+        return [a for a in apps if match_flow({**a, "process": a.get("name", ""), "remote": (a.get("domains") or [""])[0],
+                                               "interface": (a.get("interfaces") or [""])[0]}, terms)]
+    if kind == "timeline":
+        return list(timeline)
+    raise ValueError(f"unknown export kind: {kind}")
+
+
+def _csv_cell(value: Any) -> str:
+    if isinstance(value, (list, tuple)):
+        value = "; ".join(str(v) for v in value)
+    text = "" if value is None else str(value)
+    return "'" + text if text[:1] in {"=", "+", "-", "@", "\t", "\r"} else text  # spreadsheet formula guard
+
+
+def render_export(rows: list[dict[str, Any]], kind: str, fmt: str) -> tuple[bytes, str]:
+    if fmt == "json":
+        return json.dumps(rows, indent=2).encode(), "application/json"
+    if fmt == "ndjson":
+        return ("\n".join(json.dumps(r, separators=(",", ":")) for r in rows) + ("\n" if rows else "")).encode(), "application/x-ndjson"
+    if fmt == "csv":
+        import io
+        buf = io.StringIO()
+        writer = csv.writer(buf, lineterminator="\n")
+        cols = EXPORT_COLUMNS.get(kind)
+        if cols is None:
+            raise ValueError("csv export is only available for flows, apps and timeline")
+        writer.writerow(cols)
+        for r in rows:
+            writer.writerow([_csv_cell(r.get(c)) for c in cols])
+        return buf.getvalue().encode(), "text/csv; charset=utf-8"
+    raise ValueError(f"unknown export format: {fmt}")
+
+
+def build_bundle(snapshot: dict[str, Any], timeline: list[dict[str, Any]], query: str = "", redactor: Redactor | None = None) -> bytes:
+    """A zip with the snapshot, flows CSV, timeline NDJSON and a README; optionally redacted."""
+    import io
+    import zipfile
+    snap = dict(snapshot)
+    flows, tl = export_rows(snap, timeline, "flows", query), export_rows(snap, timeline, "timeline")
+    if redactor:
+        snap, flows, tl = redactor.walk(snap), redactor.walk(flows), redactor.walk(tl)
+    readme = ("Nivora export bundle\n"
+              f"Generated: {utc_now()}\nFilter: {query or '(none)'}\nRedacted: {'yes' if redactor else 'no'}\n"
+              "Contains metadata only; no packet payloads.\n")
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("README.txt", readme)
+        z.writestr("snapshot.json", json.dumps(snap, indent=2))
+        z.writestr("flows.csv", render_export(flows, "flows", "csv")[0])
+        z.writestr("timeline.ndjson", render_export(tl, "timeline", "ndjson")[0])
+    return out.getvalue()
 
 
 def classify_remote(host: str) -> str:
@@ -1023,13 +1213,25 @@ def apply_rule_preview(flows: list[dict[str, Any]], rules: list[dict[str, Any]])
     return hits
 
 
-def demo_snapshot() -> dict[str, Any]:
+def demo_snapshot(now: float | None = None) -> dict[str, Any]:
+    now = time.time() if now is None else now
     flows = [
         {"id":"f1","process":"Google Chrome","pid":510,"bundle_id":"com.google.Chrome","protocol":"tcp","local":"192.168.1.42:53001","remote":"142.250.183.14:443","state":"ESTABLISHED","bytes_in":734003200,"bytes_out":31457280,"rx_bps":1843200.0,"tx_bps":92160.0,"total_bps":1935360.0,"interface":"en0","rtt_ms":31.2,"source":"demo"},
         {"id":"f2","process":"Slack","pid":602,"bundle_id":"com.tinyspeck.slackmacgap","protocol":"tcp","local":"192.168.1.42:53102","remote":"13.107.6.175:443","state":"ESTABLISHED","bytes_in":98566144,"bytes_out":12582912,"rx_bps":125000.0,"tx_bps":18000.0,"total_bps":143000.0,"interface":"utun4","rtt_ms":181.0,"source":"demo"},
         {"id":"f3","process":"Xcode","pid":711,"bundle_id":"com.apple.dt.Xcode","protocol":"tcp","local":"192.168.1.42:53200","remote":"github.com:443","state":"ESTABLISHED","bytes_in":67108864,"bytes_out":83886080,"rx_bps":245000.0,"tx_bps":530000.0,"total_bps":775000.0,"interface":"en0","rtt_ms":36.0,"source":"demo"},
         {"id":"f4","process":"fluxvm-vz-runner","pid":889,"bundle_id":"dev.zyvor.fluxvm","protocol":"tcp","local":"10.0.2.15:40544","remote":"github.com:443","state":"ESTABLISHED","bytes_in":52428800,"bytes_out":10485760,"rx_bps":92000.0,"tx_bps":22000.0,"total_bps":114000.0,"interface":"vmnet8","rtt_ms":42.0,"source":"demo"},
     ]
+    # Make the demo breathe: rates oscillate per flow and byte counters advance with the same rates,
+    # so charts, sparklines and the diff view have real shape instead of flat blocks.
+    import math
+    for i, f in enumerate(flows):
+        scale = 1.0 + 0.55 * math.sin(now / 9.0 + i * 1.7) + 0.2 * math.sin(now / 3.1 + i)
+        scale = max(0.05, scale)
+        for k in ("rx_bps", "tx_bps"):
+            f[k] = round(f[k] * scale, 2)
+        f["total_bps"] = round(f["rx_bps"] + f["tx_bps"], 2)
+        f["bytes_in"] += int(f["rx_bps"] * (now % 3600))
+        f["bytes_out"] += int(f["tx_bps"] * (now % 3600))
     snap = {
         "version": VERSION,
         "timestamp": utc_now(),
@@ -1078,6 +1280,10 @@ class MacCollector:
     def collect(self, previous: dict[str, Any] | None = None) -> dict[str, Any]:
         if self.demo:
             snap = demo_snapshot()
+            prev = {f.get("id"): f for f in (previous or {}).get("flows", [])}
+            for f in snap["flows"]:
+                f["first_seen"] = (prev.get(f["id"]) or {}).get("first_seen") or snap["timestamp"]
+                f["last_seen"] = snap["timestamp"]
             snap["findings"] = derive_findings(snap, previous)
             snap["health"] = compute_health(snap)
             return snap

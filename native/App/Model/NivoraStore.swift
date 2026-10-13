@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -10,14 +11,14 @@ enum PaneSection: String, CaseIterable, Identifiable {
 enum Pane: String, CaseIterable, Identifiable {
     case overview = "Overview", health = "Health", applications = "Applications", flows = "Flows"
     case interfaces = "Interfaces", local = "Local Network"
-    case fluxvm = "FluxVM", security = "Security", investigator = "Investigator"
+    case fluxvm = "FluxVM", security = "Security", capture = "Capture", investigator = "Investigator"
     case alerts = "Alerts", settings = "Settings"
     var id: Self { self }
     var section: PaneSection {
         switch self {
         case .overview, .health, .applications, .flows: return .monitor
         case .interfaces, .local: return .network
-        case .fluxvm, .security, .investigator: return .zyvor
+        case .fluxvm, .security, .capture, .investigator: return .zyvor
         case .alerts, .settings: return .system
         }
     }
@@ -31,6 +32,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .local: return "macwindow.on.rectangle"
         case .fluxvm: return "shippingbox"
         case .security: return "lock.shield"
+        case .capture: return "record.circle"
         case .investigator: return "sparkles"
         case .alerts: return "bell.badge"
         case .settings: return "gearshape"
@@ -46,6 +48,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .local: return "Neighbors, listeners and exposure"
         case .fluxvm: return "VMs and sandboxes beside host traffic"
         case .security: return "Observe-first findings and rules"
+        case .capture: return "Opt-in, headers-only packet capture"
         case .investigator: return "Ask the local telemetry"
         case .alerts: return "Findings and threshold checks"
         case .settings: return "Appearance, alerts and data"
@@ -63,6 +66,8 @@ final class NivoraStore: ObservableObject {
     @Published var paused = false
     @Published var search = ""
     @Published var selectedApp: String?
+    @Published var selectedFlow: String?
+    @Published var exportError: String?
     @Published var investigatorAnswer = "Ask what is happening on this Mac."
     @Published var thresholdMbps: Double = UserDefaults.standard.double(forKey: "nivora.thresholdMbps") {
         didSet { UserDefaults.standard.set(thresholdMbps, forKey: "nivora.thresholdMbps") }
@@ -94,15 +99,34 @@ final class NivoraStore: ObservableObject {
 
     var apps: [NivoraSnapshot.AppItem] {
         guard let s = snapshot else { return [] }
-        let q = search.trimmingCharacters(in: .whitespaces)
-        return q.isEmpty ? s.apps : s.apps.filter { $0.name.localizedCaseInsensitiveContains(q) || $0.domains.joined().localizedCaseInsensitiveContains(q) }
+        let terms = FlowFilter.parse(search)
+        return terms.isEmpty ? s.apps : s.apps.filter { FlowFilter.matches($0.filterSubject, terms) }
     }
     var flows: [NivoraSnapshot.Flow] {
         guard let s = snapshot else { return [] }
+        let terms = FlowFilter.parse(search)
+        return terms.isEmpty ? s.flows : s.flows.filter { FlowFilter.matches($0.filterSubject, terms) }
+    }
+
+    // MARK: saved views
+
+    @Published private(set) var savedViews: [SavedView] = {
+        guard let data = UserDefaults.standard.data(forKey: "nivora.savedViews"),
+              let v = try? JSONDecoder().decode([SavedView].self, from: data) else { return [] }
+        return SavedView.sanitized(v)
+    }()
+
+    func saveCurrentView() {
         let q = search.trimmingCharacters(in: .whitespaces)
-        return q.isEmpty ? s.flows : s.flows.filter {
-            $0.process.localizedCaseInsensitiveContains(q) || $0.remote.localizedCaseInsensitiveContains(q) || $0.local.localizedCaseInsensitiveContains(q)
-        }
+        guard !q.isEmpty else { return }
+        let name = q.count > 28 ? String(q.prefix(27)) + "…" : q
+        setViews(savedViews + [SavedView(name: name, query: q)])
+    }
+    func deleteView(_ v: SavedView) { setViews(savedViews.filter { $0 != v }) }
+    func apply(_ v: SavedView) { search = v.query }
+    private func setViews(_ views: [SavedView]) {
+        savedViews = SavedView.sanitized(views)
+        if let data = try? JSONEncoder().encode(savedViews) { UserDefaults.standard.set(data, forKey: "nivora.savedViews") }
     }
 
     // MARK: lifecycle
@@ -174,5 +198,75 @@ final class NivoraStore: ObservableObject {
     }
 
     /// The latest sample as JSON for Export.
+    // MARK: packet capture (collector /v1/captures; helper is a separate privileged daemon)
+
+    struct CaptureInfo: Decodable {
+        let available: Bool
+        let demo: Bool
+        let sessions: [CaptureSession]
+    }
+    @Published private(set) var captures: CaptureInfo?
+    @Published var captureError: String?
+
+    func refreshCaptures() async {
+        guard let data = try? await request("v1/captures"), let info = try? JSONDecoder().decode(CaptureInfo.self, from: data) else { return }
+        captures = info
+    }
+
+    func startCapture(_ r: CaptureRequest) async {
+        // Validate locally first so errors are immediate; the helper re-validates as the authority.
+        let ifaces = Set(snapshot?.interfaces.map(\.name) ?? [])
+        do { _ = try CaptureValidator.plan(for: r, knownInterfaces: ifaces) }
+        catch { captureError = "\(error)"; return }
+        var body: [String: Any] = ["iface": r.iface ?? "", "confirm": true]
+        if let v = r.host, !v.isEmpty { body["host"] = v }
+        if let v = r.port { body["port"] = v }
+        if let v = r.proto { body["proto"] = v }
+        if let v = r.snaplen { body["snaplen"] = v }
+        if let v = r.seconds { body["seconds"] = v }
+        if let v = r.maxMB { body["max_mb"] = v }
+        do { _ = try await request("v1/captures", method: "POST", body: body) }
+        catch { captureError = "The collector refused the capture. The helper may not be installed or approved." }
+        await refreshCaptures()
+    }
+
+    func stopCapture(_ id: String) async {
+        _ = try? await request("v1/captures/\(id)/stop", method: "POST", body: [:])
+        await refreshCaptures()
+    }
+
+    func deleteCapture(_ id: String) async {
+        _ = try? await request("v1/captures/\(id)", method: "DELETE")
+        await refreshCaptures()
+    }
+
+    func downloadCapture(_ id: String) async {
+        guard let data = try? await request("v1/captures/\(id)/pcap") else { captureError = "Could not fetch the capture."; return }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "nivora-\(id).pcap"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do { try data.write(to: url, options: .atomic) } catch { captureError = error.localizedDescription }
+    }
+
     func exportSnapshotData() async -> Data? { try? await request("v1/snapshot") }
+
+    /// Server-side export (`/v1/export`): honours the current filter and optional redaction, then asks where to save.
+    func export(kind: String, format: String, redact: Bool, filtered: Bool = true) async {
+        var items = [URLQueryItem(name: "kind", value: kind), URLQueryItem(name: "format", value: format)]
+        let q = search.trimmingCharacters(in: .whitespaces)
+        if filtered, !q.isEmpty, kind != "timeline" { items.append(URLQueryItem(name: "filter", value: q)) }
+        if redact { items.append(URLQueryItem(name: "redact", value: "1")) }
+        var comps = URLComponents(); comps.queryItems = items
+        guard let data = try? await request("v1/export?" + (comps.percentEncodedQuery ?? "")) else {
+            exportError = "Export failed. The collector did not return data."
+            return
+        }
+        let stamp = Int(Date().timeIntervalSince1970)
+        let ext = format == "zip" ? "zip" : format
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "nivora-\(kind)-\(stamp).\(ext)"
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do { try data.write(to: url, options: .atomic) } catch { exportError = error.localizedDescription }
+    }
 }
