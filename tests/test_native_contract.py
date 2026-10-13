@@ -138,6 +138,48 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn(owner, (ROOT / "web" / "index.html").read_text())
         self.assertIn("BUSL-1.1", (ROOT / "scripts" / "build-brand.sh").read_text())
 
+    def test_static_demo_data_tracks_collector_and_assets_are_relative(self):
+        """web/demo-snapshot.json must carry the collector's top-level keys; the page must work under a sub-path."""
+        import json, subprocess, sys, tempfile
+        demo = json.loads((ROOT / "web" / "demo-snapshot.json").read_text())
+        with tempfile.TemporaryDirectory() as d:
+            out = subprocess.run([sys.executable, str(ROOT / "agent" / "nivora.py"), "--demo", "--once", "--no-history",
+                                  "--rules", f"{d}/r.json"], capture_output=True, text=True, check=True).stdout
+        self.assertEqual(set(json.loads(out)), set(demo),
+                         "regenerate web/demo-snapshot.json from `nivora.py --demo --once --no-history`")
+        html = (ROOT / "web" / "index.html").read_text()
+        for needle in ('href="styles.css"', 'src="demo.js"', 'src="app.js"'):
+            self.assertIn(needle, html)
+        self.assertIn("from './lib.js'", (ROOT / "web" / "app.js").read_text())
+        self.assertLess(html.index('src="demo.js"'), html.index('src="app.js"'))
+
+    def test_pages_workflow_and_site_basics(self):
+        wf = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+        for needle in ("actions/deploy-pages", "actions/upload-pages-artifact", "./scripts/build-site.sh", "scripts/site-check.mjs", "pages: write"):
+            self.assertIn(needle, wf)
+        site = (ROOT / "site" / "index.html").read_text()
+        self.assertIn("© 2026 Zyvor AI Labs Private Limited", site)
+        self.assertIn("BUSL-1.1", site)
+        self.assertIn("Zyvor Nivora", site)
+        for rel in ("site/site.css", "site/site.js", "site/theme.js", "site/404.html", "site/robots.txt", "site/sitemap.xml"):
+            self.assertTrue((ROOT / rel).is_file(), rel)
+        # honest claims: unsigned builds, no notarisation claim
+        self.assertNotIn("notarized", site.lower())
+        self.assertIn("unsigned", site.lower())
+
+    def test_readme_images_exist_and_legal_matches_vytrix(self):
+        readme = (ROOT / "README.md").read_text()
+        refs = re.findall(r"!\[[^\]]*\]\(([^)#]+)\)|<img[^>]+src=\"([^\"]+)\"", readme)
+        local = [a or b for a, b in refs if not (a or b).startswith("http")]
+        self.assertTrue(local, "README should show screenshots")
+        for rel in local:
+            self.assertTrue((ROOT / rel).is_file(), f"README references missing image {rel}")
+        self.assertIn("Business Source License 1.1", readme)
+        self.assertIn("Copyright © 2026 Zyvor AI Labs Private Limited", readme)
+        self.assertIn("commercial license from Zyvor AI Labs Private Limited", readme)
+        self.assertIn("unsigned", readme.lower())      # honest about signing
+        self.assertIn("https://zyvorai.github.io/zyvor-nivora/demo/", readme)
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

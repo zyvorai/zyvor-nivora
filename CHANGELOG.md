@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Static in-browser demo (`web/demo.js`, `?demo` or `data-demo`): the real dashboard runs on simulated telemetry with no collector; the demo Mac now has 8 apps.
+- GitHub Pages site (`site/`, `scripts/build-site.sh`, `scripts/site-check.mjs`, `.github/workflows/pages.yml`): landing page with a light/dark pane gallery, plus the dashboard under `/demo/`.
+- README rewritten to the Zyvor product standard (hero, why table, screenshots, tiers, maturity, licence); `scripts/shots-native.sh` and `scripts/build-hero.py` regenerate the images from the real app.
+- The dashboard loads assets by relative path so it works under a sub-path.
 - Brand: app icon (an N drawn as a network path) with `scripts/build-brand.sh` deriving the icns, favicon, apple-touch icon and share image from one master SVG; the real icon replaces the letter badge in the dashboard.
 - Native: first-run welcome sheet (once; `--welcome` forces it), per-app sparklines and a "What changed" panel on the Overview, Help menu links and a ⌘/ shortcuts sheet, About section in Settings.
 - Legal: Zyvor name, `© 2026 Zyvor AI Labs Private Limited` and BUSL-1.1 shown in the app (bundle copyright, welcome, Settings), the dashboard footer and the share image, matching Zyvor Vytrix.

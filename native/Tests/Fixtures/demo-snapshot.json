@@ -1,6 +1,6 @@
 {
   "version": "0.3.0",
-  "timestamp": "2026-10-13T06:13:41+00:00",
+  "timestamp": "2026-10-13T06:26:43+00:00",
   "host": {
     "name": "zyvor-mac-studio",
     "os": "macOS",
@@ -154,16 +154,16 @@
       "local": "192.168.1.42:53001",
       "remote": "142.250.183.14:443",
       "state": "ESTABLISHED",
-      "bytes_in": 2444690431,
-      "bytes_out": 116991644,
-      "rx_bps": 2082558.13,
-      "tx_bps": 104127.91,
-      "total_bps": 2186686.04,
+      "bytes_in": 4823819445,
+      "bytes_out": 235948091,
+      "rx_bps": 2550831.21,
+      "tx_bps": 127541.56,
+      "total_bps": 2678372.77,
       "interface": "en0",
       "rtt_ms": 31.2,
       "source": "demo",
-      "first_seen": "2026-10-13T06:13:41+00:00",
-      "last_seen": "2026-10-13T06:13:41+00:00"
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
     },
     {
       "id": "f2",
@@ -174,16 +174,16 @@
       "local": "192.168.1.42:53102",
       "remote": "13.107.6.175:443",
       "state": "ESTABLISHED",
-      "bytes_in": 136584159,
-      "bytes_out": 18057508,
-      "rx_bps": 46282.41,
-      "tx_bps": 6664.67,
-      "total_bps": 52947.08,
+      "bytes_in": 303615907,
+      "bytes_out": 42110084,
+      "rx_bps": 127890.18,
+      "tx_bps": 18416.19,
+      "total_bps": 146306.37,
       "interface": "utun4",
       "rtt_ms": 181.0,
       "source": "demo",
-      "first_seen": "2026-10-13T06:13:41+00:00",
-      "last_seen": "2026-10-13T06:13:41+00:00"
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
     },
     {
       "id": "f3",
@@ -194,16 +194,16 @@
       "local": "192.168.1.42:53200",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 235313123,
-      "bytes_out": 447756512,
-      "rx_bps": 204768.67,
-      "tx_bps": 442968.95,
-      "total_bps": 647737.62,
+      "bytes_in": 314182690,
+      "bytes_out": 618372315,
+      "rx_bps": 154100.72,
+      "tx_bps": 333360.74,
+      "total_bps": 487461.46,
       "interface": "en0",
       "rtt_ms": 36.0,
       "source": "demo",
-      "first_seen": "2026-10-13T06:13:41+00:00",
-      "last_seen": "2026-10-13T06:13:41+00:00"
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
     },
     {
       "id": "f4",
@@ -214,16 +214,96 @@
       "local": "10.0.2.15:40544",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 182309248,
-      "bytes_out": 41544130,
-      "rx_bps": 158113.99,
-      "tx_bps": 37809.87,
-      "total_bps": 195923.86,
+      "bytes_in": 245269485,
+      "bytes_out": 56599830,
+      "rx_bps": 120275.34,
+      "tx_bps": 28761.49,
+      "total_bps": 149036.83,
       "interface": "vmnet8",
       "rtt_ms": 42.0,
       "source": "demo",
-      "first_seen": "2026-10-13T06:13:41+00:00",
-      "last_seen": "2026-10-13T06:13:41+00:00"
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
+    },
+    {
+      "id": "f5",
+      "process": "Safari",
+      "pid": 420,
+      "bundle_id": "com.apple.Safari",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53310",
+      "remote": "17.253.144.10:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 1776642151,
+      "bytes_out": 111210883,
+      "rx_bps": 977119.62,
+      "tx_bps": 64123.47,
+      "total_bps": 1041243.09,
+      "interface": "en0",
+      "rtt_ms": 24.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
+    },
+    {
+      "id": "f6",
+      "process": "Mail",
+      "pid": 455,
+      "bundle_id": "com.apple.mail",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53311",
+      "remote": "17.57.144.52:993",
+      "state": "ESTABLISHED",
+      "bytes_in": 37625701,
+      "bytes_out": 6740456,
+      "rx_bps": 17853.94,
+      "tx_bps": 3455.6,
+      "total_bps": 21309.54,
+      "interface": "en0",
+      "rtt_ms": 48.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
+    },
+    {
+      "id": "f7",
+      "process": "Dropbox",
+      "pid": 690,
+      "bundle_id": "com.getdropbox.dropbox",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53390",
+      "remote": "162.125.1.18:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 105927667,
+      "bytes_out": 360685539,
+      "rx_bps": 40495.59,
+      "tx_bps": 125168.2,
+      "total_bps": 165663.79,
+      "interface": "en0",
+      "rtt_ms": 55.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
+    },
+    {
+      "id": "f8",
+      "process": "mDNSResponder",
+      "pid": 118,
+      "bundle_id": "",
+      "protocol": "udp",
+      "local": "192.168.1.42:5353",
+      "remote": "224.0.0.251:5353",
+      "state": "",
+      "bytes_in": 2790854,
+      "bytes_out": 2068144,
+      "rx_bps": 1603.45,
+      "tx_bps": 1202.59,
+      "total_bps": 2806.04,
+      "interface": "en0",
+      "rtt_ms": 0.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:26:43+00:00",
+      "last_seen": "2026-10-13T06:26:43+00:00"
     }
   ],
   "fluxvm": {
@@ -273,16 +353,16 @@
         "local": "10.0.2.15:40544",
         "remote": "github.com:443",
         "state": "ESTABLISHED",
-        "bytes_in": 182309248,
-        "bytes_out": 41544130,
-        "rx_bps": 158113.99,
-        "tx_bps": 37809.87,
-        "total_bps": 195923.86,
+        "bytes_in": 245269485,
+        "bytes_out": 56599830,
+        "rx_bps": 120275.34,
+        "tx_bps": 28761.49,
+        "total_bps": 149036.83,
         "interface": "vmnet8",
         "rtt_ms": 42.0,
         "source": "demo",
-        "first_seen": "2026-10-13T06:13:41+00:00",
-        "last_seen": "2026-10-13T06:13:41+00:00"
+        "first_seen": "2026-10-13T06:26:43+00:00",
+        "last_seen": "2026-10-13T06:26:43+00:00"
       }
     ],
     "host_flow_count": 1,
@@ -304,10 +384,10 @@
       "pid": 510,
       "bundle_id": "com.google.Chrome",
       "connections": 1,
-      "bytes_in": 2444690431,
-      "bytes_out": 116991644,
-      "rx_bps": 2082558.13,
-      "tx_bps": 104127.91,
+      "bytes_in": 4823819445,
+      "bytes_out": 235948091,
+      "rx_bps": 2550831.21,
+      "tx_bps": 127541.56,
       "domains": [
         "142.250.183.14"
       ],
@@ -315,18 +395,37 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 2561682075,
-      "total_bps": 2186686.04
+      "total_bytes": 5059767536,
+      "total_bps": 2678372.77
+    },
+    {
+      "name": "Safari",
+      "pid": 420,
+      "bundle_id": "com.apple.Safari",
+      "connections": 1,
+      "bytes_in": 1776642151,
+      "bytes_out": 111210883,
+      "rx_bps": 977119.62,
+      "tx_bps": 64123.47,
+      "domains": [
+        "17.253.144.10"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 1887853034,
+      "total_bps": 1041243.09
     },
     {
       "name": "Xcode",
       "pid": 711,
       "bundle_id": "com.apple.dt.Xcode",
       "connections": 1,
-      "bytes_in": 235313123,
-      "bytes_out": 447756512,
-      "rx_bps": 204768.67,
-      "tx_bps": 442968.95,
+      "bytes_in": 314182690,
+      "bytes_out": 618372315,
+      "rx_bps": 154100.72,
+      "tx_bps": 333360.74,
       "domains": [
         "github.com"
       ],
@@ -334,37 +433,37 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 683069635,
-      "total_bps": 647737.62
+      "total_bytes": 932555005,
+      "total_bps": 487461.46
     },
     {
-      "name": "fluxvm-vz-runner",
-      "pid": 889,
-      "bundle_id": "dev.zyvor.fluxvm",
+      "name": "Dropbox",
+      "pid": 690,
+      "bundle_id": "com.getdropbox.dropbox",
       "connections": 1,
-      "bytes_in": 182309248,
-      "bytes_out": 41544130,
-      "rx_bps": 158113.99,
-      "tx_bps": 37809.87,
+      "bytes_in": 105927667,
+      "bytes_out": 360685539,
+      "rx_bps": 40495.59,
+      "tx_bps": 125168.2,
       "domains": [
-        "github.com"
+        "162.125.1.18"
       ],
       "interfaces": [
-        "vmnet8"
+        "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 223853378,
-      "total_bps": 195923.86
+      "total_bytes": 466613206,
+      "total_bps": 165663.79
     },
     {
       "name": "Slack",
       "pid": 602,
       "bundle_id": "com.tinyspeck.slackmacgap",
       "connections": 1,
-      "bytes_in": 136584159,
-      "bytes_out": 18057508,
-      "rx_bps": 46282.41,
-      "tx_bps": 6664.67,
+      "bytes_in": 303615907,
+      "bytes_out": 42110084,
+      "rx_bps": 127890.18,
+      "tx_bps": 18416.19,
       "domains": [
         "13.107.6.175"
       ],
@@ -372,16 +471,73 @@
         "utun4"
       ],
       "internet_connections": 1,
-      "total_bytes": 154641667,
-      "total_bps": 52947.08
+      "total_bytes": 345725991,
+      "total_bps": 146306.37
+    },
+    {
+      "name": "fluxvm-vz-runner",
+      "pid": 889,
+      "bundle_id": "dev.zyvor.fluxvm",
+      "connections": 1,
+      "bytes_in": 245269485,
+      "bytes_out": 56599830,
+      "rx_bps": 120275.34,
+      "tx_bps": 28761.49,
+      "domains": [
+        "github.com"
+      ],
+      "interfaces": [
+        "vmnet8"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 301869315,
+      "total_bps": 149036.83
+    },
+    {
+      "name": "Mail",
+      "pid": 455,
+      "bundle_id": "com.apple.mail",
+      "connections": 1,
+      "bytes_in": 37625701,
+      "bytes_out": 6740456,
+      "rx_bps": 17853.94,
+      "tx_bps": 3455.6,
+      "domains": [
+        "17.57.144.52"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 44366157,
+      "total_bps": 21309.54
+    },
+    {
+      "name": "mDNSResponder",
+      "pid": 118,
+      "bundle_id": "",
+      "connections": 1,
+      "bytes_in": 2790854,
+      "bytes_out": 2068144,
+      "rx_bps": 1603.45,
+      "tx_bps": 1202.59,
+      "domains": [
+        "224.0.0.251"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 4858998,
+      "total_bps": 2806.04
     }
   ],
   "traffic": {
-    "rx_bps": 2491723.2,
-    "tx_bps": 591571.4,
-    "total_bps": 3083294.6,
-    "active_flows": 4,
-    "internet_flows": 4,
+    "rx_bps": 3990170.05,
+    "tx_bps": 702029.84,
+    "total_bps": 4692199.89,
+    "active_flows": 8,
+    "internet_flows": 8,
     "vpn_flows": 1,
     "top_interface": "en0"
   },
@@ -403,7 +559,7 @@
   "health": {
     "score": 98,
     "status": "healthy",
-    "median_rtt_ms": 39.0,
+    "median_rtt_ms": 42.0,
     "components": [
       {
         "name": "Route",
@@ -418,7 +574,7 @@
       {
         "name": "Latency",
         "score": 100,
-        "detail": "Median RTT 39.0 ms"
+        "detail": "Median RTT 42.0 ms"
       },
       {
         "name": "Interfaces",
@@ -492,6 +648,50 @@
         "id": "if:vmnet8",
         "kind": "interface",
         "label": "vmnet8"
+      },
+      {
+        "id": "app:9988d0d84818faeb",
+        "kind": "app",
+        "label": "Safari",
+        "bundle_id": "com.apple.Safari"
+      },
+      {
+        "id": "dst:3a0c99df59f50901",
+        "kind": "internet",
+        "label": "17.253.144.10"
+      },
+      {
+        "id": "app:6b224393d033f023",
+        "kind": "app",
+        "label": "Mail",
+        "bundle_id": "com.apple.mail"
+      },
+      {
+        "id": "dst:34fd04f78125cfa7",
+        "kind": "internet",
+        "label": "17.57.144.52"
+      },
+      {
+        "id": "app:4f423af333043688",
+        "kind": "app",
+        "label": "Dropbox",
+        "bundle_id": "com.getdropbox.dropbox"
+      },
+      {
+        "id": "dst:8e1125068885d850",
+        "kind": "internet",
+        "label": "162.125.1.18"
+      },
+      {
+        "id": "app:7682f4f8b37ea610",
+        "kind": "app",
+        "label": "mDNSResponder",
+        "bundle_id": ""
+      },
+      {
+        "id": "dst:35b5e20b23f0d24c",
+        "kind": "internet",
+        "label": "224.0.0.251"
       }
     ],
     "edges": [
@@ -499,64 +699,128 @@
         "source": "app:f437b770fa7a4018",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 2561682075,
-        "bps": 2186686.04,
+        "bytes": 5059767536,
+        "bps": 2678372.77,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:bfb57b8f124403e8",
         "kind": "reaches",
-        "bytes": 2561682075,
-        "bps": 2186686.04,
+        "bytes": 5059767536,
+        "bps": 2678372.77,
         "flows": 1
       },
       {
         "source": "app:638dc1bc546b9725",
         "target": "if:utun4",
         "kind": "uses",
-        "bytes": 154641667,
-        "bps": 52947.08,
+        "bytes": 345725991,
+        "bps": 146306.37,
         "flows": 1
       },
       {
         "source": "if:utun4",
         "target": "dst:2131f530233c50a6",
         "kind": "reaches",
-        "bytes": 154641667,
-        "bps": 52947.08,
+        "bytes": 345725991,
+        "bps": 146306.37,
         "flows": 1
       },
       {
         "source": "app:c9b0fcb81024d804",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 683069635,
-        "bps": 647737.62,
+        "bytes": 932555005,
+        "bps": 487461.46,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 683069635,
-        "bps": 647737.62,
+        "bytes": 932555005,
+        "bps": 487461.46,
         "flows": 1
       },
       {
         "source": "app:626e006293c58cfb",
         "target": "if:vmnet8",
         "kind": "uses",
-        "bytes": 223853378,
-        "bps": 195923.86,
+        "bytes": 301869315,
+        "bps": 149036.83,
         "flows": 1
       },
       {
         "source": "if:vmnet8",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 223853378,
-        "bps": 195923.86,
+        "bytes": 301869315,
+        "bps": 149036.83,
+        "flows": 1
+      },
+      {
+        "source": "app:9988d0d84818faeb",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 1887853034,
+        "bps": 1041243.09,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:3a0c99df59f50901",
+        "kind": "reaches",
+        "bytes": 1887853034,
+        "bps": 1041243.09,
+        "flows": 1
+      },
+      {
+        "source": "app:6b224393d033f023",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 44366157,
+        "bps": 21309.54,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:34fd04f78125cfa7",
+        "kind": "reaches",
+        "bytes": 44366157,
+        "bps": 21309.54,
+        "flows": 1
+      },
+      {
+        "source": "app:4f423af333043688",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 466613206,
+        "bps": 165663.79,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:8e1125068885d850",
+        "kind": "reaches",
+        "bytes": 466613206,
+        "bps": 165663.79,
+        "flows": 1
+      },
+      {
+        "source": "app:7682f4f8b37ea610",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 4858998,
+        "bps": 2806.04,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:35b5e20b23f0d24c",
+        "kind": "reaches",
+        "bytes": 4858998,
+        "bps": 2806.04,
         "flows": 1
       }
     ]
@@ -567,7 +831,7 @@
   },
   "recent_events": [
     {
-      "ts": "2026-10-13T06:13:41+00:00",
+      "ts": "2026-10-13T06:26:43+00:00",
       "kind": "startup",
       "title": "Nivora started observing",
       "detail": "Initial network snapshot captured."
@@ -580,7 +844,7 @@
     "health": {
       "score": 98,
       "status": "healthy",
-      "median_rtt_ms": 39.0,
+      "median_rtt_ms": 42.0,
       "components": [
         {
           "name": "Route",
@@ -595,7 +859,7 @@
         {
           "name": "Latency",
           "score": 100,
-          "detail": "Median RTT 39.0 ms"
+          "detail": "Median RTT 42.0 ms"
         },
         {
           "name": "Interfaces",
@@ -619,12 +883,12 @@
       {
         "severity": "warning",
         "title": "VPN path is materially slower",
-        "detail": "VPN median RTT 181.0 ms vs direct 36.0 ms."
+        "detail": "VPN median RTT 181.0 ms vs direct 39.0 ms."
       }
     ],
     "recent_events": [
       {
-        "ts": "2026-10-13T06:13:41+00:00",
+        "ts": "2026-10-13T06:26:43+00:00",
         "kind": "startup",
         "title": "Nivora started observing",
         "detail": "Initial network snapshot captured."
