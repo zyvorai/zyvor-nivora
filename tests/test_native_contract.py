@@ -91,9 +91,9 @@ class NativeContractTests(unittest.TestCase):
         installer = (ROOT / "scripts" / "install-macos.sh").read_text()
         for mod in needed:
             self.assertIn(f"../agent/{mod}.py", project, f"{mod}.py missing from the app bundle resources")
+            self.assertIn(f"agent/{mod}.py", installer, f"{mod}.py missing from install-macos.sh")
         self.assertNotRegex(project, r"(?m)^    resources:", "xcodegen ignores a top-level resources: key; use sources with buildPhase: resources")
         self.assertRegex(project, r"(?s)path: \.\./web\s+type: folder\s+buildPhase: resources")
-            self.assertIn(f"agent/{mod}.py", installer, f"{mod}.py missing from install-macos.sh")
 
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
