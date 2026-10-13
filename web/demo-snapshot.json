@@ -1,0 +1,640 @@
+{
+  "version": "0.3.0",
+  "timestamp": "2026-10-13T06:23:30+00:00",
+  "host": {
+    "name": "zyvor-mac-studio",
+    "os": "macOS",
+    "release": "27.2",
+    "arch": "arm64",
+    "demo": true
+  },
+  "interfaces": [
+    {
+      "name": "en0",
+      "flags": [
+        "UP",
+        "RUNNING"
+      ],
+      "ipv4": [
+        "192.168.1.42"
+      ],
+      "ipv6": [
+        "fe80::1"
+      ],
+      "mac": "00:11:22:33:44:55",
+      "mtu": 1500,
+      "status": "active",
+      "kind": "wifi",
+      "hardware_port": "Wi-Fi"
+    },
+    {
+      "name": "utun4",
+      "flags": [
+        "UP",
+        "RUNNING"
+      ],
+      "ipv4": [],
+      "ipv6": [
+        "fe80::4"
+      ],
+      "mac": "",
+      "mtu": 1380,
+      "status": "active",
+      "kind": "vpn"
+    },
+    {
+      "name": "vmnet8",
+      "flags": [
+        "UP",
+        "RUNNING"
+      ],
+      "ipv4": [
+        "10.0.2.1"
+      ],
+      "ipv6": [],
+      "mac": "",
+      "mtu": 1500,
+      "status": "active",
+      "kind": "virtual"
+    }
+  ],
+  "wifi": {
+    "interface": "en0",
+    "ssid": "Zyvor Lab"
+  },
+  "routes": [
+    {
+      "family": "ipv4",
+      "destination": "default",
+      "gateway": "192.168.1.1",
+      "flags": "UGSc",
+      "interface": "en0",
+      "default": true
+    },
+    {
+      "family": "ipv6",
+      "destination": "default",
+      "gateway": "fe80::1%en0",
+      "flags": "UGcg",
+      "interface": "en0",
+      "default": true
+    }
+  ],
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "2606:4700:4700::1111"
+    ],
+    "resolvers": [
+      {
+        "index": 1,
+        "nameservers": [
+          "1.1.1.1"
+        ],
+        "interface": "en0",
+        "search": []
+      }
+    ]
+  },
+  "vpn": [
+    {
+      "name": "Zyvor WireGuard",
+      "service_id": "demo-vpn",
+      "status": "Connected",
+      "active": true
+    }
+  ],
+  "neighbors": [
+    {
+      "id": "n1",
+      "family": "ipv4",
+      "ip": "192.168.1.1",
+      "mac": "aa:bb:cc:dd:ee:01",
+      "interface": "en0",
+      "state": "reachable"
+    },
+    {
+      "id": "n2",
+      "family": "ipv4",
+      "ip": "192.168.1.20",
+      "mac": "aa:bb:cc:dd:ee:20",
+      "interface": "en0",
+      "state": "reachable"
+    }
+  ],
+  "listeners": [
+    {
+      "id": "l1",
+      "process": "nivora",
+      "pid": 990,
+      "protocol": "tcp",
+      "address": "127.0.0.1",
+      "port": 9857,
+      "state": "LISTEN",
+      "exposure": "loopback"
+    },
+    {
+      "id": "l2",
+      "process": "AirPlayXPCHelper",
+      "pid": 400,
+      "protocol": "tcp",
+      "address": "*",
+      "port": 7000,
+      "state": "LISTEN",
+      "exposure": "all"
+    }
+  ],
+  "flows": [
+    {
+      "id": "f1",
+      "process": "Google Chrome",
+      "pid": 510,
+      "bundle_id": "com.google.Chrome",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53001",
+      "remote": "142.250.183.14:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 1872653155,
+      "bytes_out": 88389783,
+      "rx_bps": 807272.32,
+      "tx_bps": 40363.62,
+      "total_bps": 847635.94,
+      "interface": "en0",
+      "rtt_ms": 31.2,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:23:30+00:00",
+      "last_seen": "2026-10-13T06:23:30+00:00"
+    },
+    {
+      "id": "f2",
+      "process": "Slack",
+      "pid": 602,
+      "bundle_id": "com.tinyspeck.slackmacgap",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53102",
+      "remote": "13.107.6.175:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 348073665,
+      "bytes_out": 48511998,
+      "rx_bps": 176894.15,
+      "tx_bps": 25472.76,
+      "total_bps": 202366.91,
+      "interface": "utun4",
+      "rtt_ms": 181.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:23:30+00:00",
+      "last_seen": "2026-10-13T06:23:30+00:00"
+    },
+    {
+      "id": "f3",
+      "process": "Xcode",
+      "pid": 711,
+      "bundle_id": "com.apple.dt.Xcode",
+      "protocol": "tcp",
+      "local": "192.168.1.42:53200",
+      "remote": "github.com:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 629309425,
+      "bytes_out": 1300075057,
+      "rx_bps": 398585.14,
+      "tx_bps": 862245.41,
+      "total_bps": 1260830.55,
+      "interface": "en0",
+      "rtt_ms": 36.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:23:30+00:00",
+      "last_seen": "2026-10-13T06:23:30+00:00"
+    },
+    {
+      "id": "f4",
+      "process": "fluxvm-vz-runner",
+      "pid": 889,
+      "bundle_id": "dev.zyvor.fluxvm",
+      "protocol": "tcp",
+      "local": "10.0.2.15:40544",
+      "remote": "github.com:443",
+      "state": "ESTABLISHED",
+      "bytes_in": 141815505,
+      "bytes_out": 31860841,
+      "rx_bps": 63372.78,
+      "tx_bps": 15154.36,
+      "total_bps": 78527.14,
+      "interface": "vmnet8",
+      "rtt_ms": 42.0,
+      "source": "demo",
+      "first_seen": "2026-10-13T06:23:30+00:00",
+      "last_seen": "2026-10-13T06:23:30+00:00"
+    }
+  ],
+  "fluxvm": {
+    "connected": true,
+    "base_url": "http://127.0.0.1:7788",
+    "health": {
+      "status": "ok"
+    },
+    "vms": [
+      {
+        "id": "macos-build-07",
+        "backend": "vz",
+        "state": "running"
+      }
+    ],
+    "sandboxes": [
+      {
+        "id": "agent-3dd91",
+        "state": "running"
+      }
+    ],
+    "network_health": {
+      "status": "ok"
+    },
+    "network_endpoints": [
+      {
+        "id": "macos-build-07"
+      }
+    ],
+    "hubble_flows": {
+      "flows": [
+        {
+          "source": "macos-build-07",
+          "destination": "github.com"
+        }
+      ]
+    },
+    "network_observe": {},
+    "network_telemetry": [],
+    "host_flows": [
+      {
+        "id": "f4",
+        "process": "fluxvm-vz-runner",
+        "pid": 889,
+        "bundle_id": "dev.zyvor.fluxvm",
+        "protocol": "tcp",
+        "local": "10.0.2.15:40544",
+        "remote": "github.com:443",
+        "state": "ESTABLISHED",
+        "bytes_in": 141815505,
+        "bytes_out": 31860841,
+        "rx_bps": 63372.78,
+        "tx_bps": 15154.36,
+        "total_bps": 78527.14,
+        "interface": "vmnet8",
+        "rtt_ms": 42.0,
+        "source": "demo",
+        "first_seen": "2026-10-13T06:23:30+00:00",
+        "last_seen": "2026-10-13T06:23:30+00:00"
+      }
+    ],
+    "host_flow_count": 1,
+    "network_endpoint_count": 1,
+    "hubble_flow_count": 1
+  },
+  "capabilities": {
+    "nettop": true,
+    "network_extension": true,
+    "fluxvm": true,
+    "blocking": false,
+    "neighbors": true,
+    "listeners": true,
+    "capture": true
+  },
+  "apps": [
+    {
+      "name": "Google Chrome",
+      "pid": 510,
+      "bundle_id": "com.google.Chrome",
+      "connections": 1,
+      "bytes_in": 1872653155,
+      "bytes_out": 88389783,
+      "rx_bps": 807272.32,
+      "tx_bps": 40363.62,
+      "domains": [
+        "142.250.183.14"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 1961042938,
+      "total_bps": 847635.94
+    },
+    {
+      "name": "Xcode",
+      "pid": 711,
+      "bundle_id": "com.apple.dt.Xcode",
+      "connections": 1,
+      "bytes_in": 629309425,
+      "bytes_out": 1300075057,
+      "rx_bps": 398585.14,
+      "tx_bps": 862245.41,
+      "domains": [
+        "github.com"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 1929384482,
+      "total_bps": 1260830.55
+    },
+    {
+      "name": "Slack",
+      "pid": 602,
+      "bundle_id": "com.tinyspeck.slackmacgap",
+      "connections": 1,
+      "bytes_in": 348073665,
+      "bytes_out": 48511998,
+      "rx_bps": 176894.15,
+      "tx_bps": 25472.76,
+      "domains": [
+        "13.107.6.175"
+      ],
+      "interfaces": [
+        "utun4"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 396585663,
+      "total_bps": 202366.91
+    },
+    {
+      "name": "fluxvm-vz-runner",
+      "pid": 889,
+      "bundle_id": "dev.zyvor.fluxvm",
+      "connections": 1,
+      "bytes_in": 141815505,
+      "bytes_out": 31860841,
+      "rx_bps": 63372.78,
+      "tx_bps": 15154.36,
+      "domains": [
+        "github.com"
+      ],
+      "interfaces": [
+        "vmnet8"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 173676346,
+      "total_bps": 78527.14
+    }
+  ],
+  "traffic": {
+    "rx_bps": 1446124.39,
+    "tx_bps": 943236.15,
+    "total_bps": 2389360.54,
+    "active_flows": 4,
+    "internet_flows": 4,
+    "vpn_flows": 1,
+    "top_interface": "en0"
+  },
+  "findings": [
+    {
+      "severity": "info",
+      "kind": "volume",
+      "title": "High outbound volume",
+      "detail": "Xcode has sent more than 1 GB in the current counter window."
+    },
+    {
+      "severity": "warning",
+      "kind": "listener",
+      "title": "Service exposed on all interfaces: 7000",
+      "detail": "AirPlayXPCHelper is listening on *:7000 (TCP).",
+      "listener_id": "l2"
+    },
+    {
+      "severity": "info",
+      "kind": "vpn",
+      "title": "VPN is active",
+      "detail": "Zyvor WireGuard"
+    }
+  ],
+  "health": {
+    "score": 98,
+    "status": "healthy",
+    "median_rtt_ms": 39.0,
+    "components": [
+      {
+        "name": "Route",
+        "score": 100,
+        "detail": "Default route present"
+      },
+      {
+        "name": "DNS",
+        "score": 100,
+        "detail": "2 resolver(s)"
+      },
+      {
+        "name": "Latency",
+        "score": 100,
+        "detail": "Median RTT 39.0 ms"
+      },
+      {
+        "name": "Interfaces",
+        "score": 100,
+        "detail": "3 active"
+      },
+      {
+        "name": "Safety",
+        "score": 90,
+        "detail": "0 critical \u00b7 1 warning"
+      }
+    ]
+  },
+  "topology": {
+    "nodes": [
+      {
+        "id": "host:this-mac",
+        "kind": "host",
+        "label": "zyvor-mac-studio"
+      },
+      {
+        "id": "app:f437b770fa7a4018",
+        "kind": "app",
+        "label": "Google Chrome",
+        "bundle_id": "com.google.Chrome"
+      },
+      {
+        "id": "if:en0",
+        "kind": "interface",
+        "label": "en0"
+      },
+      {
+        "id": "dst:bfb57b8f124403e8",
+        "kind": "internet",
+        "label": "142.250.183.14"
+      },
+      {
+        "id": "app:638dc1bc546b9725",
+        "kind": "app",
+        "label": "Slack",
+        "bundle_id": "com.tinyspeck.slackmacgap"
+      },
+      {
+        "id": "if:utun4",
+        "kind": "interface",
+        "label": "utun4"
+      },
+      {
+        "id": "dst:2131f530233c50a6",
+        "kind": "internet",
+        "label": "13.107.6.175"
+      },
+      {
+        "id": "app:c9b0fcb81024d804",
+        "kind": "app",
+        "label": "Xcode",
+        "bundle_id": "com.apple.dt.Xcode"
+      },
+      {
+        "id": "dst:3aeb002460381c6f",
+        "kind": "domain",
+        "label": "github.com"
+      },
+      {
+        "id": "app:626e006293c58cfb",
+        "kind": "app",
+        "label": "fluxvm-vz-runner",
+        "bundle_id": "dev.zyvor.fluxvm"
+      },
+      {
+        "id": "if:vmnet8",
+        "kind": "interface",
+        "label": "vmnet8"
+      }
+    ],
+    "edges": [
+      {
+        "source": "app:f437b770fa7a4018",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 1961042938,
+        "bps": 847635.94,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:bfb57b8f124403e8",
+        "kind": "reaches",
+        "bytes": 1961042938,
+        "bps": 847635.94,
+        "flows": 1
+      },
+      {
+        "source": "app:638dc1bc546b9725",
+        "target": "if:utun4",
+        "kind": "uses",
+        "bytes": 396585663,
+        "bps": 202366.91,
+        "flows": 1
+      },
+      {
+        "source": "if:utun4",
+        "target": "dst:2131f530233c50a6",
+        "kind": "reaches",
+        "bytes": 396585663,
+        "bps": 202366.91,
+        "flows": 1
+      },
+      {
+        "source": "app:c9b0fcb81024d804",
+        "target": "if:en0",
+        "kind": "uses",
+        "bytes": 1929384482,
+        "bps": 1260830.55,
+        "flows": 1
+      },
+      {
+        "source": "if:en0",
+        "target": "dst:3aeb002460381c6f",
+        "kind": "reaches",
+        "bytes": 1929384482,
+        "bps": 1260830.55,
+        "flows": 1
+      },
+      {
+        "source": "app:626e006293c58cfb",
+        "target": "if:vmnet8",
+        "kind": "uses",
+        "bytes": 173676346,
+        "bps": 78527.14,
+        "flows": 1
+      },
+      {
+        "source": "if:vmnet8",
+        "target": "dst:3aeb002460381c6f",
+        "kind": "reaches",
+        "bytes": 173676346,
+        "bps": 78527.14,
+        "flows": 1
+      }
+    ]
+  },
+  "behavior": {
+    "new_destinations": [],
+    "known_destinations": 0
+  },
+  "recent_events": [
+    {
+      "ts": "2026-10-13T06:23:30+00:00",
+      "kind": "startup",
+      "title": "Nivora started observing",
+      "detail": "Initial network snapshot captured."
+    }
+  ],
+  "rules": [],
+  "rule_hits": [],
+  "diagnosis": {
+    "summary": "High application latency.",
+    "health": {
+      "score": 98,
+      "status": "healthy",
+      "median_rtt_ms": 39.0,
+      "components": [
+        {
+          "name": "Route",
+          "score": 100,
+          "detail": "Default route present"
+        },
+        {
+          "name": "DNS",
+          "score": 100,
+          "detail": "2 resolver(s)"
+        },
+        {
+          "name": "Latency",
+          "score": 100,
+          "detail": "Median RTT 39.0 ms"
+        },
+        {
+          "name": "Interfaces",
+          "score": 100,
+          "detail": "3 active"
+        },
+        {
+          "name": "Safety",
+          "score": 90,
+          "detail": "0 critical \u00b7 1 warning"
+        }
+      ]
+    },
+    "causes": [
+      {
+        "severity": "warning",
+        "title": "High application latency",
+        "detail": "Slack \u2192 13.107.6.175:443 is 181.0 ms.",
+        "flow_id": "f2"
+      },
+      {
+        "severity": "warning",
+        "title": "VPN path is materially slower",
+        "detail": "VPN median RTT 181.0 ms vs direct 36.0 ms."
+      }
+    ],
+    "recent_events": [
+      {
+        "ts": "2026-10-13T06:23:30+00:00",
+        "kind": "startup",
+        "title": "Nivora started observing",
+        "detail": "Initial network snapshot captured."
+      }
+    ]
+  }
+}

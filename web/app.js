@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => [...document.querySelectorAll(q)];
-import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,groupFlows,diffFlows,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
+import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,groupFlows,diffFlows,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,mergePrefs,pushSample,highlight,rateAlerts} from './lib.js';
 const PREF_KEY='nivora-prefs';
 const state = { token: '', snapshot: null, view: 'overview', paused: false, timer: null, search: '', sort: {applications:{key:'total_bps',dir:'desc'},flows:{key:'rx_bps',dir:'desc'}}, samples: {}, prefs: mergePrefs(null), error: '', updatedAt: 0, alerted: new Set(), sheetApp: null, sheetFlow: null, live: [], flowGroup: 'flat', baseline: null, goto: false };
 try{state.prefs=mergePrefs(localStorage.getItem(PREF_KEY))}catch{}

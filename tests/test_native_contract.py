@@ -138,6 +138,21 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn(owner, (ROOT / "web" / "index.html").read_text())
         self.assertIn("BUSL-1.1", (ROOT / "scripts" / "build-brand.sh").read_text())
 
+    def test_static_demo_data_tracks_collector_and_assets_are_relative(self):
+        """web/demo-snapshot.json must carry the collector's top-level keys; the page must work under a sub-path."""
+        import json, subprocess, sys, tempfile
+        demo = json.loads((ROOT / "web" / "demo-snapshot.json").read_text())
+        with tempfile.TemporaryDirectory() as d:
+            out = subprocess.run([sys.executable, str(ROOT / "agent" / "nivora.py"), "--demo", "--once", "--no-history",
+                                  "--rules", f"{d}/r.json"], capture_output=True, text=True, check=True).stdout
+        self.assertEqual(set(json.loads(out)), set(demo),
+                         "regenerate web/demo-snapshot.json from `nivora.py --demo --once --no-history`")
+        html = (ROOT / "web" / "index.html").read_text()
+        for needle in ('href="styles.css"', 'src="demo.js"', 'src="app.js"'):
+            self.assertIn(needle, html)
+        self.assertIn("from './lib.js'", (ROOT / "web" / "app.js").read_text())
+        self.assertLess(html.index('src="demo.js"'), html.index('src="app.js"'))
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",
