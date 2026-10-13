@@ -69,3 +69,21 @@ assert.deepEqual(L.rateAlerts([{name:'A',total_bps:2e6},{name:'B',total_bps:10}]
 assert.deepEqual(L.rateAlerts([{name:'A',total_bps:2e6}],0),[]);
 
 console.log('web contract + lib unit tests: PASS');
+
+// --- shared filter vectors (also run by tests/test_filter.py and native XCTest)
+{
+  const vec = JSON.parse(fs.readFileSync(new URL('./fixtures/filter-vectors.json', import.meta.url), 'utf8'));
+  for (const c of vec.cases) {
+    const got = L.filterFlows(vec.flows, c.q).map(f => f.id);
+    assert.deepEqual(got, c.expect, `filter vector ${JSON.stringify(c.q)}`);
+  }
+}
+
+// --- saved views: validated, capped, never carry the token
+{
+  const p = L.mergePrefs({ views: [{ name: ' A ', query: 'port:443' }, { name: '', query: 'x' }, { name: 5, query: 'y' }, ...Array.from({ length: 30 }, (_, i) => ({ name: `v${i}`, query: 'q' }))] });
+  assert.equal(p.views[0].name, 'A');
+  assert(p.views.length <= 20);
+  assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 0), 'port:443');
+  assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 1), 'app:"Google Chrome"');
+}

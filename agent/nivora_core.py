@@ -620,6 +620,90 @@ def endpoint_port(endpoint: str) -> int:
     return 0
 
 
+_FILTER_KEYS = {"app": "app", "process": "app", "host": "host", "port": "port", "proto": "proto",
+                "protocol": "proto", "iface": "iface", "interface": "iface", "state": "state", "source": "source"}
+_RATE_RE = re.compile(r"^([<>])(\d+(?:\.\d+)?)(bps|kbps|mbps|gbps)$", re.I)
+_RATE_UNITS = {"bps": 1, "kbps": 1e3, "mbps": 1e6, "gbps": 1e9}
+
+
+def _filter_tokens(query: str) -> list[str]:
+    """Whitespace split that keeps double-quoted values together: app:"Google Chrome"."""
+    out, cur, quoted = [], "", False
+    for ch in query:
+        if ch == '"':
+            quoted = not quoted
+        elif ch.isspace() and not quoted:
+            if cur:
+                out.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    if cur:
+        out.append(cur)
+    return out
+
+
+def parse_filter(query: str) -> list[dict[str, Any]]:
+    """Parse the shared flow-filter grammar (see docs/API.md). Mirrored by web/lib.js parseFilter."""
+    terms: list[dict[str, Any]] = []
+    for tok in _filter_tokens(str(query or "")):
+        negate = tok[0] in "!-" and len(tok) > 1
+        body = tok[1:] if negate else tok
+        m = _RATE_RE.match(tok)
+        if m:
+            terms.append({"kind": "rate", "op": m.group(1), "bits": float(m.group(2)) * _RATE_UNITS[m.group(3).lower()], "negate": False})
+            continue
+        key, sep, value = body.partition(":")
+        if sep and key.lower() in _FILTER_KEYS and value:
+            terms.append({"kind": _FILTER_KEYS[key.lower()], "value": value.lower(), "negate": negate})
+        else:
+            terms.append({"kind": "text", "value": tok.lower().lstrip("!") if tok.startswith("!") else tok.lower(),
+                          "negate": tok.startswith("!") and len(tok) > 1})
+    return terms
+
+
+def _term_hit(flow: dict[str, Any], t: dict[str, Any]) -> bool:
+    kind, value = t["kind"], t.get("value", "")
+    remote, local = str(flow.get("remote", "")), str(flow.get("local", ""))
+    if kind == "app":
+        return value in str(flow.get("process", "")).lower() or value in str(flow.get("bundle_id", "") or "").lower()
+    if kind == "host":
+        return value in endpoint_host(remote).lower()
+    if kind == "port":
+        ports = {endpoint_port(remote), endpoint_port(local)}
+        lo, _, hi = value.partition("-")
+        try:
+            a, b = int(lo), int(hi or lo)
+        except ValueError:
+            return False
+        return any(a <= p <= b for p in ports if p)
+    if kind in {"proto", "iface", "state", "source"}:
+        field = {"proto": "protocol", "iface": "interface"}.get(kind, kind)
+        return str(flow.get(field, "")).lower() == value
+    return value in json.dumps(flow, sort_keys=True).lower()
+
+
+def match_flow(flow: dict[str, Any], terms: list[dict[str, Any]]) -> bool:
+    """AND across keys, OR across repeated values of the same key, negations always exclude."""
+    includes: dict[str, list[dict[str, Any]]] = {}
+    for t in terms:
+        if t["kind"] == "rate":
+            bps = float(flow.get("total_bps") or 0) * 8
+            if (t["op"] == ">" and not bps > t["bits"]) or (t["op"] == "<" and not bps < t["bits"]):
+                return False
+        elif t["negate"]:
+            if _term_hit(flow, t):
+                return False
+        else:
+            includes.setdefault(t["kind"], []).append(t)
+    return all(any(_term_hit(flow, t) for t in group) for group in includes.values())
+
+
+def filter_flows(flows: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
+    terms = parse_filter(query)
+    return [f for f in flows if match_flow(f, terms)] if terms else list(flows)
+
+
 def classify_remote(host: str) -> str:
     if not host:
         return "unknown"

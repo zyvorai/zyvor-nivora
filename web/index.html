@@ -46,7 +46,7 @@
         </div>
       </aside>
       <section class="content">
-        <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Search app, host, IP, port…  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export flows as CSV">CSV</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
+        <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Search or filter: app:Safari port:443 &gt;1mbps  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export flows as CSV">CSV</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
         <div id="contentBody" class="content-body"></div>
       </section>
     </div>
@@ -70,6 +70,7 @@
       <div class="metric-inline"><span>Pause / resume</span><span class="mono">p</span></div>
       <div class="metric-inline"><span>Refresh</span><span class="mono">r</span></div>
       <div class="metric-inline"><span>Overview · Health · Map · Apps · Flows</span><span class="mono">g o · g h · g m · g a · g f</span></div>
+      <div class="metric-inline"><span>Filter syntax</span><span class="mono">app: host: port: proto: iface: state: source: &gt;1mbps !neg</span></div>
       <div class="metric-inline"><span>Close panels</span><span class="mono">Esc</span></div>
     </div>
   </dialog>

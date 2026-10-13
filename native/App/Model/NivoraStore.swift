@@ -94,15 +94,34 @@ final class NivoraStore: ObservableObject {
 
     var apps: [NivoraSnapshot.AppItem] {
         guard let s = snapshot else { return [] }
-        let q = search.trimmingCharacters(in: .whitespaces)
-        return q.isEmpty ? s.apps : s.apps.filter { $0.name.localizedCaseInsensitiveContains(q) || $0.domains.joined().localizedCaseInsensitiveContains(q) }
+        let terms = FlowFilter.parse(search)
+        return terms.isEmpty ? s.apps : s.apps.filter { FlowFilter.matches($0.filterSubject, terms) }
     }
     var flows: [NivoraSnapshot.Flow] {
         guard let s = snapshot else { return [] }
+        let terms = FlowFilter.parse(search)
+        return terms.isEmpty ? s.flows : s.flows.filter { FlowFilter.matches($0.filterSubject, terms) }
+    }
+
+    // MARK: saved views
+
+    @Published private(set) var savedViews: [SavedView] = {
+        guard let data = UserDefaults.standard.data(forKey: "nivora.savedViews"),
+              let v = try? JSONDecoder().decode([SavedView].self, from: data) else { return [] }
+        return SavedView.sanitized(v)
+    }()
+
+    func saveCurrentView() {
         let q = search.trimmingCharacters(in: .whitespaces)
-        return q.isEmpty ? s.flows : s.flows.filter {
-            $0.process.localizedCaseInsensitiveContains(q) || $0.remote.localizedCaseInsensitiveContains(q) || $0.local.localizedCaseInsensitiveContains(q)
-        }
+        guard !q.isEmpty else { return }
+        let name = q.count > 28 ? String(q.prefix(27)) + "…" : q
+        setViews(savedViews + [SavedView(name: name, query: q)])
+    }
+    func deleteView(_ v: SavedView) { setViews(savedViews.filter { $0 != v }) }
+    func apply(_ v: SavedView) { search = v.query }
+    private func setViews(_ views: [SavedView]) {
+        savedViews = SavedView.sanitized(views)
+        if let data = try? JSONEncoder().encode(savedViews) { UserDefaults.standard.set(data, forKey: "nivora.savedViews") }
     }
 
     // MARK: lifecycle

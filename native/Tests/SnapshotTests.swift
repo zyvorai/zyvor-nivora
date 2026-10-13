@@ -75,3 +75,32 @@ final class ExportTests: XCTestCase {
         XCTAssertTrue(lines[0].hasPrefix("process,protocol"))
     }
 }
+
+final class FilterTests: XCTestCase {
+    private struct Vectors: Decodable {
+        struct Case: Decodable { let q: String; let expect: [String] }
+        let flows: [NivoraSnapshot.Flow]
+        let cases: [Case]
+    }
+
+    func testSharedVectorsMatchCollectorAndWeb() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("../../tests/fixtures/filter-vectors.json")
+        let v = try JSONDecoder().decode(Vectors.self, from: Data(contentsOf: url))
+        for c in v.cases {
+            let terms = FlowFilter.parse(c.q)
+            let got = v.flows.filter { terms.isEmpty || FlowFilter.matches($0.filterSubject, terms) }.map(\.id)
+            XCTAssertEqual(got, c.expect, "query: \(c.q)")
+        }
+    }
+}
+
+final class SavedViewTests: XCTestCase {
+    func testSanitizeTrimsDedupesAndCaps() {
+        let raw = [SavedView(name: " A ", query: "port:443"), SavedView(name: "", query: "x"),
+                   SavedView(name: "dup", query: "port:443")] + (0..<30).map { SavedView(name: "v\($0)", query: "q\($0)") }
+        let out = SavedView.sanitized(raw)
+        XCTAssertEqual(out.first?.name, "A")
+        XCTAssertEqual(out.count, 20)
+        XCTAssertEqual(Set(out.map(\.query)).count, out.count)
+    }
+}

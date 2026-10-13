@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Flow filter grammar (`app: host: port: proto: iface: state: source: >1mbps !neg`) shared by collector, web and native, with `GET /v1/flows?filter=`, `nivoractl flows --filter`, removable filter chips and saved views (web localStorage / native UserDefaults, palette + Views menu).
 - Native Flows pane exports the current (filtered, sorted) flows as CSV with spreadsheet-formula neutralisation, matching the web export.
 - Native XCTest target `NivoraTests` (snapshot decoding, alert rules) with a demo-collector fixture; run in the macOS CI job.
 - Dashboard UX pass toward Vytrix parity: command palette (`⌘K`), keyboard shortcuts, application detail sheet, sortable/highlighted tables, throughput chart with tooltip, per-app sparklines, toasts, skeleton/error states, Settings view (theme, accent, density, refresh, alert threshold, pinned apps), snapshot JSON and flows CSV export.

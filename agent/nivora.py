@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, timeline_events
+from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, filter_flows, timeline_events
 
 
 class State:
@@ -163,7 +163,7 @@ class Handler(BaseHTTPRequestHandler):
                 snap = self.state.sample()
             mapping = {
                 "/v1/snapshot": snap,
-                "/v1/flows": snap.get("flows", []),
+                "/v1/flows": filter_flows(snap.get("flows", []), parse_qs(u.query).get("filter", [""])[0][:400]),
                 "/v1/apps": snap.get("apps", []),
                 "/v1/interfaces": snap.get("interfaces", []),
                 "/v1/routes": snap.get("routes", []),

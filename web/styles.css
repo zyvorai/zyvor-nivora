@@ -120,3 +120,13 @@ nav button.active{background:rgba(0,113,227,.1);color:var(--blue)}
 .seg button[aria-checked="true"]{background:var(--blue)}
 mark{background:rgba(255,159,10,.28)}
 .traffic span{background:#ff5f57}
+
+/* filter bar + saved views */
+.filter-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.filter-bar .chips,.filter-bar .views{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--blue-bg,rgba(0,113,227,.1));color:var(--blue);border-radius:980px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.chip:hover{border-color:var(--blue)}
+.view-pill{display:inline-flex;border:1px solid var(--line);border-radius:980px;overflow:hidden}
+.view-pill button{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;padding:3px 9px;cursor:pointer}
+.view-pill button:last-child{color:var(--muted);padding-left:4px}
+.view-pill button:hover{background:var(--panel-hover,rgba(127,127,127,.12))}

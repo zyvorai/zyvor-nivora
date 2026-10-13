@@ -21,6 +21,22 @@ struct FlowsView: View {
         }
         .toolbar {
             ToolbarItem {
+                Menu {
+                    ForEach(store.savedViews) { v in
+                        Button(v.name) { store.apply(v) }
+                    }
+                    if !store.savedViews.isEmpty { Divider() }
+                    Button("Save current filter") { store.saveCurrentView() }
+                        .disabled(store.search.trimmingCharacters(in: .whitespaces).isEmpty)
+                    Menu("Delete view") {
+                        ForEach(store.savedViews) { v in Button(v.name, role: .destructive) { store.deleteView(v) } }
+                    }
+                    .disabled(store.savedViews.isEmpty)
+                    Divider()
+                    Text("Syntax: app: host: port: proto: iface: state: source: >1mbps !negate")
+                } label: { Label("Views", systemImage: "line.3.horizontal.decrease.circle") }
+            }
+            ToolbarItem {
                 ShareLink(item: FlowExport.csv(flows), preview: SharePreview("Nivora flows.csv")) {
                     Label("Export CSV", systemImage: "square.and.arrow.up")
                 }

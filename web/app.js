@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => [...document.querySelectorAll(q)];
-import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,sortRows,scoreStatus,sparklinePath,flowsToCSV,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
+import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,flowsToCSV,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
 const PREF_KEY='nivora-prefs';
 const state = { token: '', snapshot: null, view: 'overview', paused: false, timer: null, search: '', sort: {applications:{key:'total_bps',dir:'desc'},flows:{key:'rx_bps',dir:'desc'}}, samples: {}, prefs: mergePrefs(null), error: '', updatedAt: 0, alerted: new Set(), sheetApp: null, goto: false };
 try{state.prefs=mergePrefs(localStorage.getItem(PREF_KEY))}catch{}
@@ -53,8 +53,13 @@ function checkAlerts(snap){
 function setLive(ok,label){$('#liveDot').classList.toggle('live',ok);$('#liveLabel').textContent=label||(ok?(state.snapshot?.host?.demo?'Simulated telemetry':'Live telemetry'):'Disconnected')}
 
 function setView(v){state.view=v;$$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));const [e,t,s]=titles[v]||titles.overview;$('#eyebrow').textContent=e;$('#viewTitle').textContent=t;$('#viewSubtitle').textContent=s;render()}
-function filteredFlows(){const s=state.snapshot;return s?(s.flows||[]).filter(f=>matchQuery(f,state.search)):[]}
-function filteredApps(){const s=state.snapshot;return s?(s.apps||[]).filter(a=>matchQuery(a,state.search)):[]}
+function filteredFlows(){const s=state.snapshot;return s?filterFlows(s.flows||[],state.search):[]}
+function filteredApps(){const s=state.snapshot;if(!s)return[];const by=new Map((s.apps||[]).map(a=>[a.name,a]));
+  // apps reuse the flow grammar through a flow-shaped projection
+  return filterFlows((s.apps||[]).map(a=>({...a,process:a.name,remote:(a.domains||[])[0]||'',interface:(a.interfaces||[])[0]||''})),state.search).map(a=>by.get(a.name))}
+function filterBar(){
+  const chips=filterChips(state.search),views=state.prefs.views||[];
+  return `<div class="filter-bar"><div class="chips">${chips.map((c,i)=>`<button class="chip" data-chip="${i}" aria-label="Remove filter ${esc(c)}">${esc(c)} <span aria-hidden="true">×</span></button>`).join('')||'<span class="muted">Type to filter: app:Safari port:443 proto:tcp &gt;1mbps !iface:lo0</span>'}</div><div class="views">${views.map((v,i)=>`<span class="view-pill"><button data-view-q="${i}">${esc(v.name)}</button><button data-view-del="${i}" aria-label="Delete view ${esc(v.name)}">×</button></span>`).join('')}<button id="saveViewBtn" class="glass-btn" ${chips.length?'':'disabled'}>Save view</button></div></div>`}
 function th(view,key,label){const so=state.sort[view];return `<th data-sort="${key}" data-view="${view}" aria-sort="${so.key===key?(so.dir==='asc'?'ascending':'descending'):'none'}" tabindex="0">${label}</th>`}
 
 function stat(label,value,sub=''){return `<div class="card stat"><small>${esc(label)}</small><strong>${esc(value)}</strong><span>${esc(sub)}</span></div>`}
@@ -82,7 +87,7 @@ function health(s){const h=s.health||{},d=s.diagnosis||{};return `<div class="gr
 function networkMap(s){const t=s.topology||{},nodes=t.nodes||[],edges=t.edges||[];const apps=nodes.filter(n=>n.kind==='app').slice(0,10),ifs=nodes.filter(n=>n.kind==='interface'),dst=nodes.filter(n=>['domain','internet','local','loopback'].includes(n.kind)).slice(0,14);const count=(id,side)=>edges.filter(e=>e[side]===id).reduce((n,e)=>n+(e.flows||0),0);return `<div class="grid stats">${stat('Nodes',nodes.length,'topology objects')}${stat('Edges',edges.length,'observed relationships')}${stat('Applications',apps.length,'shown')}${stat('Destinations',dst.length,'top traffic')}</div><div class="network-map"><div class="map-column"><h3>Applications</h3>${apps.map(n=>`<div class="map-chip app"><strong>${esc(n.label)}</strong><small>${count(n.id,'source')} paths</small></div>`).join('')}</div><div class="map-arrow">→</div><div class="map-column"><h3>This Mac</h3><div class="map-chip host"><strong>${esc(s.host?.name||'This Mac')}</strong><small>${esc(s.wifi?.ssid||'macOS')}</small></div>${ifs.map(n=>`<div class="map-chip iface"><strong>${esc(n.label||'unknown')}</strong><small>${count(n.id,'target')} app edges · ${count(n.id,'source')} destinations</small></div>`).join('')}</div><div class="map-arrow">→</div><div class="map-column"><h3>Destinations</h3>${dst.map(n=>`<div class="map-chip dst"><strong>${esc(n.label)}</strong><small>${esc(n.kind)}</small></div>`).join('')}</div></div>`}
 
 function applications(s){const a=filteredApps();return `<div class="grid stats">${stat('Apps',a.length,'network-active')}${stat('Top sender',a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.tx_bps||0))}${stat('Top receiver',a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.rx_bps||0))}${stat('Internet apps',a.filter(x=>x.internet_connections).length,'public destinations')}</div><div class="card"><h2>Applications</h2>${appTable(a)}</div>`}
-function flows(s){const f=filteredFlows();return `<div class="grid stats">${stat('Flows',f.length,'observed now')}${stat('TCP',f.filter(x=>x.protocol==='tcp').length,'connections')}${stat('UDP',f.filter(x=>x.protocol==='udp').length,'flows')}${stat('High RTT',f.filter(x=>(x.rtt_ms||0)>150).length,'over 150 ms')}</div><div class="card"><h2>Live flows</h2>${flowTable(f)}</div>`}
+function flows(s){const f=filteredFlows();return `<div class="grid stats">${stat('Flows',f.length,'observed now')}${stat('TCP',f.filter(x=>x.protocol==='tcp').length,'connections')}${stat('UDP',f.filter(x=>x.protocol==='udp').length,'flows')}${stat('High RTT',f.filter(x=>(x.rtt_ms||0)>150).length,'over 150 ms')}</div><div class="card"><h2>Live flows</h2>${filterBar()}${flowTable(f)}</div>`}
 function domains(s){const c=new Map();for(const f of filteredFlows()){const h=hostOf(f.remote);if(!h)continue;const o=c.get(h)||{host:h,flows:0,bytes:0,apps:new Set(),ports:new Set()};o.flows++;o.bytes+=(f.bytes_in||0)+(f.bytes_out||0);o.apps.add(f.process);if(portOf(f.remote))o.ports.add(portOf(f.remote));c.set(h,o)}const arr=[...c.values()].sort((a,b)=>b.bytes-a.bytes);return `<div class="card"><h2>Destinations</h2><div class="table-wrap"><table><thead><tr><th>Host</th><th>Apps</th><th>Flows</th><th>Ports</th><th>Traffic</th></tr></thead><tbody>${arr.map(x=>`<tr><td class="mono">${esc(x.host)}</td><td>${[...x.apps].slice(0,3).map(a=>badge(a)).join(' ')}</td><td>${x.flows}</td><td>${[...x.ports].join(', ')||'—'}</td><td>${fmtBytes(x.bytes)}</td></tr>`).join('')}</tbody></table></div></div>`}
 function dns(s){const d=s.dns||{};return `<div class="grid stats">${stat('Resolvers',(d.resolvers||[]).length,'scutil resolvers')}${stat('Nameservers',(d.servers||[]).length,(d.servers||[]).join(' · ')||'none')}${stat('VPN resolver',(d.resolvers||[]).filter(r=>String(r.interface||'').startsWith('utun')).length,'scoped to tunnel')}${stat('Search domains',[...new Set((d.resolvers||[]).flatMap(r=>r.search||[]))].length,'configured')}</div><div class="topology">${(d.resolvers||[]).map(r=>`<div class="card"><h2>Resolver ${r.index}</h2><div class="metric-inline"><span>Interface</span><span>${esc(r.interface||'default')}</span></div><div class="metric-inline"><span>Domain</span><span>${esc(r.domain||'default')}</span></div><div class="metric-inline"><span>Servers</span><span class="mono">${esc((r.nameservers||[]).join(', ')||'—')}</span></div></div>`).join('')||'<div class="card empty">No DNS resolver reported</div>'}</div>`}
 function interfaces(s){return `<div class="topology">${(s.interfaces||[]).map(i=>`<div class="card"><h2>${esc(i.name)} ${badge(i.status||'unknown',i.status==='active'?'green':'')}</h2><div class="metric-inline"><span>Kind</span><span>${esc(i.kind)}</span></div><div class="metric-inline"><span>IPv4</span><span class="mono">${esc((i.ipv4||[]).join(', ')||'—')}</span></div><div class="metric-inline"><span>IPv6</span><span class="mono">${esc((i.ipv6||[]).join(', ')||'—')}</span></div><div class="metric-inline"><span>MTU</span><span>${i.mtu||'—'}</span></div><div class="metric-inline"><span>MAC</span><span class="mono">${esc(i.mac||'—')}</span></div></div>`).join('')||'<div class="card empty">No interfaces reported</div>'}</div>`}
@@ -179,6 +184,7 @@ let paletteIdx=0,paletteItems=[];
 function buildPalette(q){
   q=q.trim().toLowerCase();const items=[];
   for(const [id,[sec,title]] of Object.entries(titles))items.push({label:title,hint:sec,run:()=>setView(id)});
+  for(const v of state.prefs.views||[])items.push({label:v.name,hint:'Saved view',run:()=>{state.search=v.query;$('#search').value=v.query;setView('flows')}});
   for(const a of state.snapshot?.apps||[])items.push({label:a.name,hint:'Application',run:()=>openSheet(a.name)});
   const out=items.filter(i=>!q||i.label.toLowerCase().includes(q)).slice(0,10);
   if(q)out.push({label:`Ask Investigator: ${q}`,hint:'AI',run:()=>{setView('investigator');setTimeout(()=>{$('#question').value=q;$('#askBtn').click()},0)}});
@@ -223,6 +229,13 @@ for(const d of ['#paletteDialog','#helpDialog'])$(d).addEventListener('click',e=
 $('#contentBody').addEventListener('click',e=>{
   const sortTh=e.target.closest('th[data-sort]');
   if(sortTh){const so=state.sort[sortTh.dataset.view];so.dir=so.key===sortTh.dataset.sort&&so.dir==='desc'?'asc':'desc';so.key=sortTh.dataset.sort;render();return}
+  const chip=e.target.closest('[data-chip]');
+  if(chip){state.search=dropFilterChip(state.search,Number(chip.dataset.chip));$('#search').value=state.search;render();return}
+  const vq=e.target.closest('[data-view-q]');
+  if(vq){const v=state.prefs.views[Number(vq.dataset.viewQ)];if(v){state.search=v.query;$('#search').value=v.query;render()}return}
+  const vd=e.target.closest('[data-view-del]');
+  if(vd){state.prefs.views.splice(Number(vd.dataset.viewDel),1);savePrefs();render();return}
+  if(e.target.closest('#saveViewBtn')){const q=state.search.trim(),name=q.length>28?q.slice(0,27)+'…':q;if(name&&!state.prefs.views.some(v=>v.query===q)){state.prefs.views.push({name,query:q});state.prefs.views=state.prefs.views.slice(-20);savePrefs();toast(`Saved view “${name}”`);render()}return}
   const pin=e.target.closest('[data-pin]');
   if(pin){const n=pin.dataset.pin,p=state.prefs.pinned;state.prefs.pinned=p.includes(n)?p.filter(x=>x!==n):[...p,n];savePrefs();render();e.stopPropagation();return}
   const pref=e.target.closest('[data-pref]');

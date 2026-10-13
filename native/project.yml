@@ -82,6 +82,7 @@ targets:
         excludes: ["Fixtures"]
       - path: App/Model/Snapshot.swift
       - path: App/Model/Alerts.swift
+      - path: App/Model/Filter.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.tests

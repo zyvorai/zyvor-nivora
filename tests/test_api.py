@@ -45,6 +45,13 @@ class APITests(unittest.TestCase):
             data=json.loads(r.read()); self.assertEqual(data["host"]["os"],"macOS")
             self.assertEqual(r.headers.get("Access-Control-Allow-Origin"),"http://example.test")
 
+    def test_flows_filter_param(self):
+        with self.req("/v1/flows") as r: allf=json.loads(r.read())
+        proto=allf[0]["protocol"]
+        with self.req("/v1/flows?filter=proto%3A"+proto) as r: only=json.loads(r.read())
+        self.assertTrue(only and all(f["protocol"]==proto for f in only))
+        with self.req("/v1/flows?filter=app%3Anope-does-not-exist") as r: self.assertEqual(json.loads(r.read()),[])
+
     def test_requires_token(self):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/snapshot",token=False)
         self.assertEqual(c.exception.code,401)
