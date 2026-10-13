@@ -9,7 +9,9 @@
 - Web dashboard recoloured with the Netra palette and SF type scale (light-first, dark via OS or Settings); accents are now blue/cyan/green/amber/purple/graphite.
 - Native app rebuilt in Vytrix's structure (Model/Views split, Panel/MetricTile/Meter components, Swift Charts, Settings, menu-bar window, Alerts, app detail sheet, `--appearance`/`--section` flags) with the same Netra palette; palette parity with the web is tested.
 - Fix: the collector no longer crashes at startup when the App Group rules directory cannot be created (unsigned builds); it falls back to `~/.local/share/nivora/rules.json`.
-- Known: the NetworkExtension sources do not compile against the macOS SDK yet (see `native/README.md`).
+- NetworkExtension ported to macOS APIs: a single content-filter system extension (`NEFilterDataProvider` + `handle(_:)` reports) replaces the iOS-style data/control app extensions; source app identity from audit tokens; macOS 15 flow endpoints with a macOS 14 hostname fallback; `./scripts/build-native.sh` now builds the app with the embedded extension.
+- Fix: entitlements and Info.plist keys are now declared in `project.yml` (xcodegen was overwriting the checked-in plists with empty ones); the app declares system-extension install and content-filter entitlements.
+- The app activates the extension via `OSSystemExtensionRequest` before enabling the filter (observe-first, user initiated).
 
 ## 0.2.0 — 2026-10-13
 

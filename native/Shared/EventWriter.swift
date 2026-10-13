@@ -7,7 +7,8 @@ enum NivoraShared {
     static let rulesFile = "rules.json"
 }
 
-final class EventWriter {
+/// Serialises appends on its own queue; the only mutable state is the queue itself.
+final class EventWriter: @unchecked Sendable {
     static let shared = EventWriter()
     private let queue = DispatchQueue(label: "dev.zyvor.nivora.event-writer")
 

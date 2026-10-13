@@ -7,7 +7,7 @@ python3 -m py_compile agent/nivora_core.py agent/nivora.py agent/nivoractl.py
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 node --experimental-vm-modules tests/web.mjs
 if command -v swiftc >/dev/null 2>&1; then
-  while IFS= read -r f; do swiftc -parse "$f"; done < <(find native/App native/Shared native/FilterData native/FilterControl -name '*.swift' | sort)
+  while IFS= read -r f; do swiftc -parse "$f"; done < <(find native/App native/Shared native/FilterData -name '*.swift' | sort)
   echo "swift syntax: PASS"
 else
   echo "swiftc unavailable: SKIP syntax parse"

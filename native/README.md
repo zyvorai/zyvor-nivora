@@ -1,6 +1,6 @@
 # Native macOS app
 
-Nivora's native app is SwiftUI. The signed NetworkExtension path uses a filter-data provider for new-flow decisions and a filter-control provider for cumulative byte reports. Both share flow metadata with the app/collector through the `group.dev.zyvor.nivora` App Group.
+Nivora's native app is SwiftUI. The signed NetworkExtension path is a content-filter **system extension** whose `NEFilterDataProvider` makes new-flow decisions and receives byte-count reports (macOS has no control provider). It shares flow metadata with the app/collector through the `group.dev.zyvor.nivora` App Group.
 
 Generate the Xcode project with `../scripts/generate-xcode.sh`, then open `Nivora.xcodeproj`. The project file is generated from `project.yml`; do not hand-edit it.
 
@@ -26,5 +26,6 @@ Closing the window keeps Nivora and its collector running in the menu bar; Quit 
 
 ## Build status (be precise)
 
-- The `App/` sources build as a standalone macOS app with Xcode 27 (Swift 6 mode, unsigned) and run against the bundled collector in `--demo` mode.
-- The NetworkExtension targets (`Shared/`, `FilterData/`, `FilterControl/`) **do not currently compile** against the macOS SDK: `sourceAppIdentifier`, `NEFilterSocketFlow.remoteEndpoint/localEndpoint` and `NEFilterControlProvider` are unavailable on macOS, and `static let shared` needs Sendable annotations. `scripts/build-native.sh` therefore fails at those targets until the extension is ported to macOS APIs (audit-token app identity, `remoteFlowEndpoint`). NetworkExtension activation has not been tested.
+- `../scripts/build-native.sh` builds `Nivora.app` with the embedded `dev.zyvor.nivora.filter.systemextension` on Xcode 27 (Swift 6 mode, unsigned, `CODE_SIGNING_ALLOWED=NO`). The `App/` target also runs against the bundled collector in `--demo` mode.
+- **Not verified:** signing, entitlement approval, system-extension activation, flow attribution, byte-report cadence and drop enforcement. These need a Mac with an Apple Developer team that has the Network Extension entitlement (see `../docs/NETWORKEXTENSION.md`).
+- `xcodegen` regenerates `Config/*.plist` and `Config/*.entitlements` from `project.yml`; declare plist/entitlement keys there.

@@ -27,7 +27,7 @@ The UI deliberately follows the same macOS-oriented visual language as Zyvor Vyt
 
 Command palette (`⌘K`), keyboard shortcuts (`?`), click-through application sheet, sortable tables, throughput chart, toasts, Settings (theme/accent/density/refresh/alerts/pinned apps) and local JSON/CSV export. See `docs/UX-CONTRACT.md`.
 
-The web dashboard and native app share the Netra palette and type scale; the native app follows Vytrix's structure. The native `App/` sources build with Xcode, but the NetworkExtension targets still need porting to macOS APIs before a full signed build (see `native/README.md`).
+The web dashboard and native app share the Netra palette and type scale; the native app follows Vytrix's structure. The native app and its content-filter system extension build with Xcode (unsigned). Signing, entitlement approval and extension activation have not been tested; see `native/README.md`.
 
 ## What’s new in 0.2
 
@@ -61,7 +61,7 @@ The web dashboard and native app share the Netra palette and type scale; the nat
 
 ### Visibility tiers
 
-**Tier 1 — signed NetworkExtension.** `NEFilterDataProvider` sees new app flows, sets `shouldReport`, and the control provider receives flow reports including inbound/outbound byte counts. Nivora writes metadata only into its App Group and never exports packet payloads.
+**Tier 1 — signed NetworkExtension.** `NEFilterDataProvider` sees new app flows, sets `shouldReport`, and the same provider receives flow reports including inbound/outbound byte counts (a system extension on macOS). Nivora writes metadata only into its App Group and never exports packet payloads.
 
 **Tier 2 — collector fallback.** On a Mac without the entitlement, `nettop` provides app/process byte counters where available, and `lsof` supplies socket endpoints as a fallback. `ifconfig`, `netstat`, `scutil`, `networksetup`, `arp`, and `ndp` provide interface, Wi‑Fi, route, DNS, VPN and local-neighbor state. `lsof` is always sampled for listening services even when another flow source wins.
 
@@ -271,7 +271,7 @@ See `docs/API.md`.
 ./scripts/test.sh
 ```
 
-The portable suite currently covers 28 Python tests plus web, plist, demo and Swift syntax gates: collectors, rate calculation, local-network parsers, behavior learning, health/topology/diagnosis, rule leases, Time Machine, SQLite history, API authentication/CORS/intelligence endpoints, and native/web contracts.
+The portable suite currently covers 29 Python tests plus web, plist, demo and Swift syntax gates: collectors, rate calculation, local-network parsers, behavior learning, health/topology/diagnosis, rule leases, Time Machine, SQLite history, API authentication/CORS/intelligence endpoints, and native/web contracts.
 
 The native NetworkExtension targets require Xcode/macOS for type-check/build verification. CI includes a macOS job that generates the Xcode project and performs an unsigned build.
 
@@ -281,8 +281,7 @@ The native NetworkExtension targets require Xcode/macOS for type-check/build ver
 agent/                 collector, core, CLI
 web/                   dependency-free Vytrix-style dashboard
 native/App/            SwiftUI shell
-native/FilterData/     NEFilterDataProvider
-native/FilterControl/  NEFilterControlProvider
+native/FilterData/     NEFilterDataProvider system extension
 native/Shared/         app-group flow contract
 docs/                  architecture, API, Apple signing, FluxVM
 scripts/               test, install, Xcode build/package

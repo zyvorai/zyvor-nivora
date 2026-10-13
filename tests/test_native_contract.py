@@ -35,6 +35,19 @@ class NativeContractTests(unittest.TestCase):
             self.assertEqual(palette[swift_name][1], token(css_name, dark), f"dark {swift_name}")
         self.assertEqual(palette["page"][0], "#ffffff")
 
+    def test_network_extension_uses_macos_apis(self):
+        sources = "".join(p.read_text() for d in ("Shared", "FilterData") for p in (ROOT / "native" / d).glob("*.swift"))
+        for banned in ("sourceAppIdentifier", "NEFilterControlProvider", ".remoteEndpoint", ".localEndpoint"):
+            self.assertNotIn(banned, sources, banned)
+        self.assertIn("sourceAppAuditToken", sources)
+        self.assertIn("startSystemExtensionMode", (ROOT / "native" / "FilterData" / "main.swift").read_text())
+        self.assertFalse((ROOT / "native" / "FilterControl").exists())
+        project = (ROOT / "native" / "project.yml").read_text()
+        self.assertIn("type: system-extension", project)
+        self.assertIn("content-filter-provider-systemextension", project)
+        self.assertIn("com.apple.developer.system-extension.install", project)
+        self.assertIn("com.apple.networkextension.filter-data", project)
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

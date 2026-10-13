@@ -26,48 +26,49 @@ targets:
         buildPhase: resources
       - path: ../web
         buildPhase: resources
+    # xcodegen regenerates these plist/entitlements files on every run: keys must be declared here.
     info:
       path: Config/Nivora-Info.plist
+      properties:
+        NSSystemExtensionUsageDescription: Nivora uses a content-filter system extension to attribute network flows to applications. It observes metadata only; no payloads are collected.
     entitlements:
       path: Config/Nivora.entitlements
+      properties:
+        com.apple.developer.system-extension.install: true
+        com.apple.developer.networking.networkextension: [content-filter-provider-systemextension]
+        com.apple.security.application-groups: [group.dev.zyvor.nivora]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora
         PRODUCT_NAME: Nivora
     dependencies:
-      - target: NivoraFilterData
+      - target: NivoraFilter
         embed: true
-      - target: NivoraFilterControl
-        embed: true
+        codeSign: true
 
-  NivoraFilterData:
-    type: app-extension
+  NivoraFilter:
+    type: system-extension
     platform: macOS
+    deploymentTarget: "14.0"
     sources:
       - path: FilterData
       - path: Shared
     info:
       path: Config/FilterData-Info.plist
+      properties:
+        CFBundlePackageType: SYSX
+        NetworkExtension:
+          NEMachServiceName: $(TeamIdentifierPrefix)dev.zyvor.nivora.filter
+          NEProviderClasses:
+            com.apple.networkextension.filter-data: $(PRODUCT_MODULE_NAME).FilterDataProvider
     entitlements:
       path: Config/NivoraFilter.entitlements
+      properties:
+        com.apple.developer.networking.networkextension: [content-filter-provider-systemextension]
+        com.apple.security.application-groups: [group.dev.zyvor.nivora]
+        com.apple.security.app-sandbox: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter-data
-        PRODUCT_NAME: NivoraFilterData
-        SKIP_INSTALL: YES
-
-  NivoraFilterControl:
-    type: app-extension
-    platform: macOS
-    sources:
-      - path: FilterControl
-      - path: Shared
-    info:
-      path: Config/FilterControl-Info.plist
-    entitlements:
-      path: Config/NivoraFilter.entitlements
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter-control
-        PRODUCT_NAME: NivoraFilterControl
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter
+        PRODUCT_NAME: dev.zyvor.nivora.filter
         SKIP_INSTALL: YES

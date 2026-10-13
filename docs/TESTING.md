@@ -29,7 +29,7 @@ Portable coverage in 0.2 includes:
 - native palette/accent parity with the web tokens and native app file layout
 - collector fallback when the App Group rules directory is not writable
 
-At packaging time the portable suite has **28 Python tests**, plus web/plist/demo/Swift syntax gates.
+At packaging time the portable suite has **29 Python tests**, plus web/plist/demo/Swift syntax gates.
 
 The portable verification environment validates shared logic and syntax, **not** macOS framework type-checking, Apple entitlement approval, signed extension activation, real `nettop` behavior across every macOS release, or NetworkExtension enforcement on hardware.
 
