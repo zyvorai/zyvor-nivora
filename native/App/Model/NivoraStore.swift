@@ -64,6 +64,7 @@ final class NivoraStore: ObservableObject {
     @Published var paused = false
     @Published var search = ""
     @Published var selectedApp: String?
+    @Published var selectedFlow: String?
     @Published var exportError: String?
     @Published var investigatorAnswer = "Ask what is happening on this Mac."
     @Published var thresholdMbps: Double = UserDefaults.standard.double(forKey: "nivora.thresholdMbps") {

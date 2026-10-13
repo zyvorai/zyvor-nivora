@@ -87,3 +87,20 @@ console.log('web contract + lib unit tests: PASS');
   assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 0), 'port:443');
   assert.equal(L.dropFilterChip('app:"Google Chrome" port:443', 1), 'app:"Google Chrome"');
 }
+
+// --- grouping + compare
+{
+  const fl = [
+    { id: 'a', process: 'Safari', remote: '1.1.1.1:443', interface: 'en0', rx_bps: 10, tx_bps: 5, total_bps: 15 },
+    { id: 'b', process: 'Safari', remote: '1.1.1.1:80', interface: 'en0', rx_bps: 1, tx_bps: 1, total_bps: 2 },
+    { id: 'c', process: 'ssh', remote: '[2001:db8::7]:22', interface: 'utun4', rx_bps: 100, tx_bps: 0, total_bps: 100 },
+  ];
+  const g = L.groupFlows(fl, 'app');
+  assert.deepEqual(g.map(x => [x.key, x.count]), [['ssh', 1], ['Safari', 2]]);
+  assert.equal(L.groupFlows(fl, 'host')[1].key, '1.1.1.1');
+  assert.deepEqual(L.groupFlows(fl, 'nope'), []);
+  const d = L.diffFlows(fl.slice(0, 2), [{ ...fl[0], total_bps: 40 }, fl[2]]);
+  assert.deepEqual(d.added.map(f => f.id), ['c']);
+  assert.deepEqual(d.removed.map(f => f.id), ['b']);
+  assert.equal(d.changed[0].delta, 25);
+}

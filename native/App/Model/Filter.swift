@@ -136,3 +136,32 @@ struct SavedView: Codable, Identifiable, Hashable {
         return Array(out.prefix(20))
     }
 }
+
+/// Summary rows for the grouped Flows views; mirrors `groupFlows` in web/lib.js.
+struct FlowGroup: Identifiable, Hashable {
+    enum By: String, CaseIterable, Identifiable { case flat = "Flat", app = "By app", host = "By host", interface = "By interface"
+        var id: Self { self } }
+    var id: String { key }
+    let key: String
+    var count = 0
+    var rx = 0.0, tx = 0.0
+    var bytesIn = 0, bytesOut = 0
+
+    static func group(_ flows: [NivoraSnapshot.Flow], by: By) -> [FlowGroup] {
+        guard by != .flat else { return [] }
+        var map: [String: FlowGroup] = [:]
+        for f in flows {
+            let key: String
+            switch by {
+            case .app: key = f.process.isEmpty ? "Unknown" : f.process
+            case .host: key = FlowFilter.host(of: f.remote)
+            case .interface: key = f.interface.isEmpty ? "—" : f.interface
+            case .flat: continue
+            }
+            var g = map[key] ?? FlowGroup(key: key)
+            g.count += 1; g.rx += f.rx_bps; g.tx += f.tx_bps; g.bytesIn += f.bytes_in; g.bytesOut += f.bytes_out
+            map[key] = g
+        }
+        return map.values.sorted { ($0.rx + $0.tx, $1.key) > ($1.rx + $1.tx, $0.key) }
+    }
+}

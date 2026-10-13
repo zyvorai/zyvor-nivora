@@ -211,3 +211,29 @@ export function dropFilterChip(query, index) {
     .map(t => { const i = t.indexOf(':'); return /\s/.test(t) ? (i > 0 ? `${t.slice(0, i + 1)}"${t.slice(i + 1)}"` : `"${t}"`) : t; })
     .join(' ');
 }
+
+/** Group flows by 'app' | 'host' | 'iface' for the summary views; sorted by live rate. */
+export function groupFlows(flows, by) {
+  const keyOf = { app: f => f.process || 'Unknown', host: f => hostOf(f.remote), iface: f => f.interface || '—' }[by];
+  if (!keyOf) return [];
+  const m = new Map();
+  for (const f of flows || []) {
+    const k = keyOf(f);
+    const g = m.get(k) || { key: k, by, count: 0, rx_bps: 0, tx_bps: 0, bytes_in: 0, bytes_out: 0 };
+    g.count++; g.rx_bps += Number(f.rx_bps || 0); g.tx_bps += Number(f.tx_bps || 0);
+    g.bytes_in += Number(f.bytes_in || 0); g.bytes_out += Number(f.bytes_out || 0);
+    m.set(k, g);
+  }
+  return [...m.values()].sort((a, b) => (b.rx_bps + b.tx_bps) - (a.rx_bps + a.tx_bps) || a.key.localeCompare(b.key));
+}
+
+/** Compare two flow lists by id: what appeared, vanished, and the biggest live-rate movers. */
+export function diffFlows(before, after, topN = 8) {
+  const a = new Map((before || []).map(f => [f.id, f])), b = new Map((after || []).map(f => [f.id, f]));
+  const added = [...b.values()].filter(f => !a.has(f.id));
+  const removed = [...a.values()].filter(f => !b.has(f.id));
+  const rate = f => Number(f.total_bps || 0);
+  const changed = [...b.values()].filter(f => a.has(f.id)).map(f => ({ flow: f, delta: rate(f) - rate(a.get(f.id)) }))
+    .filter(x => x.delta !== 0).sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta)).slice(0, topN);
+  return { added, removed, changed };
+}

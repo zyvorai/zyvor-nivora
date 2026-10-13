@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => [...document.querySelectorAll(q)];
-import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
+import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,groupFlows,diffFlows,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
 const PREF_KEY='nivora-prefs';
-const state = { token: '', snapshot: null, view: 'overview', paused: false, timer: null, search: '', sort: {applications:{key:'total_bps',dir:'desc'},flows:{key:'rx_bps',dir:'desc'}}, samples: {}, prefs: mergePrefs(null), error: '', updatedAt: 0, alerted: new Set(), sheetApp: null, goto: false };
+const state = { token: '', snapshot: null, view: 'overview', paused: false, timer: null, search: '', sort: {applications:{key:'total_bps',dir:'desc'},flows:{key:'rx_bps',dir:'desc'}}, samples: {}, prefs: mergePrefs(null), error: '', updatedAt: 0, alerted: new Set(), sheetApp: null, sheetFlow: null, flowGroup: 'flat', baseline: null, goto: false };
 try{state.prefs=mergePrefs(localStorage.getItem(PREF_KEY))}catch{}
 function savePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify(state.prefs))}catch{}applyPrefs()}
 function applyPrefs(){
@@ -40,6 +40,8 @@ async function refresh(){
     const snap=await api('/v1/snapshot'); state.snapshot=snap; state.error=''; state.updatedAt=Date.now();
     for(const ap of snap.apps||[])pushSample(state.samples,ap.name,ap.total_bps||((ap.rx_bps||0)+(ap.tx_bps||0)));
     pushSample(state.samples,'__total',snap.traffic?.total_bps||0);
+    const live=new Set();for(const f of snap.flows||[]){live.add('flow:'+f.id);pushSample(state.samples,'flow:'+f.id,f.total_bps||0)}
+    for(const k of Object.keys(state.samples))if(k.startsWith('flow:')&&!live.has(k))delete state.samples[k];
     setLive(true); checkAlerts(snap); render({tick:true});
     $('#hostName').textContent=snap.host?.name||'This Mac'; $('#hostMeta').textContent=`${snap.host?.os||''} ${snap.host?.release||''} · ${snap.host?.arch||''}`;
   }catch(e){if(!String(e).includes('Authentication')){state.error=String(e.message||e);setLive(false,'Disconnected — retrying');if(!state.snapshot)render()}}
@@ -69,7 +71,7 @@ function appTable(apps){
   return `<div class="table-wrap"><table><thead><tr><th></th>${th('applications','name','Application')}${th('applications','connections','Connections')}${th('applications','rx_bps','↓ Live')}${th('applications','tx_bps','↑ Live')}${th('applications','bytes_in','Received')}${th('applications','bytes_out','Sent')}<th>Destinations</th></tr></thead><tbody>${rows.map(a=>`<tr class="clickable" data-app="${esc(a.name)}"><td><button class="pin ${pins.includes(a.name)?'on':''}" data-pin="${esc(a.name)}" aria-label="Pin ${esc(a.name)}" aria-pressed="${pins.includes(a.name)}">★</button></td><td><div class="app-cell"><div class="app-icon">${esc(initials(a.name))}</div><div><strong>${highlight(a.name,state.search)}</strong><div class="muted mono">${a.pid||''}</div></div></div></td><td>${a.connections}</td><td>${fmtRate(a.rx_bps||0)}</td><td>${fmtRate(a.tx_bps||0)}</td><td>${fmtBytes(a.bytes_in)}</td><td>${fmtBytes(a.bytes_out)}</td><td>${(a.domains||[]).slice(0,2).map(x=>badge(x)).join(' ')||'—'}</td></tr>`).join('')||`<tr><td colspan="8"><div class="empty">${state.search?'No applications match your search.':'No application traffic yet.'}</div></td></tr>`}</tbody></table></div>`}
 function flowTable(flows,sortable=true){
   const so=state.sort.flows,rows=sortable?sortRows(flows,so.key,so.dir):flows,h=(k,l)=>sortable?th('flows',k,l):`<th>${l}</th>`;
-  return `<div class="table-wrap"><table><thead><tr>${h('process','App')}${h('protocol','Proto')}${h('remote','Remote')}${h('state','State')}${h('interface','Interface')}${h('rtt_ms','RTT')}${h('rx_bps','↓ Live')}${h('tx_bps','↑ Live')}${h('bytes_in','↓')}${h('bytes_out','↑')}</tr></thead><tbody>${rows.map(f=>`<tr><td><div class="app-cell"><div class="app-icon">${esc(initials(f.process))}</div>${highlight(f.process||'Unknown',state.search)}</div></td><td>${badge((f.protocol||'—').toUpperCase())}</td><td class="mono">${highlight(f.remote||'—',state.search)}</td><td>${esc(f.state||'—')}</td><td>${badge(f.interface||'—')}</td><td>${f.rtt_ms?`${Number(f.rtt_ms).toFixed(1)} ms`:'—'}</td><td>${fmtRate(f.rx_bps||0)}</td><td>${fmtRate(f.tx_bps||0)}</td><td>${fmtBytes(f.bytes_in)}</td><td>${fmtBytes(f.bytes_out)}</td></tr>`).join('')||`<tr><td colspan="10"><div class="empty">${state.search?'No flows match your search.':'No flows in the current sample.'}</div></td></tr>`}</tbody></table></div>`}
+  return `<div class="table-wrap"><table><thead><tr>${h('process','App')}${h('protocol','Proto')}${h('remote','Remote')}${h('state','State')}${h('interface','Interface')}${h('rtt_ms','RTT')}${h('rx_bps','↓ Live')}${h('tx_bps','↑ Live')}${h('bytes_in','↓')}${h('bytes_out','↑')}</tr></thead><tbody>${rows.map(f=>`<tr class="clickable" data-flow="${esc(f.id)}"><td><div class="app-cell"><div class="app-icon">${esc(initials(f.process))}</div>${highlight(f.process||'Unknown',state.search)}</div></td><td>${badge((f.protocol||'—').toUpperCase())}</td><td class="mono">${highlight(f.remote||'—',state.search)}</td><td>${esc(f.state||'—')}</td><td>${badge(f.interface||'—')}</td><td>${f.rtt_ms?`${Number(f.rtt_ms).toFixed(1)} ms`:'—'}</td><td>${fmtRate(f.rx_bps||0)}</td><td>${fmtRate(f.tx_bps||0)}</td><td>${fmtBytes(f.bytes_in)}</td><td>${fmtBytes(f.bytes_out)}</td></tr>`).join('')||`<tr><td colspan="10"><div class="empty">${state.search?'No flows match your search.':'No flows in the current sample.'}</div></td></tr>`}</tbody></table></div>`}
 function findingsList(fs){return fs.length?fs.map(f=>`<div class="finding"><i class="severity ${esc(f.severity)}"></i><div><strong>${esc(f.title)}</strong><p>${esc(f.detail)}</p></div></div>`).join(''):`<div class="empty">No current findings.<br>Observe-first mode is quiet.</div>`}
 
 function overview(s){
@@ -87,7 +89,37 @@ function health(s){const h=s.health||{},d=s.diagnosis||{};return `<div class="gr
 function networkMap(s){const t=s.topology||{},nodes=t.nodes||[],edges=t.edges||[];const apps=nodes.filter(n=>n.kind==='app').slice(0,10),ifs=nodes.filter(n=>n.kind==='interface'),dst=nodes.filter(n=>['domain','internet','local','loopback'].includes(n.kind)).slice(0,14);const count=(id,side)=>edges.filter(e=>e[side]===id).reduce((n,e)=>n+(e.flows||0),0);return `<div class="grid stats">${stat('Nodes',nodes.length,'topology objects')}${stat('Edges',edges.length,'observed relationships')}${stat('Applications',apps.length,'shown')}${stat('Destinations',dst.length,'top traffic')}</div><div class="network-map"><div class="map-column"><h3>Applications</h3>${apps.map(n=>`<div class="map-chip app"><strong>${esc(n.label)}</strong><small>${count(n.id,'source')} paths</small></div>`).join('')}</div><div class="map-arrow">→</div><div class="map-column"><h3>This Mac</h3><div class="map-chip host"><strong>${esc(s.host?.name||'This Mac')}</strong><small>${esc(s.wifi?.ssid||'macOS')}</small></div>${ifs.map(n=>`<div class="map-chip iface"><strong>${esc(n.label||'unknown')}</strong><small>${count(n.id,'target')} app edges · ${count(n.id,'source')} destinations</small></div>`).join('')}</div><div class="map-arrow">→</div><div class="map-column"><h3>Destinations</h3>${dst.map(n=>`<div class="map-chip dst"><strong>${esc(n.label)}</strong><small>${esc(n.kind)}</small></div>`).join('')}</div></div>`}
 
 function applications(s){const a=filteredApps();return `<div class="grid stats">${stat('Apps',a.length,'network-active')}${stat('Top sender',a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.tx_bps||0))}${stat('Top receiver',a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.rx_bps||0))}${stat('Internet apps',a.filter(x=>x.internet_connections).length,'public destinations')}</div><div class="card"><h2>Applications</h2>${appTable(a)}</div>`}
-function flows(s){const f=filteredFlows();return `<div class="grid stats">${stat('Flows',f.length,'observed now')}${stat('TCP',f.filter(x=>x.protocol==='tcp').length,'connections')}${stat('UDP',f.filter(x=>x.protocol==='udp').length,'flows')}${stat('High RTT',f.filter(x=>(x.rtt_ms||0)>150).length,'over 150 ms')}</div><div class="card"><h2>Live flows</h2>${filterBar()}${flowTable(f)}</div>`}
+function flows(s){const f=filteredFlows();return `<div class="grid stats">${stat('Flows',f.length,'observed now')}${stat('TCP',f.filter(x=>x.protocol==='tcp').length,'connections')}${stat('UDP',f.filter(x=>x.protocol==='udp').length,'flows')}${stat('High RTT',f.filter(x=>(x.rtt_ms||0)>150).length,'over 150 ms')}</div>${compareCard(f)}<div class="card"><h2>Live flows</h2>${filterBar()}${groupBar()}${state.flowGroup==='flat'?flowTable(f):groupTable(f)}</div>`}
+function groupBar(){
+  const opts=[['flat','Flat'],['app','By app'],['host','By host'],['iface','By interface']];
+  return `<div class="seg" role="group" aria-label="Group flows">${opts.map(([k,l])=>`<button class="seg-btn ${state.flowGroup===k?'on':''}" data-group="${k}" aria-pressed="${state.flowGroup===k}">${l}</button>`).join('')}<button class="seg-btn" id="baselineBtn">${state.baseline?'Re-pin baseline':'Pin baseline'}</button>${state.baseline?'<button class="seg-btn" id="baselineClear">Clear</button>':''}</div>`}
+function groupTable(f){
+  const g=groupFlows(f,state.flowGroup);
+  return `<div class="table-wrap"><table><thead><tr><th>${state.flowGroup==='app'?'Application':state.flowGroup==='host'?'Host':'Interface'}</th><th>Flows</th><th>↓ Live</th><th>↑ Live</th><th>↓</th><th>↑</th></tr></thead><tbody>${g.map(x=>`<tr class="clickable" data-groupkey="${esc(x.key)}"><td><strong>${esc(x.key)}</strong></td><td>${x.count}</td><td>${fmtRate(x.rx_bps)}</td><td>${fmtRate(x.tx_bps)}</td><td>${fmtBytes(x.bytes_in)}</td><td>${fmtBytes(x.bytes_out)}</td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">No flows in the current sample.</div></td></tr>'}</tbody></table></div>`}
+function compareCard(f){
+  if(!state.baseline)return '';
+  const d=diffFlows(state.baseline.flows,f),since=new Date(state.baseline.at).toLocaleTimeString();
+  const row=(x,t)=>`<div class="metric-inline"><span>${esc(x.process||'Unknown')} <span class="muted mono">${esc(x.remote||'')}</span></span><span>${t}</span></div>`;
+  return `<div class="card"><h2>Changes since ${esc(since)}</h2><div class="grid stats">${stat('New',d.added.length,'flows appeared')}${stat('Gone',d.removed.length,'flows ended')}${stat('Rate moves',d.changed.length,'top movers')}</div>${d.added.slice(0,6).map(x=>row(x,'new')).join('')}${d.removed.slice(0,6).map(x=>row(x,'gone')).join('')}${d.changed.map(c=>row(c.flow,(c.delta>0?'+':'−')+fmtRate(Math.abs(c.delta)))).join('')}</div>`}
+function openFlowSheet(id){state.sheetFlow=id;state.sheetApp=null;renderFlowSheet();$('#sheet').classList.add('open');$('#sheet').setAttribute('aria-hidden','false')}
+function renderFlowSheet(){
+  const s=state.snapshot,id=state.sheetFlow,el=$('#sheet');if(!s||!id)return;
+  const f=(s.flows||[]).find(x=>x.id===id);
+  if(!f){el.innerHTML=`<div class="sheet-head"><h2>Flow ended</h2><button class="icon-btn close" id="sheetClose" aria-label="Close">✕</button></div><div class="empty">This flow is no longer in the current sample.</div>`;$('#sheetClose').onclick=closeSheet;return}
+  const host=hostOf(f.remote),same=(s.flows||[]).filter(x=>x.id!==f.id&&hostOf(x.remote)===host).slice(0,6);
+  const hits=(s.rule_hits||[]).filter(h=>h.flow_id===f.id);
+  const kv=(k,v)=>`<div class="metric-inline"><span>${k}</span><span class="mono">${esc(v||'—')}</span></div>`;
+  el.innerHTML=`<div class="sheet-head"><div class="app-icon">${esc(initials(f.process))}</div><div><h2>${esc(f.process||'Unknown')}</h2><small class="muted">${esc((f.protocol||'').toUpperCase())} → ${esc(f.remote||'')}</small></div><button class="icon-btn close" id="sheetClose" aria-label="Close">✕</button></div>
+  <div class="sheet-stats"><div><span>↓ Live</span><b>${fmtRate(f.rx_bps||0)}</b></div><div><span>↑ Live</span><b>${fmtRate(f.tx_bps||0)}</b></div><div><span>Total</span><b>${fmtBytes((f.bytes_in||0)+(f.bytes_out||0))}</b></div></div>
+  <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:48px" aria-hidden="true" class="talker"><path d="${sparklinePath(state.samples['flow:'+f.id],120,32)}" style="fill:none;stroke:var(--blue);stroke-width:1.6"/></svg>
+  <h3 style="margin:14px 0 6px">Details</h3>${kv('Local',f.local)}${kv('Remote',f.remote)}${kv('State',f.state)}${kv('Interface',f.interface)}${kv('RTT',f.rtt_ms?`${Number(f.rtt_ms).toFixed(1)} ms`:'')}${kv('Source',f.source)}${kv('Bundle',f.bundle_id)}${kv('PID',f.pid?String(f.pid):'')}${kv('First seen',f.first_seen?new Date(f.first_seen).toLocaleTimeString():'')}
+  <h3 style="margin:14px 0 6px">Same host (${same.length})</h3><div>${same.map(x=>badge(`${x.process} ${x.remote}`)).join(' ')||'<span class="muted">no other flows</span>'}</div>
+  <h3 style="margin:14px 0 6px">Rules</h3>${hits.map(h=>`<div class="metric-inline"><span>${esc(h.action)}</span><span class="mono">${esc(h.rule_id)}</span></div>`).join('')||'<p class="muted" style="font-size:11px">No rule matches this flow. Observe-first: blocking is leased for one hour and needs a signed NetworkExtension to take effect.</p>'}
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="glass-btn" id="flowFilterHost">Filter to this host</button><button class="glass-btn" data-frule="observe">Observe</button><button class="glass-btn" data-frule="block">Block host for 1 h</button></div>`;
+  $('#sheetClose').onclick=closeSheet;
+  $('#flowFilterHost').onclick=()=>{state.search=`host:${host}`;$('#search').value=state.search;closeSheet();setView('flows')};
+  el.querySelectorAll('[data-frule]').forEach(b=>b.onclick=async()=>{try{await api('/v1/rules',{method:'POST',body:JSON.stringify({action:b.dataset.frule,app:f.process,ip:host})});toast(`Rule added: ${b.dataset.frule} ${host}`,'ok');refresh()}catch(e){toast(String(e.message||e),'error')}});
+}
 function domains(s){const c=new Map();for(const f of filteredFlows()){const h=hostOf(f.remote);if(!h)continue;const o=c.get(h)||{host:h,flows:0,bytes:0,apps:new Set(),ports:new Set()};o.flows++;o.bytes+=(f.bytes_in||0)+(f.bytes_out||0);o.apps.add(f.process);if(portOf(f.remote))o.ports.add(portOf(f.remote));c.set(h,o)}const arr=[...c.values()].sort((a,b)=>b.bytes-a.bytes);return `<div class="card"><h2>Destinations</h2><div class="table-wrap"><table><thead><tr><th>Host</th><th>Apps</th><th>Flows</th><th>Ports</th><th>Traffic</th></tr></thead><tbody>${arr.map(x=>`<tr><td class="mono">${esc(x.host)}</td><td>${[...x.apps].slice(0,3).map(a=>badge(a)).join(' ')}</td><td>${x.flows}</td><td>${[...x.ports].join(', ')||'—'}</td><td>${fmtBytes(x.bytes)}</td></tr>`).join('')}</tbody></table></div></div>`}
 function dns(s){const d=s.dns||{};return `<div class="grid stats">${stat('Resolvers',(d.resolvers||[]).length,'scutil resolvers')}${stat('Nameservers',(d.servers||[]).length,(d.servers||[]).join(' · ')||'none')}${stat('VPN resolver',(d.resolvers||[]).filter(r=>String(r.interface||'').startsWith('utun')).length,'scoped to tunnel')}${stat('Search domains',[...new Set((d.resolvers||[]).flatMap(r=>r.search||[]))].length,'configured')}</div><div class="topology">${(d.resolvers||[]).map(r=>`<div class="card"><h2>Resolver ${r.index}</h2><div class="metric-inline"><span>Interface</span><span>${esc(r.interface||'default')}</span></div><div class="metric-inline"><span>Domain</span><span>${esc(r.domain||'default')}</span></div><div class="metric-inline"><span>Servers</span><span class="mono">${esc((r.nameservers||[]).join(', ')||'—')}</span></div></div>`).join('')||'<div class="card empty">No DNS resolver reported</div>'}</div>`}
 function interfaces(s){return `<div class="topology">${(s.interfaces||[]).map(i=>`<div class="card"><h2>${esc(i.name)} ${badge(i.status||'unknown',i.status==='active'?'green':'')}</h2><div class="metric-inline"><span>Kind</span><span>${esc(i.kind)}</span></div><div class="metric-inline"><span>IPv4</span><span class="mono">${esc((i.ipv4||[]).join(', ')||'—')}</span></div><div class="metric-inline"><span>IPv6</span><span class="mono">${esc((i.ipv6||[]).join(', ')||'—')}</span></div><div class="metric-inline"><span>MTU</span><span>${i.mtu||'—'}</span></div><div class="metric-inline"><span>MAC</span><span class="mono">${esc(i.mac||'—')}</span></div></div>`).join('')||'<div class="card empty">No interfaces reported</div>'}</div>`}
@@ -136,7 +168,7 @@ function render(opts={}){
   }
   body.innerHTML=renderBody(s);
   if(state.view==='timeline')loadTimeline();if(state.view==='health')loadSeries();if(state.view==='investigator')bindInvestigator();if(state.view==='security')bindSecurity();if(state.view==='overview')loadOverviewChart();
-  if(state.sheetApp)renderSheet();
+  if(state.sheetFlow)renderFlowSheet();else if(state.sheetApp)renderSheet();
 }
 
 function drawOverviewChart(rows){
@@ -161,7 +193,7 @@ async function loadOverviewChart(){
 
 /* app detail sheet */
 function openSheet(name){state.sheetApp=name;renderSheet();$('#sheet').classList.add('open');$('#sheet').setAttribute('aria-hidden','false')}
-function closeSheet(){state.sheetApp=null;$('#sheet').classList.remove('open');$('#sheet').setAttribute('aria-hidden','true')}
+function closeSheet(){state.sheetApp=null;state.sheetFlow=null;$('#sheet').classList.remove('open');$('#sheet').setAttribute('aria-hidden','true')}
 function renderSheet(){
   const s=state.snapshot,name=state.sheetApp,el=$('#sheet');if(!s||!name)return;
   const a=(s.apps||[]).find(x=>x.name===name),fl=(s.flows||[]).filter(f=>f.process===name);
@@ -246,6 +278,14 @@ for(const d of ['#paletteDialog','#helpDialog','#exportDialog'])$(d).addEventLis
 $('#contentBody').addEventListener('click',e=>{
   const sortTh=e.target.closest('th[data-sort]');
   if(sortTh){const so=state.sort[sortTh.dataset.view];so.dir=so.key===sortTh.dataset.sort&&so.dir==='desc'?'asc':'desc';so.key=sortTh.dataset.sort;render();return}
+  const gb=e.target.closest('[data-group]');
+  if(gb){state.flowGroup=gb.dataset.group;render();return}
+  const gk=e.target.closest('[data-groupkey]');
+  if(gk){const key=gk.dataset.groupkey,field={app:'app',host:'host',iface:'iface'}[state.flowGroup],q=`${field}:${/\s/.test(key)?`"${key}"`:key}`;state.search=q;$('#search').value=q;state.flowGroup='flat';render();return}
+  if(e.target.closest('#baselineBtn')){state.baseline={at:Date.now(),flows:JSON.parse(JSON.stringify(state.snapshot?.flows||[]))};toast('Baseline pinned','ok');render();return}
+  if(e.target.closest('#baselineClear')){state.baseline=null;render();return}
+  const fr=e.target.closest('tr[data-flow]');
+  if(fr&&!e.target.closest('button')){openFlowSheet(fr.dataset.flow);return}
   const chip=e.target.closest('[data-chip]');
   if(chip){state.search=dropFilterChip(state.search,Number(chip.dataset.chip));$('#search').value=state.search;render();return}
   const vq=e.target.closest('[data-view-q]');

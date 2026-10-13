@@ -33,3 +33,12 @@ Nivora should feel like a sibling of Vytrix, not a generic network dashboard. Co
 - **Preferences are local and non-sensitive.** Theme, accent, density, transparency, refresh interval, alert threshold and pinned apps live in `localStorage['nivora-prefs']`; the API token is never persisted.
 - **Alerts observe, they do not enforce.** The optional per-app throughput threshold raises a toast and a Security badge only.
 - **Exports stay local.** Snapshot JSON and flows CSV are generated in the browser; CSV cells that look like formulas are neutralised.
+
+## Filters, views and inspection
+
+- The search box accepts the shared filter grammar (`docs/API.md`); each token becomes a removable chip above Flows.
+- Saved views store a filter string only (max 20, names trimmed, in `localStorage['nivora-views']` via prefs / native UserDefaults); they appear in the command palette.
+- Clicking a flow row opens the flow inspector; "Filter to this host" and leased rules are the only actions, both observe-first.
+- Group-by (app/host/interface) and "Pin baseline" compare are read-only summaries over the current sample.
+- Exports state that they contain metadata only and offer redaction.
+

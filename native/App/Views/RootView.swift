@@ -67,6 +67,9 @@ struct RootView: View {
         .sheet(item: Binding(get: { store.selectedApp.map(AppSelection.init) }, set: { store.selectedApp = $0?.name })) { sel in
             AppDetailSheet(name: sel.name)
         }
+        .sheet(item: Binding(get: { store.selectedFlow.map(FlowSelection.init) }, set: { store.selectedFlow = $0?.id })) { sel in
+            FlowDetailSheet(flowID: sel.id)
+        }
         .task { await filter.load() }
     }
 
@@ -103,3 +106,5 @@ struct HostFooter: View {
         }
     }
 }
+
+struct FlowSelection: Identifiable { let id: String }

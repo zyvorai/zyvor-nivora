@@ -4,12 +4,48 @@ import SwiftUI
 struct FlowsView: View {
     @EnvironmentObject var store: NivoraStore
     @State private var order = [KeyPathComparator(\NivoraSnapshot.Flow.rx_bps, order: .reverse)]
+    @State private var grouping: FlowGroup.By = .flat
 
     var body: some View {
         let flows = store.flows.sorted(using: order)
+        Group {
+            if grouping == .flat { flowTable(flows) } else { groupTable(flows) }
+        }
+        .toolbar {
+            ToolbarItem {
+                Picker("Group", selection: $grouping) {
+                    ForEach(FlowGroup.By.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .modifier(FlowsToolbar(flows: flows))
+    }
+
+    private func groupTable(_ flows: [NivoraSnapshot.Flow]) -> some View {
+        let groups = FlowGroup.group(flows, by: grouping)
+        return Table(groups) {
+            TableColumn(grouping == .app ? "Application" : grouping == .host ? "Host" : "Interface") { g in
+                Button { store.search = "\(grouping == .app ? "app" : grouping == .host ? "host" : "iface"):\(g.key.contains(" ") ? "\"\(g.key)\"" : g.key)"; grouping = .flat } label: { Text(g.key).fontWeight(.medium) }
+                    .buttonStyle(.plain)
+            }
+            TableColumn("Flows") { Text("\($0.count)").monospacedDigit() }
+            TableColumn("↓ Live") { Text(rateString($0.rx)).monospacedDigit() }
+            TableColumn("↑ Live") { Text(rateString($0.tx)).monospacedDigit() }
+            TableColumn("↓") { Text(byteString($0.bytesIn)).monospacedDigit() }
+            TableColumn("↑") { Text(byteString($0.bytesOut)).monospacedDigit() }
+        }
+    }
+
+    private func flowTable(_ flows: [NivoraSnapshot.Flow]) -> some View {
         Table(flows, sortOrder: $order) {
             TableColumn("Application", value: \.process) { f in
-                Button { store.selectedApp = f.process } label: { Text(f.process).fontWeight(.medium) }.buttonStyle(.plain)
+                HStack {
+                    Button { store.selectedApp = f.process } label: { Text(f.process).fontWeight(.medium) }.buttonStyle(.plain)
+                    Spacer()
+                    Button { store.selectedFlow = f.id } label: { Image(systemName: "info.circle") }
+                        .buttonStyle(.plain).help("Flow details").accessibilityLabel("Flow details")
+                }
             }
             TableColumn("Proto", value: \.protocol) { StatusPill(text: $0.protocol.uppercased(), kind: "neutral") }
             TableColumn("Remote", value: \.remote) { Text($0.remote).font(.system(.callout, design: .monospaced)) }
@@ -19,6 +55,16 @@ struct FlowsView: View {
             TableColumn("↓ Live", value: \.rx_bps) { Text(rateString($0.rx_bps)).monospacedDigit() }
             TableColumn("↑ Live", value: \.tx_bps) { Text(rateString($0.tx_bps)).monospacedDigit() }
         }
+    }
+}
+
+/// Toolbar items, export alert and empty overlay shared by the flat and grouped Flows layouts.
+private struct FlowsToolbar: ViewModifier {
+    @EnvironmentObject var store: NivoraStore
+    let flows: [NivoraSnapshot.Flow]
+
+    func body(content: Content) -> some View {
+        content
         .toolbar {
             ToolbarItem {
                 Menu {

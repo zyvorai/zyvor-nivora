@@ -473,6 +473,8 @@ def annotate_rates(flows: list[dict[str, Any]], previous: dict[str, Any] | None,
     for flow in flows:
         rx = tx = 0.0
         old = prev_flows.get(flow.get("id"))
+        flow["first_seen"] = (old or {}).get("first_seen") or (old or {}).get("last_seen") or timestamp
+        flow["last_seen"] = timestamp
         if old and elapsed:
             rx = max(0, as_int(flow.get("bytes_in")) - as_int(old.get("bytes_in"))) / elapsed
             tx = max(0, as_int(flow.get("bytes_out")) - as_int(old.get("bytes_out"))) / elapsed
@@ -1211,13 +1213,25 @@ def apply_rule_preview(flows: list[dict[str, Any]], rules: list[dict[str, Any]])
     return hits
 
 
-def demo_snapshot() -> dict[str, Any]:
+def demo_snapshot(now: float | None = None) -> dict[str, Any]:
+    now = time.time() if now is None else now
     flows = [
         {"id":"f1","process":"Google Chrome","pid":510,"bundle_id":"com.google.Chrome","protocol":"tcp","local":"192.168.1.42:53001","remote":"142.250.183.14:443","state":"ESTABLISHED","bytes_in":734003200,"bytes_out":31457280,"rx_bps":1843200.0,"tx_bps":92160.0,"total_bps":1935360.0,"interface":"en0","rtt_ms":31.2,"source":"demo"},
         {"id":"f2","process":"Slack","pid":602,"bundle_id":"com.tinyspeck.slackmacgap","protocol":"tcp","local":"192.168.1.42:53102","remote":"13.107.6.175:443","state":"ESTABLISHED","bytes_in":98566144,"bytes_out":12582912,"rx_bps":125000.0,"tx_bps":18000.0,"total_bps":143000.0,"interface":"utun4","rtt_ms":181.0,"source":"demo"},
         {"id":"f3","process":"Xcode","pid":711,"bundle_id":"com.apple.dt.Xcode","protocol":"tcp","local":"192.168.1.42:53200","remote":"github.com:443","state":"ESTABLISHED","bytes_in":67108864,"bytes_out":83886080,"rx_bps":245000.0,"tx_bps":530000.0,"total_bps":775000.0,"interface":"en0","rtt_ms":36.0,"source":"demo"},
         {"id":"f4","process":"fluxvm-vz-runner","pid":889,"bundle_id":"dev.zyvor.fluxvm","protocol":"tcp","local":"10.0.2.15:40544","remote":"github.com:443","state":"ESTABLISHED","bytes_in":52428800,"bytes_out":10485760,"rx_bps":92000.0,"tx_bps":22000.0,"total_bps":114000.0,"interface":"vmnet8","rtt_ms":42.0,"source":"demo"},
     ]
+    # Make the demo breathe: rates oscillate per flow and byte counters advance with the same rates,
+    # so charts, sparklines and the diff view have real shape instead of flat blocks.
+    import math
+    for i, f in enumerate(flows):
+        scale = 1.0 + 0.55 * math.sin(now / 9.0 + i * 1.7) + 0.2 * math.sin(now / 3.1 + i)
+        scale = max(0.05, scale)
+        for k in ("rx_bps", "tx_bps"):
+            f[k] = round(f[k] * scale, 2)
+        f["total_bps"] = round(f["rx_bps"] + f["tx_bps"], 2)
+        f["bytes_in"] += int(f["rx_bps"] * (now % 3600))
+        f["bytes_out"] += int(f["tx_bps"] * (now % 3600))
     snap = {
         "version": VERSION,
         "timestamp": utc_now(),
@@ -1266,6 +1280,10 @@ class MacCollector:
     def collect(self, previous: dict[str, Any] | None = None) -> dict[str, Any]:
         if self.demo:
             snap = demo_snapshot()
+            prev = {f.get("id"): f for f in (previous or {}).get("flows", [])}
+            for f in snap["flows"]:
+                f["first_seen"] = (prev.get(f["id"]) or {}).get("first_seen") or snap["timestamp"]
+                f["last_seen"] = snap["timestamp"]
             snap["findings"] = derive_findings(snap, previous)
             snap["health"] = compute_health(snap)
             return snap

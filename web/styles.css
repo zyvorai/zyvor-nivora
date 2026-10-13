@@ -130,3 +130,7 @@ mark{background:rgba(255,159,10,.28)}
 .view-pill button{border:0;background:transparent;color:var(--text);font:inherit;font-size:12px;padding:3px 9px;cursor:pointer}
 .view-pill button:last-child{color:var(--muted);padding-left:4px}
 .view-pill button:hover{background:var(--panel-hover,rgba(127,127,127,.12))}
+
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.seg-btn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:980px;padding:3px 11px;font:inherit;font-size:12px;cursor:pointer}
+.seg-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}

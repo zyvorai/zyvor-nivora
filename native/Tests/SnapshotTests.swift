@@ -104,3 +104,16 @@ final class SavedViewTests: XCTestCase {
         XCTAssertEqual(Set(out.map(\.query)).count, out.count)
     }
 }
+
+final class GroupTests: XCTestCase {
+    func testGroupsMatchWebSemantics() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("../../tests/fixtures/filter-vectors.json")
+        struct V: Decodable { let flows: [NivoraSnapshot.Flow] }
+        let flows = try JSONDecoder().decode(V.self, from: Data(contentsOf: url)).flows
+        XCTAssertTrue(FlowGroup.group(flows, by: .flat).isEmpty)
+        let byApp = FlowGroup.group(flows, by: .app)
+        XCTAssertEqual(byApp.first?.key, "Safari")                 // highest live rate
+        XCTAssertEqual(byApp.map(\.count).reduce(0, +), flows.count)
+        XCTAssertTrue(FlowGroup.group(flows, by: .host).contains { $0.key == "2001:db8::7" })
+    }
+}
