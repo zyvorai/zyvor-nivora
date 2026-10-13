@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Native UX: filter bar (removable chips, quick filters, "N of M", saved views) on Flows and Applications, baseline compare card, flow rate sparkline in the inspector, inspector reachable from the application sheet, "Clear filter" empty states, ⌘1–⌘9 pane shortcuts (Go menu), last pane remembered, wider table columns.
+- Fix: the app bundle never contained the collector or dashboard (xcodegen ignores a top-level `resources:` key); they are now bundled as resource sources, including `capture.py`, and `install-macos.sh` installs `capture.py`. A contract test guards both.
 - Opt-in packet capture: privileged `NivoraCaptureHelper` (SMAppService daemon; fixed-argv tcpdump, structured validated requests, caps, 24 h retention), `/v1/captures` API, web and native Capture panes, "Capture this flow", pcap download, demo simulation. Compile- and unit-verified only; see `docs/CAPTURE.md`.
 - Flow inspector (web sheet, native `FlowDetailSheet`), grouped Flows views (by app/host/interface), pinned-baseline compare (web), `first_seen`/`last_seen` per flow, and a demo that now varies over time so charts have shape.
 - `GET /v1/export` (flows/apps/timeline/snapshot/bundle; CSV/JSON/NDJSON/zip; current filter; salted-hash redaction) with an Export dialog in the web UI and an Export menu in the native Flows pane.

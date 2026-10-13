@@ -40,9 +40,17 @@ struct NivoraApp: App {
         .defaultSize(width: 1180, height: 760)
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandMenu("Go") {
+                ForEach(Array(Pane.allCases.prefix(9).enumerated()), id: \.element) { i, pane in
+                    Button(pane.rawValue) { store.pane = pane }
+                        .keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: .command)
+                }
+                Divider()
+                Button("Settings") { store.pane = .settings }.keyboardShortcut(",", modifiers: .command)
+            }
             CommandMenu("Source") {
-                Button("Monitor This Mac") { store.useThisMac() }.keyboardShortcut("1")
-                Button("Show Demo Data") { store.useDemo() }.keyboardShortcut("2")
+                Button("Monitor This Mac") { store.useThisMac() }.keyboardShortcut("1", modifiers: [.command, .shift])
+                Button("Show Demo Data") { store.useDemo() }.keyboardShortcut("2", modifiers: [.command, .shift])
                 Divider()
                 Button(store.paused ? "Resume" : "Pause") { store.paused.toggle() }.keyboardShortcut("p")
                 Button("Refresh") { Task { await store.refresh() } }.keyboardShortcut("r")

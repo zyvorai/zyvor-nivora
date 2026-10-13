@@ -21,12 +21,16 @@ targets:
       - path: Shared
       - path: CaptureHelper
         includes: ["Protocol.swift", "Validator.swift"]
-    resources:
+      # The stdlib-only collector and dashboard ship inside the app (Contents/Resources).
+      # xcodegen has no top-level `resources:` key; these must be sources with buildPhase: resources.
       - path: ../agent/nivora.py
         buildPhase: resources
       - path: ../agent/nivora_core.py
         buildPhase: resources
+      - path: ../agent/capture.py
+        buildPhase: resources
       - path: ../web
+        type: folder
         buildPhase: resources
     # xcodegen regenerates these plist/entitlements files on every run: keys must be declared here.
     info:

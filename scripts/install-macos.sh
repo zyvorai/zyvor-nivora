@@ -6,7 +6,7 @@ APPDIR="$HOME/Library/Application Support/Nivora"
 PLIST="$HOME/Library/LaunchAgents/dev.zyvor.nivora.collector.plist"
 PORT="${NIVORA_PORT:-9857}"
 mkdir -p "$APPDIR/agent" "$APPDIR/web" "$HOME/Library/LaunchAgents"
-cp "$ROOT/agent/nivora.py" "$ROOT/agent/nivora_core.py" "$ROOT/agent/nivoractl.py" "$APPDIR/agent/"
+cp "$ROOT/agent/nivora.py" "$ROOT/agent/nivora_core.py" "$ROOT/agent/capture.py" "$ROOT/agent/nivoractl.py" "$APPDIR/agent/"
 cp -R "$ROOT/web/." "$APPDIR/web/"
 TOKEN="$(python3 -c 'import secrets;print(secrets.token_urlsafe(32))')"
 security delete-generic-password -s dev.zyvor.nivora -a "$USER" >/dev/null 2>&1 || true

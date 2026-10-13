@@ -4,7 +4,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var store: NivoraStore
     @EnvironmentObject var filter: NivoraFilterManager
-    @State private var section: Pane? = NivoraApp.initialSection
+    @State private var section: Pane?
 
     var body: some View {
         NavigationSplitView {
@@ -72,6 +72,10 @@ struct RootView: View {
             FlowDetailSheet(flowID: sel.id)
         }
         .task { await filter.load() }
+        .onAppear { if section == nil { section = store.pane ?? .overview } }
+        // Keep the sidebar selection and the persisted/menu-driven pane in sync without recreating bindings.
+        .onChange(of: section) { _, new in if store.pane != new { store.pane = new } }
+        .onChange(of: store.pane) { _, new in if section != new { section = new } }
     }
 
     private var subtitle: String {

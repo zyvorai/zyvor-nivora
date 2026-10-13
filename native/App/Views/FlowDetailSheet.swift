@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 import SwiftUI
+import Charts
 
 /// Inspector for one flow: live rates, endpoints, related flows and leased observe-first rules.
 struct FlowDetailSheet: View {
@@ -24,6 +25,17 @@ struct FlowDetailSheet: View {
                 let same = (store.snapshot?.flows ?? []).filter { $0.id != flow.id && FlowFilter.host(of: $0.remote) == host }
                 HStack(spacing: 12) {
                     stat("↓ Live", rateString(flow.rx_bps)); stat("↑ Live", rateString(flow.tx_bps)); stat("Total", byteString(flow.bytes_in + flow.bytes_out))
+                }
+                if let series = store.flowRates[flowID], series.count > 1 {
+                    Panel(title: "Live rate", subtitle: "Last \(series.count) samples") {
+                        Chart(Array(series.enumerated()), id: \.offset) {
+                            AreaMark(x: .value("t", $0.offset), y: .value("bytes/s", $0.element)).foregroundStyle(Palette.accent.opacity(0.15))
+                            LineMark(x: .value("t", $0.offset), y: .value("bytes/s", $0.element)).foregroundStyle(Palette.accent)
+                        }
+                        .chartXAxis(.hidden)
+                        .chartYAxis { AxisMarks(position: .trailing) { v in AxisValueLabel { if let d = v.as(Double.self) { Text(rateString(d)) } } } }
+                        .frame(height: 70)
+                    }
                 }
                 Panel(title: "Details") {
                     row("Local", flow.local); row("Remote", flow.remote); row("State", flow.state)

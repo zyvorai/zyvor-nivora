@@ -67,6 +67,17 @@ final class NivoraStore: ObservableObject {
     @Published var search = ""
     @Published var selectedApp: String?
     @Published var selectedFlow: String?
+    @Published var pane: Pane? = {
+        if CommandLine.arguments.contains("--section") { return NivoraApp.initialSection }
+        return UserDefaults.standard.string(forKey: "nivora.pane").flatMap { Pane(rawValue: $0) } ?? .overview
+    }() {
+        didSet { if let pane { UserDefaults.standard.set(pane.rawValue, forKey: "nivora.pane") } }
+    }
+    @Published private(set) var baseline: (time: Date, flows: [NivoraSnapshot.Flow])?
+    @Published private(set) var flowRates: [String: [Double]] = [:]
+
+    func pinBaseline() { if let s = snapshot { baseline = (Date(), s.flows) } }
+    func clearBaseline() { baseline = nil }
     @Published var exportError: String?
     @Published var investigatorAnswer = "Ask what is happening on this Mac."
     @Published var thresholdMbps: Double = UserDefaults.standard.double(forKey: "nivora.thresholdMbps") {
@@ -170,6 +181,10 @@ final class NivoraStore: ObservableObject {
         do {
             let s = try JSONDecoder().decode(NivoraSnapshot.self, from: try await request("v1/snapshot"))
             snapshot = s
+            var rates = flowRates
+            for f in s.flows { rates[f.id, default: []].append(f.total_bps); if rates[f.id]!.count > 60 { rates[f.id]!.removeFirst() } }
+            for k in rates.keys where !s.flows.contains(where: { $0.id == k }) { rates[k] = nil }
+            flowRates = rates
             history.append(Sample(time: Date(), rx: s.traffic.rx_bps, tx: s.traffic.tx_bps, health: s.health.score))
             if history.count > maxSamples { history.removeFirst(history.count - maxSamples) }
             status = .live
