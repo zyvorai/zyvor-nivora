@@ -25,7 +25,7 @@ python3 - <<'PY'
 import json
 s=json.load(open('/tmp/nivora-demo.json'))
 assert s['apps'] and s['flows'] and s['interfaces'] and s['fluxvm']['connected']
-assert s['version'] == '0.2.0'
+assert s['version'] == json.load(open('package.json'))['version'], 'collector VERSION must match package.json'
 assert s['traffic']['total_bps'] > 0 and 0 <= s['health']['score'] <= 100
 assert s['topology']['nodes'] and s['neighbors'] and s['listeners']
 assert s['fluxvm']['network_endpoints'] and s['fluxvm']['hubble_flows']

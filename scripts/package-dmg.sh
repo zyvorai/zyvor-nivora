@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="${1:-$ROOT/native/build/Build/Products/Release/Nivora.app}"
-VER="${VERSION:-0.2.0}"
+VER="${VERSION:-$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['version'])" "$ROOT/package.json")}"
 OUT="$ROOT/Nivora-$VER.dmg"
 [[ -d "$APP" ]] || { echo "missing app: $APP" >&2; exit 1; }
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT

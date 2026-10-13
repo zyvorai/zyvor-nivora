@@ -23,7 +23,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 
 def utc_now() -> str:

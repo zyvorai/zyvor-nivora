@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "timestamp": "2026-10-13T05:25:21+00:00",
+  "version": "0.3.0",
+  "timestamp": "2026-10-13T06:13:41+00:00",
   "host": {
     "name": "zyvor-mac-studio",
     "os": "macOS",
@@ -154,14 +154,16 @@
       "local": "192.168.1.42:53001",
       "remote": "142.250.183.14:443",
       "state": "ESTABLISHED",
-      "bytes_in": 734003200,
-      "bytes_out": 31457280,
-      "rx_bps": 1843200.0,
-      "tx_bps": 92160.0,
-      "total_bps": 1935360.0,
+      "bytes_in": 2444690431,
+      "bytes_out": 116991644,
+      "rx_bps": 2082558.13,
+      "tx_bps": 104127.91,
+      "total_bps": 2186686.04,
       "interface": "en0",
       "rtt_ms": 31.2,
-      "source": "demo"
+      "source": "demo",
+      "first_seen": "2026-10-13T06:13:41+00:00",
+      "last_seen": "2026-10-13T06:13:41+00:00"
     },
     {
       "id": "f2",
@@ -172,14 +174,16 @@
       "local": "192.168.1.42:53102",
       "remote": "13.107.6.175:443",
       "state": "ESTABLISHED",
-      "bytes_in": 98566144,
-      "bytes_out": 12582912,
-      "rx_bps": 125000.0,
-      "tx_bps": 18000.0,
-      "total_bps": 143000.0,
+      "bytes_in": 136584159,
+      "bytes_out": 18057508,
+      "rx_bps": 46282.41,
+      "tx_bps": 6664.67,
+      "total_bps": 52947.08,
       "interface": "utun4",
       "rtt_ms": 181.0,
-      "source": "demo"
+      "source": "demo",
+      "first_seen": "2026-10-13T06:13:41+00:00",
+      "last_seen": "2026-10-13T06:13:41+00:00"
     },
     {
       "id": "f3",
@@ -190,14 +194,16 @@
       "local": "192.168.1.42:53200",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 67108864,
-      "bytes_out": 83886080,
-      "rx_bps": 245000.0,
-      "tx_bps": 530000.0,
-      "total_bps": 775000.0,
+      "bytes_in": 235313123,
+      "bytes_out": 447756512,
+      "rx_bps": 204768.67,
+      "tx_bps": 442968.95,
+      "total_bps": 647737.62,
       "interface": "en0",
       "rtt_ms": 36.0,
-      "source": "demo"
+      "source": "demo",
+      "first_seen": "2026-10-13T06:13:41+00:00",
+      "last_seen": "2026-10-13T06:13:41+00:00"
     },
     {
       "id": "f4",
@@ -208,14 +214,16 @@
       "local": "10.0.2.15:40544",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 52428800,
-      "bytes_out": 10485760,
-      "rx_bps": 92000.0,
-      "tx_bps": 22000.0,
-      "total_bps": 114000.0,
+      "bytes_in": 182309248,
+      "bytes_out": 41544130,
+      "rx_bps": 158113.99,
+      "tx_bps": 37809.87,
+      "total_bps": 195923.86,
       "interface": "vmnet8",
       "rtt_ms": 42.0,
-      "source": "demo"
+      "source": "demo",
+      "first_seen": "2026-10-13T06:13:41+00:00",
+      "last_seen": "2026-10-13T06:13:41+00:00"
     }
   ],
   "fluxvm": {
@@ -265,14 +273,16 @@
         "local": "10.0.2.15:40544",
         "remote": "github.com:443",
         "state": "ESTABLISHED",
-        "bytes_in": 52428800,
-        "bytes_out": 10485760,
-        "rx_bps": 92000.0,
-        "tx_bps": 22000.0,
-        "total_bps": 114000.0,
+        "bytes_in": 182309248,
+        "bytes_out": 41544130,
+        "rx_bps": 158113.99,
+        "tx_bps": 37809.87,
+        "total_bps": 195923.86,
         "interface": "vmnet8",
         "rtt_ms": 42.0,
-        "source": "demo"
+        "source": "demo",
+        "first_seen": "2026-10-13T06:13:41+00:00",
+        "last_seen": "2026-10-13T06:13:41+00:00"
       }
     ],
     "host_flow_count": 1,
@@ -285,7 +295,8 @@
     "fluxvm": true,
     "blocking": false,
     "neighbors": true,
-    "listeners": true
+    "listeners": true,
+    "capture": true
   },
   "apps": [
     {
@@ -293,10 +304,10 @@
       "pid": 510,
       "bundle_id": "com.google.Chrome",
       "connections": 1,
-      "bytes_in": 734003200,
-      "bytes_out": 31457280,
-      "rx_bps": 1843200.0,
-      "tx_bps": 92160.0,
+      "bytes_in": 2444690431,
+      "bytes_out": 116991644,
+      "rx_bps": 2082558.13,
+      "tx_bps": 104127.91,
       "domains": [
         "142.250.183.14"
       ],
@@ -304,18 +315,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 765460480,
-      "total_bps": 1935360.0
+      "total_bytes": 2561682075,
+      "total_bps": 2186686.04
     },
     {
       "name": "Xcode",
       "pid": 711,
       "bundle_id": "com.apple.dt.Xcode",
       "connections": 1,
-      "bytes_in": 67108864,
-      "bytes_out": 83886080,
-      "rx_bps": 245000.0,
-      "tx_bps": 530000.0,
+      "bytes_in": 235313123,
+      "bytes_out": 447756512,
+      "rx_bps": 204768.67,
+      "tx_bps": 442968.95,
       "domains": [
         "github.com"
       ],
@@ -323,37 +334,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 150994944,
-      "total_bps": 775000.0
-    },
-    {
-      "name": "Slack",
-      "pid": 602,
-      "bundle_id": "com.tinyspeck.slackmacgap",
-      "connections": 1,
-      "bytes_in": 98566144,
-      "bytes_out": 12582912,
-      "rx_bps": 125000.0,
-      "tx_bps": 18000.0,
-      "domains": [
-        "13.107.6.175"
-      ],
-      "interfaces": [
-        "utun4"
-      ],
-      "internet_connections": 1,
-      "total_bytes": 111149056,
-      "total_bps": 143000.0
+      "total_bytes": 683069635,
+      "total_bps": 647737.62
     },
     {
       "name": "fluxvm-vz-runner",
       "pid": 889,
       "bundle_id": "dev.zyvor.fluxvm",
       "connections": 1,
-      "bytes_in": 52428800,
-      "bytes_out": 10485760,
-      "rx_bps": 92000.0,
-      "tx_bps": 22000.0,
+      "bytes_in": 182309248,
+      "bytes_out": 41544130,
+      "rx_bps": 158113.99,
+      "tx_bps": 37809.87,
       "domains": [
         "github.com"
       ],
@@ -361,14 +353,33 @@
         "vmnet8"
       ],
       "internet_connections": 1,
-      "total_bytes": 62914560,
-      "total_bps": 114000.0
+      "total_bytes": 223853378,
+      "total_bps": 195923.86
+    },
+    {
+      "name": "Slack",
+      "pid": 602,
+      "bundle_id": "com.tinyspeck.slackmacgap",
+      "connections": 1,
+      "bytes_in": 136584159,
+      "bytes_out": 18057508,
+      "rx_bps": 46282.41,
+      "tx_bps": 6664.67,
+      "domains": [
+        "13.107.6.175"
+      ],
+      "interfaces": [
+        "utun4"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 154641667,
+      "total_bps": 52947.08
     }
   ],
   "traffic": {
-    "rx_bps": 2305200.0,
-    "tx_bps": 662160.0,
-    "total_bps": 2967360.0,
+    "rx_bps": 2491723.2,
+    "tx_bps": 591571.4,
+    "total_bps": 3083294.6,
     "active_flows": 4,
     "internet_flows": 4,
     "vpn_flows": 1,
@@ -488,64 +499,64 @@
         "source": "app:f437b770fa7a4018",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 765460480,
-        "bps": 1935360.0,
+        "bytes": 2561682075,
+        "bps": 2186686.04,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:bfb57b8f124403e8",
         "kind": "reaches",
-        "bytes": 765460480,
-        "bps": 1935360.0,
+        "bytes": 2561682075,
+        "bps": 2186686.04,
         "flows": 1
       },
       {
         "source": "app:638dc1bc546b9725",
         "target": "if:utun4",
         "kind": "uses",
-        "bytes": 111149056,
-        "bps": 143000.0,
+        "bytes": 154641667,
+        "bps": 52947.08,
         "flows": 1
       },
       {
         "source": "if:utun4",
         "target": "dst:2131f530233c50a6",
         "kind": "reaches",
-        "bytes": 111149056,
-        "bps": 143000.0,
+        "bytes": 154641667,
+        "bps": 52947.08,
         "flows": 1
       },
       {
         "source": "app:c9b0fcb81024d804",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 150994944,
-        "bps": 775000.0,
+        "bytes": 683069635,
+        "bps": 647737.62,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 150994944,
-        "bps": 775000.0,
+        "bytes": 683069635,
+        "bps": 647737.62,
         "flows": 1
       },
       {
         "source": "app:626e006293c58cfb",
         "target": "if:vmnet8",
         "kind": "uses",
-        "bytes": 62914560,
-        "bps": 114000.0,
+        "bytes": 223853378,
+        "bps": 195923.86,
         "flows": 1
       },
       {
         "source": "if:vmnet8",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 62914560,
-        "bps": 114000.0,
+        "bytes": 223853378,
+        "bps": 195923.86,
         "flows": 1
       }
     ]
@@ -556,7 +567,7 @@
   },
   "recent_events": [
     {
-      "ts": "2026-10-13T05:25:21+00:00",
+      "ts": "2026-10-13T06:13:41+00:00",
       "kind": "startup",
       "title": "Nivora started observing",
       "detail": "Initial network snapshot captured."
@@ -613,7 +624,7 @@
     ],
     "recent_events": [
       {
-        "ts": "2026-10-13T05:25:21+00:00",
+        "ts": "2026-10-13T06:13:41+00:00",
         "kind": "startup",
         "title": "Nivora started observing",
         "detail": "Initial network snapshot captured."
