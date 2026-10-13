@@ -117,3 +117,20 @@ final class GroupTests: XCTestCase {
         XCTAssertTrue(FlowGroup.group(flows, by: .host).contains { $0.key == "2001:db8::7" })
     }
 }
+
+final class DiffAndChipTests: XCTestCase {
+    func testDropChipKeepsQuotedValues() {
+        XCTAssertEqual(FlowFilter.dropChip("app:\"Google Chrome\" port:443", at: 1), "app:\"Google Chrome\"")
+        XCTAssertEqual(FlowFilter.dropChip("app:\"Google Chrome\" port:443", at: 0), "port:443")
+    }
+
+    func testDiffMatchesWebSemantics() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("../../tests/fixtures/filter-vectors.json")
+        struct V: Decodable { let flows: [NivoraSnapshot.Flow] }
+        let flows = try JSONDecoder().decode(V.self, from: Data(contentsOf: url)).flows   // a, b, c, d
+        let d = FlowDiff.compare(before: Array(flows[0...1]), after: [flows[0], flows[2]])
+        XCTAssertEqual(d.added.map(\.id), ["c"])
+        XCTAssertEqual(d.removed.map(\.id), ["b"])
+        XCTAssertTrue(d.changed.isEmpty)
+    }
+}

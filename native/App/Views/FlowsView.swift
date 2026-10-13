@@ -8,8 +8,13 @@ struct FlowsView: View {
 
     var body: some View {
         let flows = store.flows.sorted(using: order)
-        Group {
-            if grouping == .flat { flowTable(flows) } else { groupTable(flows) }
+        VStack(spacing: 0) {
+            FilterBar(shown: flows.count, total: store.snapshot?.flows.count ?? 0)
+            Divider()
+            BaselineCard().padding(.horizontal, 16).padding(.top, store.baseline == nil ? 0 : 12)
+            Group {
+                if grouping == .flat { flowTable(flows) } else { groupTable(flows) }
+            }
         }
         .toolbar {
             ToolbarItem {
@@ -17,6 +22,12 @@ struct FlowsView: View {
                     ForEach(FlowGroup.By.allCases) { Text($0.rawValue).tag($0) }
                 }
                 .pickerStyle(.menu)
+            }
+            ToolbarItem {
+                Button { store.baseline == nil ? store.pinBaseline() : store.clearBaseline() } label: {
+                    Label(store.baseline == nil ? "Pin baseline" : "Clear baseline", systemImage: store.baseline == nil ? "pin" : "pin.slash")
+                }
+                .help("Remember the current flows and show what changes")
             }
         }
         .modifier(FlowsToolbar(flows: flows))
@@ -47,13 +58,21 @@ struct FlowsView: View {
                         .buttonStyle(.plain).help("Flow details").accessibilityLabel("Flow details")
                 }
             }
+            .width(min: 150, ideal: 210)
             TableColumn("Proto", value: \.protocol) { StatusPill(text: $0.protocol.uppercased(), kind: "neutral") }
-            TableColumn("Remote", value: \.remote) { Text($0.remote).font(.system(.callout, design: .monospaced)) }
-            TableColumn("State", value: \.state) { Text($0.state).foregroundStyle(Palette.textSecondary) }
+                .width(min: 56, ideal: 64, max: 80)
+            TableColumn("Remote", value: \.remote) { Text($0.remote).font(.system(.callout, design: .monospaced)).lineLimit(1).truncationMode(.middle) }
+                .width(min: 180, ideal: 260)
+            TableColumn("State", value: \.state) { Text($0.state).foregroundStyle(Palette.textSecondary).lineLimit(1) }
+                .width(min: 90, ideal: 120)
             TableColumn("Interface", value: \.interface) { Text($0.interface) }
+                .width(min: 70, ideal: 90, max: 120)
             TableColumn("RTT", value: \.rtt_ms) { Text($0.rtt_ms > 0 ? String(format: "%.1f ms", $0.rtt_ms) : "—").monospacedDigit() }
+                .width(min: 70, ideal: 80, max: 110)
             TableColumn("↓ Live", value: \.rx_bps) { Text(rateString($0.rx_bps)).monospacedDigit() }
+                .width(min: 90, ideal: 100)
             TableColumn("↑ Live", value: \.tx_bps) { Text(rateString($0.tx_bps)).monospacedDigit() }
+                .width(min: 90, ideal: 100)
         }
     }
 }
@@ -66,22 +85,6 @@ private struct FlowsToolbar: ViewModifier {
     func body(content: Content) -> some View {
         content
         .toolbar {
-            ToolbarItem {
-                Menu {
-                    ForEach(store.savedViews) { v in
-                        Button(v.name) { store.apply(v) }
-                    }
-                    if !store.savedViews.isEmpty { Divider() }
-                    Button("Save current filter") { store.saveCurrentView() }
-                        .disabled(store.search.trimmingCharacters(in: .whitespaces).isEmpty)
-                    Menu("Delete view") {
-                        ForEach(store.savedViews) { v in Button(v.name, role: .destructive) { store.deleteView(v) } }
-                    }
-                    .disabled(store.savedViews.isEmpty)
-                    Divider()
-                    Text("Syntax: app: host: port: proto: iface: state: source: >1mbps !negate")
-                } label: { Label("Views", systemImage: "line.3.horizontal.decrease.circle") }
-            }
             ToolbarItem {
                 Menu {
                     Button("Flows as CSV (current filter)") { Task { await store.export(kind: "flows", format: "csv", redact: false) } }
@@ -97,6 +100,6 @@ private struct FlowsToolbar: ViewModifier {
         .alert("Export", isPresented: Binding(get: { store.exportError != nil }, set: { if !$0 { store.exportError = nil } })) {
             Button("OK", role: .cancel) {}
         } message: { Text(store.exportError ?? "") }
-        .overlay { if flows.isEmpty { ContentUnavailableView("No flows", systemImage: "arrow.left.arrow.right", description: Text(store.search.isEmpty ? "No flows in the current sample." : "Nothing matches your search.")) } }
+        .overlay { if flows.isEmpty { FilteredEmpty(title: "No flows", symbol: "arrow.left.arrow.right", idle: "No flows in the current sample.") } }
     }
 }

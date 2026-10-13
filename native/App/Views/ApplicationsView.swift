@@ -7,12 +7,21 @@ struct ApplicationsView: View {
 
     var body: some View {
         let apps = store.apps.sorted(using: order)
+        VStack(spacing: 0) {
+            FilterBar(shown: apps.count, total: store.snapshot?.apps.count ?? 0, noun: "apps")
+            Divider()
+            table(apps)
+        }
+    }
+
+    private func table(_ apps: [NivoraSnapshot.AppItem]) -> some View {
         Table(apps, sortOrder: $order) {
             TableColumn("Application", value: \.name) { app in
                 Button { store.selectedApp = app.name } label: {
                     HStack(spacing: 8) { Monogram(name: app.name, size: 24); Text(app.name).fontWeight(.medium) }
                 }.buttonStyle(.plain)
             }
+            .width(min: 180, ideal: 240)
             TableColumn("Connections", value: \.connections) { Text("\($0.connections)").monospacedDigit() }
             TableColumn("↓ Live", value: \.rx_bps) { Text(rateString($0.rx_bps)).monospacedDigit() }
             TableColumn("↑ Live", value: \.tx_bps) { Text(rateString($0.tx_bps)).monospacedDigit() }
@@ -20,7 +29,7 @@ struct ApplicationsView: View {
             TableColumn("Sent", value: \.bytes_out) { Text(byteString($0.bytes_out)).monospacedDigit().foregroundStyle(Palette.textSecondary) }
             TableColumn("Destinations") { Text($0.domains.prefix(2).joined(separator: ", ")).foregroundStyle(Palette.textSecondary) }
         }
-        .overlay { if apps.isEmpty { ContentUnavailableView("No applications", systemImage: "square.stack.3d.up", description: Text(store.search.isEmpty ? "No network activity yet." : "Nothing matches your search.")) } }
+        .overlay { if apps.isEmpty { FilteredEmpty(title: "No applications", symbol: "square.stack.3d.up", idle: "No network activity yet.") } }
     }
 }
 
@@ -53,7 +62,11 @@ struct AppDetailSheet: View {
             }
             Panel(title: "Flows") {
                 ForEach(flows) { f in
-                    HStack { StatusPill(text: f.protocol.uppercased(), kind: "neutral"); Text(f.remote).font(.system(.callout, design: .monospaced)); Spacer(); Text(f.interface).foregroundStyle(Palette.textSecondary) }
+                    Button { store.selectedApp = nil; store.selectedFlow = f.id } label: {
+                        HStack { StatusPill(text: f.protocol.uppercased(), kind: "neutral"); Text(f.remote).font(.system(.callout, design: .monospaced)); Spacer(); Text(f.interface).foregroundStyle(Palette.textSecondary); Image(systemName: "chevron.right").font(.caption).foregroundStyle(Palette.textTertiary) }
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
                 if flows.isEmpty { Text("No flows in the current sample.").foregroundStyle(Palette.textSecondary) }
             }

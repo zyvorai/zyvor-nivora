@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-python3 -m py_compile agent/nivora_core.py agent/nivora.py agent/nivoractl.py
+python3 -m py_compile agent/nivora_core.py agent/capture.py agent/nivora.py agent/nivoractl.py
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 node --experimental-vm-modules tests/web.mjs
 if command -v swiftc >/dev/null 2>&1; then

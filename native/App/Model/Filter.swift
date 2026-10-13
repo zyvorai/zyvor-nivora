@@ -165,3 +165,36 @@ struct FlowGroup: Identifiable, Hashable {
         return map.values.sorted { ($0.rx + $0.tx, $1.key) > ($1.rx + $1.tx, $0.key) }
     }
 }
+
+/// What changed between a pinned baseline and the current sample; mirrors `diffFlows` in web/lib.js.
+struct FlowDiff {
+    let added: [NivoraSnapshot.Flow]
+    let removed: [NivoraSnapshot.Flow]
+    let changed: [(flow: NivoraSnapshot.Flow, delta: Double)]
+
+    static func compare(before: [NivoraSnapshot.Flow], after: [NivoraSnapshot.Flow], topN: Int = 8) -> FlowDiff {
+        let a = Dictionary(before.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+        let b = Dictionary(after.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+        let added = after.filter { a[$0.id] == nil }
+        let removed = before.filter { b[$0.id] == nil }
+        let moved = after.compactMap { f -> (NivoraSnapshot.Flow, Double)? in
+            guard let old = a[f.id], f.total_bps != old.total_bps else { return nil }
+            return (f, f.total_bps - old.total_bps)
+        }.sorted { abs($0.1) > abs($1.1) }
+        return FlowDiff(added: added, removed: removed, changed: Array(moved.prefix(topN)).map { (flow: $0.0, delta: $0.1) })
+    }
+}
+
+extension FlowFilter {
+    /// Chips for the filter bar: the same tokenisation the matcher uses.
+    static func chips(_ query: String) -> [String] { tokens(query) }
+
+    /// Re-quotes values containing spaces so `app:"Google Chrome"` survives a chip removal.
+    static func dropChip(_ query: String, at index: Int) -> String {
+        tokens(query).enumerated().filter { $0.offset != index }.map { _, t in
+            guard t.contains(where: \.isWhitespace) else { return t }
+            if let i = t.firstIndex(of: ":") { return "\(t[...i])\"\(t[t.index(after: i)...])\"" }
+            return "\"\(t)\""
+        }.joined(separator: " ")
+    }
+}
