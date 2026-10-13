@@ -45,6 +45,7 @@ struct RootView: View {
                     case .health: HealthView()
                     case .applications: ApplicationsView()
                     case .flows: FlowsView()
+                    case .timeline: TimelineView()
                     case .interfaces: InterfacesView()
                     case .local: LocalNetworkView()
                     case .fluxvm: FluxVMView()

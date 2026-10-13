@@ -1213,6 +1213,20 @@ def apply_rule_preview(flows: list[dict[str, Any]], rules: list[dict[str, Any]])
     return hits
 
 
+def demo_events(now: float | None = None) -> list[dict[str, Any]]:
+    """A plausible recent history for the simulated Mac so the Time Machine pane has something to show."""
+    now = time.time() if now is None else now
+    def at(minutes_ago: float) -> str:
+        return dt.datetime.fromtimestamp(now - minutes_ago * 60, dt.timezone.utc).isoformat(timespec="seconds")
+    return [
+        {"ts": at(190), "kind": "interface", "title": "Interface en0 appeared", "detail": "active"},
+        {"ts": at(142), "kind": "dns", "title": "DNS resolver changed", "detail": "('192.168.1.1',) → ('1.1.1.1', '2606:4700:4700::1111')"},
+        {"ts": at(97), "kind": "vpn", "title": "VPN state changed", "detail": "Active: Zyvor WireGuard"},
+        {"ts": at(64), "kind": "listener", "title": "New listening service on port 7000", "detail": "AirPlayXPCHelper · TCP · all"},
+        {"ts": at(23), "kind": "traffic", "title": "Traffic rate spiked", "detail": "0.4 → 3.1 MB/s"},
+    ]
+
+
 def demo_snapshot(now: float | None = None) -> dict[str, Any]:
     now = time.time() if now is None else now
     flows = [

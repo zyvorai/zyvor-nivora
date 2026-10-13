@@ -154,3 +154,31 @@ final class WelcomeAndHistoryTests: XCTestCase {
         XCTAssertEqual(h["missing"], [])
     }
 }
+
+final class TimelineKitTests: XCTestCase {
+    private func events() throws -> [NivoraSnapshot.Event] {
+        let json = """
+        [{"ts":"2026-10-13T10:00:00+00:00","kind":"dns","title":"DNS resolver changed","detail":"none → 1.1.1.1"},
+         {"ts":"2026-10-13T11:00:00+00:00","kind":"vpn","title":"VPN state changed","detail":"Active: WireGuard"},
+         {"ts":"2026-10-12T09:00:00+00:00","kind":"interface","title":"Interface utun4 appeared","detail":""}]
+        """
+        return try JSONDecoder().decode([NivoraSnapshot.Event].self, from: Data(json.utf8))
+    }
+
+    func testFilterSortsNewestFirstAndMatchesKindAndText() throws {
+        let e = try events()
+        XCTAssertEqual(TimelineKit.filter(e, kind: nil, query: "").map(\.kind), ["vpn", "dns", "interface"])
+        XCTAssertEqual(TimelineKit.filter(e, kind: "dns", query: "").count, 1)
+        XCTAssertEqual(TimelineKit.filter(e, kind: nil, query: "wireguard").map(\.kind), ["vpn"])
+        XCTAssertTrue(TimelineKit.filter(e, kind: "dns", query: "wireguard").isEmpty)
+    }
+
+    func testGroupsByDayAndListsKinds() throws {
+        let e = TimelineKit.filter(try events(), kind: nil, query: "")
+        let days = TimelineKit.byDay(e)
+        XCTAssertEqual(days.map(\.id), ["2026-10-13", "2026-10-12"])
+        XCTAssertEqual(days[0].events.count, 2)
+        XCTAssertEqual(TimelineKit.kinds(e), ["dns", "interface", "vpn"])
+        XCTAssertEqual(TimelineKit.symbol(for: "capture"), "record.circle")
+    }
+}

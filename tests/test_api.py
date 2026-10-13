@@ -94,6 +94,13 @@ class APITests(unittest.TestCase):
             kinds = [e["kind"] for e in json.loads(r.read())]
         self.assertIn("capture", kinds)
 
+    def test_demo_mode_never_writes_history(self):
+        self.assertIsNone(self.state.history)
+        self.assertFalse((Path(self.td.name)/"history.sqlite").exists())
+        with self.req("/v1/timeline") as r:
+            titles=[e["title"] for e in json.loads(r.read())]
+        self.assertIn("DNS resolver changed", titles)       # seeded simulated history, in memory only
+
     def test_requires_token(self):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/snapshot",token=False)
         self.assertEqual(c.exception.code,401)

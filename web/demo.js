@@ -114,8 +114,15 @@
       return json(rows);
     }
     if (path === '/v1/timeline') {
-      const b = await base();
-      return json([...(b.recent_events || []), { ts: new Date(T0 * 1000).toISOString(), kind: 'startup', title: 'Nivora started observing', detail: 'Simulated telemetry.' }]);
+      const ago = (m) => new Date(Date.now() - m * 60e3).toISOString();
+      return json([
+        { ts: ago(190), kind: 'interface', title: 'Interface en0 appeared', detail: 'active' },
+        { ts: ago(142), kind: 'dns', title: 'DNS resolver changed', detail: "('192.168.1.1',) → ('1.1.1.1', '2606:4700:4700::1111')" },
+        { ts: ago(97), kind: 'vpn', title: 'VPN state changed', detail: 'Active: Zyvor WireGuard' },
+        { ts: ago(64), kind: 'listener', title: 'New listening service on port 7000', detail: 'AirPlayXPCHelper · TCP · all' },
+        { ts: ago(23), kind: 'traffic', title: 'Traffic rate spiked', detail: '0.4 → 3.1 MB/s' },
+        { ts: new Date(T0 * 1000).toISOString(), kind: 'startup', title: 'Nivora started observing', detail: 'Simulated telemetry.' },
+      ]);
     }
     if (path === '/v1/query' && method === 'POST') return json({ answer: answer(String(body.question || ''), aggregate(flowsAt(Date.now() / 1000))) });
     if (path === '/v1/rules') {

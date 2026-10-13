@@ -18,14 +18,15 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from capture import CaptureClient, CaptureError, manual_command, synthetic_pcap, validate_request, validate_session_id, MAX_SECONDS, MAX_MB, MAX_SNAPLEN
-from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
+from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
 class State:
     def __init__(self, args):
         self.args = args
         self.collector = MacCollector(fluxvm_url=args.fluxvm_url, fluxvm_token=args.fluxvm_token, demo=args.demo)
-        self.history = None if args.no_history else HistoryStore(args.database)
+        # Simulated telemetry must never be written to the user's real history/behaviour baseline.
+        self.history = None if (args.no_history or args.demo) else HistoryStore(args.database)
         try:
             self.rules = RuleStore(args.rules)
         except OSError:
@@ -38,7 +39,7 @@ class State:
         self.demo_captures = {}
         self._capture_ok = (0.0, False)
         self.snapshot = None
-        self.timeline = []
+        self.timeline = demo_events() if args.demo else []
         self.lock = threading.Lock()
         self.stop = threading.Event()
 
