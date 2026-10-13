@@ -121,7 +121,17 @@
 
   <section id="install">
     <h2>Get Nivora</h2>
-    <p class="sub">Nivora is early. The native app and collector build and run today; the signed content filter and capture helper need an Apple Developer ID and entitlement, so release builds are <b>unsigned</b> and macOS Gatekeeper will warn.</p>
+    <p class="sub">Nivora is early. The native app and collector build and run today; the signed content filter and capture helper need an Apple Developer ID and entitlement.</p>
+    <div class="card" role="note" style="margin-bottom:18px">
+      <h3>Release builds are unsigned</h3>
+      <p>The downloadable app is <b>not signed or notarised</b>, so macOS Gatekeeper blocks the first launch with <i>&ldquo;Nivora&rdquo; cannot be opened because the developer cannot be verified</i>. This is expected. You have three options:</p>
+      <ol>
+        <li><b>Build it yourself</b> (below). A locally built app is never quarantined.</li>
+        <li><b>Open Anyway.</b> Try to open the app, then go to <b>System Settings &rarr; Privacy &amp; Security</b>, scroll to Security and click <b>Open Anyway</b>. On macOS 14 you can instead Control-click the app and choose <b>Open</b>.</li>
+        <li><b>Terminal:</b> <code>xattr -dr com.apple.quarantine /Applications/Nivora.app</code>, only after checking the download against <code>SHA256SUMS.txt</code>.</li>
+      </ol>
+      <p>Details and uninstall steps: <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">docs/INSTALL.md</a>.</p>
+    </div>
     <pre><code># try it with simulated data, no install
 python3 agent/nivora.py --demo
 
@@ -132,7 +142,7 @@ python3 agent/nivora.py
 brew install xcodegen
 ./scripts/build-native.sh
 open native/build/Build/Products/Release/Nivora.app</code></pre>
-    <p class="cta" style="justify-content:flex-start"><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases">Releases</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora#quickstart">Full quickstart</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/NETWORKEXTENSION.md">Signing and entitlements</a></p>
+    <p class="cta" style="justify-content:flex-start"><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases">Releases</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora#quickstart">Full quickstart</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">Install guide</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/NETWORKEXTENSION.md">Signing and entitlements</a></p>
   </section>
 
   <section id="faq">
@@ -141,6 +151,7 @@ open native/build/Build/Products/Release/Nivora.app</code></pre>
     <details><summary>Does it block anything?</summary><p>Not by default. Rules start in observe mode. Blocking needs the signed content-filter extension and your explicit rule, and expires after an hour unless made permanent.</p></details>
     <details><summary>Why does the demo show the same apps every time?</summary><p>The hosted demo runs the real dashboard on simulated telemetry. A web page cannot read your processes, so the banner says so on screen.</p></details>
     <details><summary>What is tested and what is not?</summary><p>The collector, API, dashboard and native app are built and tested with Python, Node and Xcode (unsigned). Signing, extension activation and the privileged capture helper have not been tested on a provisioned Mac; the docs say so.</p></details>
+    <details><summary>macOS says Nivora can't be opened. Is it broken?</summary><p>No. Release builds are unsigned and not notarised, so Gatekeeper blocks the first launch. Use System Settings &rarr; Privacy &amp; Security &rarr; Open Anyway, or build the app yourself. See the install guide.</p></details>
     <details><summary>Which macOS versions?</summary><p>macOS 14 or later. The app is SwiftUI with the Netra design language, shared with the browser dashboard.</p></details>
   </section>
 </main>

@@ -65,7 +65,7 @@ open native/build/Build/Products/Release/Nivora.app
 
 The collector prints a URL with a one-time token in the fragment; the page reads it and removes it from the address bar. The native app starts its bundled collector on loopback with a random in-memory token.
 
-Release builds from GitHub Releases are **unsigned**: macOS Gatekeeper will warn, and the content filter and capture helper need a signed, provisioned build (see [Maturity](#maturity)).
+Release builds from GitHub Releases are **unsigned and not notarised**: macOS Gatekeeper will block the first launch (*"cannot be opened because the developer cannot be verified"*). Building it yourself avoids this; otherwise use **System Settings → Privacy & Security → Open Anyway**. Step-by-step instructions are in [docs/INSTALL.md](docs/INSTALL.md). The content filter and capture helper additionally need a signed, provisioned build (see [Maturity](#maturity)).
 
 <details>
 <summary><b>Install as a per-user service, CLI and more</b></summary>
@@ -150,6 +150,7 @@ See [SECURITY.md](SECURITY.md).
 
 | Doc | Topic |
 | --- | --- |
+| [docs/INSTALL.md](docs/INSTALL.md) | Install, Gatekeeper and unsigned builds |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components and data flow |
 | [docs/API.md](docs/API.md) | HTTP endpoints, filter grammar, exports |
 | [docs/CAPTURE.md](docs/CAPTURE.md) | Packet-capture design and guarantees |
