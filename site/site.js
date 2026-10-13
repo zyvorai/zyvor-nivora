@@ -18,7 +18,7 @@
 
   // gallery: appearance x pane -> one of the real screenshots in ux/
   var pick = { mode: root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light', pane: 'overview' };
-  var NAMES = { overview: 'Overview', flows: 'Flows', applications: 'Applications', health: 'Health', capture: 'Capture', security: 'Security' };
+  var NAMES = { overview: 'Overview', flows: 'Flows', applications: 'Applications', health: 'Health', capture: 'Capture', security: 'Security', timeline: 'Time Machine' };
   var img = document.getElementById('shot'), cap = document.getElementById('shot-cap');
   function drawShot() {
     if (!img) return;
