@@ -17,9 +17,10 @@ for w in list where (w[kCGWindowOwnerName as String] as? String) == "Nivora" && 
     print(w[kCGWindowNumber as String] as? Int ?? 0); break
 }
 SWIFT
-shoot() { # appearance pane
+shoot() { # appearance pane   (file key; --section matches the pane title, case-insensitive)
+  local section="$2"; [[ "$2" == timeline ]] && section="time machine"
   pkill -x Nivora 2>/dev/null || true; pkill -f "nivora.py" 2>/dev/null || true; sleep 1
-  open -n "$APP" --args --demo --no-welcome --appearance "$1" --section "$2"
+  open -n "$APP" --args --demo --no-welcome --appearance "$1" --section "$section"
   local id=""
   for _ in $(seq 1 20); do sleep 1; id="$(swift "$TMP/winid.swift" 2>/dev/null | head -1 || true)"; [[ -n "$id" ]] && break; done
   [[ -n "$id" ]] || { echo "no window for $1/$2" >&2; return 1; }
@@ -29,5 +30,5 @@ shoot() { # appearance pane
   echo "native-$1-$2.png"
 }
 for mode in light dark; do
-  for pane in overview flows applications health capture security; do shoot "$mode" "$pane"; done
+  for pane in ${PANES:-overview flows applications health capture security timeline}; do shoot "$mode" "$pane"; done
 done
