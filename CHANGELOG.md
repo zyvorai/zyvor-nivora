@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Docs: Time Machine in the screenshot gallery and site picker; `scripts/build-tour.py` builds `docs/social/nivora-tour.gif` (a pane tour from the real native screenshots, not a screen recording) for the README.
 - Native Time Machine pane: events by day with kind filter and text filter (`TimelineKit`), icons per kind, auto-refresh.
 - Fix: `--demo` no longer writes simulated snapshots, events or destination baselines into the real history database; the simulated Mac has a seeded in-memory event history instead.
 - Static in-browser demo (`web/demo.js`, `?demo` or `data-demo`): the real dashboard runs on simulated telemetry with no collector; the demo Mac now has 8 apps.

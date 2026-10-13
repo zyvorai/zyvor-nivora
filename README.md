@@ -37,11 +37,14 @@
 
 **[Try the live demo](https://zyvorai.github.io/zyvor-nivora/demo/)**: the real dashboard running in your browser on simulated telemetry. Nothing to install, nothing leaves the page.
 
+![Tour of the native app: Overview, Flows, Applications, Health, Time Machine, Capture, Security](docs/social/nivora-tour.gif)
+
 | Light | Dark |
 | --- | --- |
 | ![Overview, light](docs/ux/native-light-overview.png) | ![Overview, dark](docs/ux/native-dark-overview.png) |
 | ![Flows, light](docs/ux/native-light-flows.png) | ![Flows, dark](docs/ux/native-dark-flows.png) |
 | ![Applications, light](docs/ux/native-light-applications.png) | ![Capture, dark](docs/ux/native-dark-capture.png) |
+| ![Time Machine, light](docs/ux/native-light-timeline.png) | ![Time Machine, dark](docs/ux/native-dark-timeline.png) |
 
 *Every image is the native app's built-in **simulated telemetry** (host `zyvor-mac-studio`). They are real window captures from `./scripts/shots-native.sh`.*
 
@@ -108,6 +111,7 @@ The dashboard, native app, CLI and exports all use one JSON schema regardless of
 | **Overview** | Health, ↓/↑ rate, connections, throughput chart, top apps with sparklines, what changed, what needs attention |
 | **Applications / Flows** | Sortable tables, **filter grammar** with chips and saved views, grouping by app/host/interface, baseline compare, flow inspector, CSV/JSON export |
 | **Health** | Explained 0–100 score and history |
+| **Time Machine** | Day-grouped history of interface, DNS, route, VPN, listener and traffic changes, filterable by kind |
 | **Interfaces / Local Network** | Wi-Fi, Ethernet, VPN and virtual interfaces; ARP/NDP neighbours; listeners and exposure |
 | **FluxVM** | VMs and sandboxes beside host traffic |
 | **Security** | Observe-first findings, leased rules (block rules expire after an hour) |
