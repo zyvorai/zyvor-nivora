@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Release workflow: pushing a `v*` tag builds an unsigned DMG with checksums and drafts a GitHub release (checks the tag against `package.json`).
 ## 0.3.0 — 2026-10-13
 
 - Native Flows pane shows a live throughput strip above the filter bar; the Overview Connections tile has a sparkline.

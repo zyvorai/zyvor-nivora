@@ -1,0 +1,43 @@
+name: release
+
+# Pushing a tag like v0.3.0 builds an UNSIGNED Nivora.app, packages it as a DMG and drafts a GitHub release.
+# Signing, notarisation and Apple entitlement approval are separate steps that need the team's credentials.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Tag matches package.json
+        run: |
+          want="v$(python3 -c "import json;print(json.load(open('package.json'))['version'])")"
+          test "$GITHUB_REF_NAME" = "$want" || { echo "tag $GITHUB_REF_NAME != $want" >&2; exit 1; }
+      - run: ./scripts/test.sh
+      - run: brew install xcodegen
+      - run: ./scripts/build-native.sh
+      - run: ./scripts/package-dmg.sh
+      - name: Checksums
+        run: shasum -a 256 Nivora-*.dmg > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nivora-dmg
+          path: |
+            Nivora-*.dmg
+            SHA256SUMS.txt
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" Nivora-*.dmg SHA256SUMS.txt \
+            --draft --title "Nivora ${GITHUB_REF_NAME#v}" \
+            --notes "Unsigned build. Gatekeeper will warn; the NetworkExtension filter and capture helper need a signed, provisioned build. See docs/NETWORKEXTENSION.md and docs/CAPTURE.md."

@@ -45,3 +45,11 @@ cd native && xcodegen generate && xcodebuild -project Nivora.xcodeproj -scheme N
 
 The fixture `Tests/Fixtures/demo-snapshot.json` comes from `python3 agent/nivora.py --demo --once --no-history`; a Python test fails if its top-level keys drift from the collector.
 
+## Releasing
+
+1. Bump `version` in `package.json`, `VERSION` in `agent/nivora_core.py` and `MARKETING_VERSION` in `native/project.yml`, regenerate `native/Tests/Fixtures/demo-snapshot.json` (a contract test checks all four) and move the changelog entries under the new heading.
+2. Merge, then `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. The `release` workflow verifies the tag matches `package.json`, runs the suite, builds the unsigned app, creates `Nivora-X.Y.Z.dmg` plus `SHA256SUMS.txt` and opens a **draft** GitHub release.
+
+The DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see `docs/NETWORKEXTENSION.md`, `docs/CAPTURE.md`).
+

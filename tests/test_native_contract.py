@@ -105,6 +105,14 @@ class NativeContractTests(unittest.TestCase):
         self.assertEqual(fixture["version"], version, "regenerate native/Tests/Fixtures/demo-snapshot.json")
         self.assertIn("package.json", (ROOT / "scripts" / "package-dmg.sh").read_text())
 
+    def test_release_workflow_checks_tag_and_stays_unsigned(self):
+        wf = (ROOT / ".github" / "workflows" / "release.yml").read_text()
+        self.assertIn("tags: ['v*']", wf)
+        self.assertIn("package.json", wf)          # tag must match the version
+        self.assertIn("--draft", wf)               # never publishes on its own
+        self.assertIn("./scripts/package-dmg.sh", wf)
+        self.assertNotIn("notarytool", wf)         # no signing claims without credentials
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",
