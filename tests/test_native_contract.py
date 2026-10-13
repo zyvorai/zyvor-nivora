@@ -95,6 +95,24 @@ class NativeContractTests(unittest.TestCase):
         self.assertNotRegex(project, r"(?m)^    resources:", "xcodegen ignores a top-level resources: key; use sources with buildPhase: resources")
         self.assertRegex(project, r"(?s)path: \.\./web\s+type: folder\s+buildPhase: resources")
 
+    def test_release_version_is_single_sourced(self):
+        """package.json, the collector, the Xcode project and the DMG script must agree."""
+        import json
+        version = json.loads((ROOT / "package.json").read_text())["version"]
+        self.assertRegex((ROOT / "agent" / "nivora_core.py").read_text(), rf'VERSION = "{re.escape(version)}"')
+        self.assertIn(f"MARKETING_VERSION: {version}", (ROOT / "native" / "project.yml").read_text())
+        fixture = json.loads((ROOT / "native" / "Tests" / "Fixtures" / "demo-snapshot.json").read_text())
+        self.assertEqual(fixture["version"], version, "regenerate native/Tests/Fixtures/demo-snapshot.json")
+        self.assertIn("package.json", (ROOT / "scripts" / "package-dmg.sh").read_text())
+
+    def test_release_workflow_checks_tag_and_stays_unsigned(self):
+        wf = (ROOT / ".github" / "workflows" / "release.yml").read_text()
+        self.assertIn("tags: ['v*']", wf)
+        self.assertIn("package.json", wf)          # tag must match the version
+        self.assertIn("--draft", wf)               # never publishes on its own
+        self.assertIn("./scripts/package-dmg.sh", wf)
+        self.assertNotIn("notarytool", wf)         # no signing claims without credentials
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

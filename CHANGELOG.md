@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Release workflow: pushing a `v*` tag builds an unsigned DMG with checksums and drafts a GitHub release (checks the tag against `package.json`).
+## 0.3.0 — 2026-10-13
+
 - Native Flows pane shows a live throughput strip above the filter bar; the Overview Connections tile has a sparkline.
 - Native: byte/rate formatters show "0 bytes" instead of "Zero KB"; the app activates and fronts its window on launch (first `open` from LaunchServices could leave it hidden).
 - Native UX: filter bar (removable chips, quick filters, "N of M", saved views) on Flows and Applications, baseline compare card, flow rate sparkline in the inspector, inspector reachable from the application sheet, "Clear filter" empty states, ⌘1–⌘9 pane shortcuts (Go menu), last pane remembered, wider table columns.
