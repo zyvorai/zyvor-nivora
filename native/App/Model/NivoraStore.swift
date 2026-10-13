@@ -185,7 +185,7 @@ final class NivoraStore: ObservableObject {
             for f in s.flows { rates[f.id, default: []].append(f.total_bps); if rates[f.id]!.count > 60 { rates[f.id]!.removeFirst() } }
             for k in rates.keys where !s.flows.contains(where: { $0.id == k }) { rates[k] = nil }
             flowRates = rates
-            history.append(Sample(time: Date(), rx: s.traffic.rx_bps, tx: s.traffic.tx_bps, health: s.health.score))
+            history.append(Sample(time: Date(), rx: s.traffic.rx_bps, tx: s.traffic.tx_bps, health: s.health.score, flows: s.flows.count))
             if history.count > maxSamples { history.removeFirst(history.count - maxSamples) }
             status = .live
         } catch {

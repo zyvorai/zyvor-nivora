@@ -15,7 +15,8 @@ struct OverviewView: View {
                                series: store.history.map(\.rx)) { open(.flows) }
                     MetricTile(label: "Upload", symbol: "arrow.up.circle", value: rateString(s.traffic.tx_bps), hint: "live",
                                series: store.history.map(\.tx), tint: Palette.purple) { open(.flows) }
-                    MetricTile(label: "Connections", symbol: "arrow.left.arrow.right", value: "\(s.flows.count)", hint: "\(s.apps.count) applications") { open(.applications) }
+                    MetricTile(label: "Connections", symbol: "arrow.left.arrow.right", value: "\(s.flows.count)", hint: "\(s.apps.count) applications",
+                               series: store.history.map { Double($0.flows) }, tint: Palette.green) { open(.applications) }
                 }
                 Panel(title: "Throughput", subtitle: "Download and upload over the last few minutes") { RateChart(samples: store.history) }
                 HStack(alignment: .top, spacing: 16) {

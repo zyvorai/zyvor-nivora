@@ -79,6 +79,7 @@ struct Sample: Identifiable {
     let rx: Double
     let tx: Double
     let health: Int
+    var flows: Int = 0
 }
 
 func byteString(_ value: Int) -> String {
