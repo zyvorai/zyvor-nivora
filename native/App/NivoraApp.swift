@@ -5,6 +5,14 @@ import AppKit
 /// Closing the window keeps Nivora (and its bundled collector) running in the menu bar.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    /// A first launch from LaunchServices (`open`, Finder, login) could leave the window behind other apps.
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            NSApp.windows.first { $0.canBecomeMain }?.makeKeyAndOrderFront(nil)
+        }
+    }
 }
 
 @main

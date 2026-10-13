@@ -83,10 +83,12 @@ struct Sample: Identifiable {
 
 func byteString(_ value: Int) -> String {
     let f = ByteCountFormatter(); f.countStyle = .file
+    f.allowsNonnumericFormatting = false   // "0 bytes", not "Zero KB"
     return f.string(fromByteCount: Int64(value))
 }
 
 func rateString(_ value: Double) -> String {
     let f = ByteCountFormatter(); f.countStyle = .file
+    f.allowsNonnumericFormatting = false
     return f.string(fromByteCount: Int64(max(0, value))) + "/s"
 }
