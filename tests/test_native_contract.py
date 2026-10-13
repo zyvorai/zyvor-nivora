@@ -48,6 +48,17 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn("com.apple.developer.system-extension.install", project)
         self.assertIn("com.apple.networkextension.filter-data", project)
 
+    def test_native_fixture_tracks_demo_collector_keys(self):
+        """The XCTest fixture must carry every top-level key the demo collector emits."""
+        import json, subprocess, sys, tempfile
+        fixture = json.loads((ROOT / "native" / "Tests" / "Fixtures" / "demo-snapshot.json").read_text())
+        with tempfile.TemporaryDirectory() as d:
+            out = subprocess.run([sys.executable, str(ROOT / "agent" / "nivora.py"), "--demo", "--once",
+                                  "--no-history", "--rules", f"{d}/rules.json"],
+                                 capture_output=True, text=True, check=True).stdout
+        self.assertEqual(set(json.loads(out)), set(fixture),
+                         "regenerate native/Tests/Fixtures/demo-snapshot.json from `nivora.py --demo --once`")
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

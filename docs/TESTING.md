@@ -34,3 +34,14 @@ At packaging time the portable suite has **29 Python tests**, plus web/plist/dem
 The portable verification environment validates shared logic and syntax, **not** macOS framework type-checking, Apple entitlement approval, signed extension activation, real `nettop` behavior across every macOS release, or NetworkExtension enforcement on hardware.
 
 The GitHub Actions macOS job generates the Xcode project and performs an unsigned build. A release still requires a Mac/signing team with the NetworkExtension entitlements.
+
+## Native unit tests
+
+`native/Tests` holds XCTest cases for snapshot decoding and alert rules, compiled against `App/Model/Snapshot.swift` and `Alerts.swift` only (no UI, no NetworkExtension):
+
+```bash
+cd native && xcodegen generate && xcodebuild -project Nivora.xcodeproj -scheme NivoraTests -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO test
+```
+
+The fixture `Tests/Fixtures/demo-snapshot.json` comes from `python3 agent/nivora.py --demo --once --no-history`; a Python test fails if its top-level keys drift from the collector.
+

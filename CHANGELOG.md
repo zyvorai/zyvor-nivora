@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Native XCTest target `NivoraTests` (snapshot decoding, alert rules) with a demo-collector fixture; run in the macOS CI job.
 - Dashboard UX pass toward Vytrix parity: command palette (`⌘K`), keyboard shortcuts, application detail sheet, sortable/highlighted tables, throughput chart with tooltip, per-app sparklines, toasts, skeleton/error states, Settings view (theme, accent, density, refresh, alert threshold, pinned apps), snapshot JSON and flows CSV export.
 - Health ring now reflects the real score and status.
 - Fix: the collector rejected the dashboard's own same-origin `Origin` header (module script fetch and rule POSTs returned 403 in a browser). Loopback same-origin is now accepted; foreign origins are still rejected.

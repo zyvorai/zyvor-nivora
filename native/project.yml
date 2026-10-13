@@ -72,3 +72,18 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter
         PRODUCT_NAME: dev.zyvor.nivora.filter
         SKIP_INSTALL: YES
+
+  NivoraTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Tests
+        excludes: ["Fixtures"]
+      - path: App/Model/Snapshot.swift
+      - path: App/Model/Alerts.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO

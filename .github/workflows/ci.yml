@@ -25,3 +25,6 @@ jobs:
       - run: ./scripts/test.sh
       - run: brew install xcodegen
       - run: ./scripts/build-native.sh
+      - run: |
+          cd native
+          xcodebuild -project Nivora.xcodeproj -scheme NivoraTests -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO test
