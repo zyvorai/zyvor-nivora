@@ -5,6 +5,8 @@ struct RootView: View {
     @EnvironmentObject var store: NivoraStore
     @EnvironmentObject var filter: NivoraFilterManager
     @State private var section: Pane?
+    @State private var showWelcome = WelcomeGate.shouldShow(welcomed: UserDefaults.standard.bool(forKey: WelcomeGate.defaultsKey))
+    @State private var showShortcuts = false
 
     var body: some View {
         NavigationSplitView {
@@ -71,6 +73,9 @@ struct RootView: View {
         .sheet(item: Binding(get: { store.selectedFlow.map(FlowSelection.init) }, set: { store.selectedFlow = $0?.id })) { sel in
             FlowDetailSheet(flowID: sel.id)
         }
+        .sheet(isPresented: $showWelcome) { WelcomeView() }
+        .sheet(isPresented: $showShortcuts) { ShortcutsView() }
+        .onReceive(NotificationCenter.default.publisher(for: .nivoraShowShortcuts)) { _ in showShortcuts = true }
         .task { await filter.load() }
         .onAppear { if section == nil { section = store.pane ?? .overview } }
         // Keep the sidebar selection and the persisted/menu-driven pane in sync without recreating bindings.
@@ -113,3 +118,5 @@ struct HostFooter: View {
 }
 
 struct FlowSelection: Identifiable { let id: String }
+
+extension Notification.Name { static let nivoraShowShortcuts = Notification.Name("nivora.showShortcuts") }

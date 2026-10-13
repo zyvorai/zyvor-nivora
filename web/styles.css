@@ -147,3 +147,6 @@ mark{background:rgba(255,159,10,.28)}
 .seg-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .seg.baseline .seg-btn{border-style:dashed}
 .empty .glass-btn{margin-left:8px}
+
+.brand-icon{border-radius:8px;display:block}.brand-icon.large{border-radius:12px;margin:0 auto 8px}
+.legal{margin:28px 0 8px;font-size:12px;color:var(--muted);text-align:center}.legal a{color:inherit}

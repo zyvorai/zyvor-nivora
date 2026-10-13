@@ -48,6 +48,10 @@ struct NivoraSnapshot: Decodable {
         let connected: Bool; let base_url: String?
         let vms: [Workload]?; let sandboxes: [Workload]?
     }
+    struct Event: Decodable, Identifiable {
+        var id: String { "\(ts)-\(kind)-\(title)" }
+        let ts: String; let kind: String; let title: String; let detail: String?
+    }
     struct Rule: Decodable, Identifiable { let id: String; let action: String; let app: String?; let domain: String?; let ip: String?; let port: Int?; let expires_at: String? }
 
     let timestamp: String
@@ -68,6 +72,7 @@ struct NivoraSnapshot: Decodable {
     let behavior: Behavior?
     let fluxvm: FluxVM?
     let rules: [Rule]?
+    let recent_events: [Event]?
 }
 
 struct QueryResponse: Decodable { let answer: String }

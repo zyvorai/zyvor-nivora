@@ -9,3 +9,4 @@ native/build/
 *.dmg
 *.zip
 .env
+*.sha256

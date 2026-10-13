@@ -24,6 +24,7 @@ final class CollectorProcess {
         p.arguments = args
         var env = ProcessInfo.processInfo.environment
         env["PYTHONPATH"] = resources.path
+        env["PYTHONDONTWRITEBYTECODE"] = "1"   // never write __pycache__ into the (signed) app bundle
         p.environment = env
         p.standardOutput = FileHandle.nullDevice
         p.standardError = FileHandle.nullDevice

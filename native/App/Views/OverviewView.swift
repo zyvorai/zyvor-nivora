@@ -31,8 +31,22 @@ struct OverviewView: View {
                                         HStack { Text(app.name).font(.callout.weight(.medium)); Spacer(); Text(rateString(app.total_bps)).font(.callout).monospacedDigit().foregroundStyle(Palette.textSecondary) }
                                         Meter(fraction: app.total_bps / peak)
                                     }
+                                    Sparkline(values: store.appRates[app.name]).frame(width: 64, height: 24)
                                 }
                             }.buttonStyle(.plain)
+                        }
+                    }
+                    VStack(spacing: 16) {
+                    Panel(title: "What changed", subtitle: "Recent network events") {
+                        let events = Array((s.recent_events ?? []).suffix(4).reversed())
+                        if events.isEmpty {
+                            Text("Nothing has changed since Nivora started watching.").foregroundStyle(Palette.textSecondary)
+                        }
+                        ForEach(events) { e in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(e.title).font(.callout.weight(.medium))
+                                if let d = e.detail, !d.isEmpty { Text(d).font(.caption).foregroundStyle(Palette.textSecondary) }
+                            }
                         }
                     }
                     Panel(title: "What needs attention") {
@@ -41,6 +55,7 @@ struct OverviewView: View {
                         } else {
                             ForEach(store.alerts.prefix(5)) { AlertRow(alert: $0) }
                         }
+                    }
                     }
                 }
             }

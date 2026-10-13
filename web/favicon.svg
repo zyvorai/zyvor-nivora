@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Nivora">
+<defs>
+<linearGradient id="g" x1="0.1" y1="1" x2="0.9" y2="0"><stop offset="0" stop-color="#0071e3"/><stop offset="1" stop-color="#64d2ff"/></linearGradient>
+<radialGradient id="bg" cx="50%" cy="32%" r="78%"><stop offset="0" stop-color="#303033"/><stop offset="1" stop-color="#1d1d1f"/></radialGradient>
+</defs>
+<rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+<path d="M300 748V276L724 748V276" fill="none" stroke="url(#g)" stroke-width="92" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="300" cy="276" r="66" fill="#fff"/><circle cx="724" cy="748" r="66" fill="#fff"/>
+<circle cx="300" cy="276" r="26" fill="#0071e3"/><circle cx="724" cy="748" r="26" fill="#64d2ff"/>
+</svg>

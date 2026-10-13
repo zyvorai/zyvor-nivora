@@ -22,6 +22,12 @@ struct SettingsView: View {
                 Button(store.demo ? "Monitor This Mac" : "Show Demo Data") { store.demo ? store.useThisMac() : store.useDemo() }
                 Text("Nivora is local-first. No telemetry is uploaded and no account is required.").font(.caption).foregroundStyle(Palette.textSecondary)
             }
+            Section("About") {
+                LegalLine().frame(maxWidth: .infinity, alignment: .leading)
+                Link("Licence (Business Source License 1.1)", destination: URL(string: "https://github.com/zyvorai/zyvor-nivora/blob/main/LICENSE")!)
+                Text("Production and commercial deployments require a commercial licence from Zyvor AI Labs Private Limited.")
+                    .font(.caption).foregroundStyle(Palette.textSecondary)
+            }
         }
         .formStyle(.grouped)
     }
