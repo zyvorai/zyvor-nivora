@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Opt-in packet capture: privileged `NivoraCaptureHelper` (SMAppService daemon; fixed-argv tcpdump, structured validated requests, caps, 24 h retention), `/v1/captures` API, web and native Capture panes, "Capture this flow", pcap download, demo simulation. Compile- and unit-verified only; see `docs/CAPTURE.md`.
 - Flow inspector (web sheet, native `FlowDetailSheet`), grouped Flows views (by app/host/interface), pinned-baseline compare (web), `first_seen`/`last_seen` per flow, and a demo that now varies over time so charts have shape.
 - `GET /v1/export` (flows/apps/timeline/snapshot/bundle; CSV/JSON/NDJSON/zip; current filter; salted-hash redaction) with an Export dialog in the web UI and an Export menu in the native Flows pane.
 - Flow filter grammar (`app: host: port: proto: iface: state: source: >1mbps !neg`) shared by collector, web and native, with `GET /v1/flows?filter=`, `nivoractl flows --filter`, removable filter chips and saved views (web localStorage / native UserDefaults, palette + Views menu).

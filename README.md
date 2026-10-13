@@ -290,7 +290,7 @@ scripts/               test, install, Xcode build/package
 ## Privacy and safety
 
 - Local-first; no telemetry upload is implemented.
-- Payload collection is not implemented.
+- Payload collection is not implemented, except the opt-in, headers-only, time/size-capped packet capture described in `docs/CAPTURE.md` (off by default, needs a separately approved privileged helper).
 - The fallback collector executes read-only macOS commands.
 - Rules default to observe-only.
 - NetworkExtension filtering requires explicit enablement in the native app and valid Apple provisioning.

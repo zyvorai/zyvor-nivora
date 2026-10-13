@@ -19,6 +19,8 @@ targets:
     sources:
       - path: App
       - path: Shared
+      - path: CaptureHelper
+        includes: ["Protocol.swift", "Validator.swift"]
     resources:
       - path: ../agent/nivora.py
         buildPhase: resources
@@ -45,6 +47,20 @@ targets:
       - target: NivoraFilter
         embed: true
         codeSign: true
+      - target: NivoraCaptureHelper
+        embed: false
+    postBuildScripts:
+      - name: Embed capture helper
+        script: |
+          set -e
+          HELPER="${BUILT_PRODUCTS_DIR}/dev.zyvor.nivora.capture-helper"
+          DEST="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices"
+          mkdir -p "$DEST"
+          cp "$HELPER" "$DEST/"
+          LAUNCHD="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons"
+          mkdir -p "$LAUNCHD"
+          cp "${SRCROOT}/CaptureHelper/dev.zyvor.nivora.capture-helper.plist" "$LAUNCHD/"
+        basedOnDependencyAnalysis: false
 
   NivoraFilter:
     type: system-extension
@@ -73,6 +89,20 @@ targets:
         PRODUCT_NAME: dev.zyvor.nivora.filter
         SKIP_INSTALL: YES
 
+  NivoraCaptureHelper:
+    type: tool
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: CaptureHelper
+        excludes: ["*.plist"]
+    settings:
+      base:
+        PRODUCT_NAME: dev.zyvor.nivora.capture-helper
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.capture-helper
+        SKIP_INSTALL: YES
+        ENABLE_HARDENED_RUNTIME: YES
+
   NivoraTests:
     type: bundle.unit-test
     platform: macOS
@@ -83,6 +113,8 @@ targets:
       - path: App/Model/Snapshot.swift
       - path: App/Model/Alerts.swift
       - path: App/Model/Filter.swift
+      - path: CaptureHelper/Protocol.swift
+      - path: CaptureHelper/Validator.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.tests

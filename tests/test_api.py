@@ -70,6 +70,30 @@ class APITests(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/export?kind=flows&format=xml")
         self.assertEqual(c.exception.code,400)
 
+    def test_capture_demo_flow_and_guards(self):
+        def post(path, body):
+            return self.req(path, "POST", body)
+        with self.req("/v1/captures") as r:
+            info = json.loads(r.read())
+        self.assertTrue(info["available"] and info["demo"])
+        with self.assertRaises(urllib.error.HTTPError) as c:          # no explicit confirmation
+            post("/v1/captures", {"iface": "en0"})
+        self.assertEqual(c.exception.code, 400)
+        with self.assertRaises(urllib.error.HTTPError) as c:          # injection attempt
+            post("/v1/captures", {"iface": "en0; id", "confirm": True})
+        self.assertEqual(c.exception.code, 400)
+        with post("/v1/captures", {"iface": "en0", "host": "142.250.183.14", "proto": "tcp", "port": 443, "seconds": 5, "confirm": True}) as r:
+            sess = json.loads(r.read())
+        self.assertEqual(sess["snaplen"], 96)
+        with self.req(f"/v1/captures/{sess['id']}/pcap") as r:
+            self.assertEqual(r.headers["Content-Type"], "application/vnd.tcpdump.pcap")
+            self.assertEqual(r.read()[:4], b"\xd4\xc3\xb2\xa1")
+        with self.req(f"/v1/captures/{sess['id']}", "DELETE") as r:
+            self.assertTrue(json.loads(r.read())["deleted"])
+        with self.req("/v1/timeline") as r:
+            kinds = [e["kind"] for e in json.loads(r.read())]
+        self.assertIn("capture", kinds)
+
     def test_requires_token(self):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/snapshot",token=False)
         self.assertEqual(c.exception.code,401)

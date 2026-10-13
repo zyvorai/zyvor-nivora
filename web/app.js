@@ -17,6 +17,7 @@ function applyPrefs(){
 function toast(msg,kind=''){const el=document.createElement('div');el.className=`toast ${kind}`;el.textContent=msg;$('#toasts').append(el);setTimeout(()=>el.remove(),kind==='error'?6000:3500)}
 
 const titles = {
+  capture:['Zyvor','Capture','Opt-in, headers-only packet capture with pcap download.'],
   overview:['Monitor','Overview','What is talking to what, through which network.'], health:['Diagnose','Health','A live score for route, DNS, latency, interfaces and safety.'], map:['Monitor','Network Map','Applications, interfaces and destinations in one topology.'], applications:['Workloads','Applications','Every app, its connections, destinations and traffic.'], flows:['Monitor','Flows','Live TCP and UDP conversations observed on this Mac.'], domains:['Monitor','Domains','Where your applications are connecting.'], dns:['Network','DNS','Resolvers and DNS context reported by macOS.'], interfaces:['Network','Interfaces','Wi‑Fi, Ethernet, VPN, bridge and virtual interfaces.'], routes:['Network','Routes','Default gateways and the active routing table.'], vpn:['Network','VPN','Configured and active macOS network connections.'], local:['Network','Local Network','Neighbors, listening services and exposure on this Mac.'], fluxvm:['Zyvor','FluxVM','VMs and sandboxes correlated with host network activity.'], security:['Protect','Security','Observe-first findings and rule previews.'], timeline:['Diagnose','Network Time Machine','What changed, when it changed, and what happened next.'], investigator:['AI','Investigator','Ask the local telemetry a question. No cloud required.'], settings:['System','Settings','Appearance, refresh rate, alerts and pinned applications.']
 };
 
@@ -90,6 +91,66 @@ function networkMap(s){const t=s.topology||{},nodes=t.nodes||[],edges=t.edges||[
 
 function applications(s){const a=filteredApps();return `<div class="grid stats">${stat('Apps',a.length,'network-active')}${stat('Top sender',a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.tx_bps||0)-(x.tx_bps||0))[0]?.tx_bps||0))}${stat('Top receiver',a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.name||'—',fmtRate(a.slice().sort((x,y)=>(y.rx_bps||0)-(x.rx_bps||0))[0]?.rx_bps||0))}${stat('Internet apps',a.filter(x=>x.internet_connections).length,'public destinations')}</div><div class="card"><h2>Applications</h2>${appTable(a)}</div>`}
 function flows(s){const f=filteredFlows();return `<div class="grid stats">${stat('Flows',f.length,'observed now')}${stat('TCP',f.filter(x=>x.protocol==='tcp').length,'connections')}${stat('UDP',f.filter(x=>x.protocol==='udp').length,'flows')}${stat('High RTT',f.filter(x=>(x.rtt_ms||0)>150).length,'over 150 ms')}</div>${compareCard(f)}<div class="card"><h2>Live flows</h2>${filterBar()}${groupBar()}${state.flowGroup==='flat'?flowTable(f):groupTable(f)}</div>`}
+/* ---- packet capture ---- */
+let capturePoll=null;
+function stopCapturePoll(){if(capturePoll){clearInterval(capturePoll);capturePoll=null}}
+function capture(s){
+  const ifs=(s.interfaces||[]).filter(i=>i.status==='active'||i.name.startsWith('lo')).map(i=>i.name);
+  const c=state.capture||{available:false,sessions:[],limits:{max_seconds:300,max_mb:64,max_snaplen:256}};
+  const pre=state.capturePrefill||{};
+  const sel=(id,opts,v)=>`<select id="${id}">${opts.map(o=>`<option value="${esc(o)}" ${String(o)===String(v)?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  const status=c.available?(c.demo?'Simulated (demo mode)':'Helper running'):'Helper not installed';
+  return `<div class="grid stats">${stat('Helper',status,c.available?'ready to capture':'approve it in System Settings › Login Items')}${stat('Snaplen','96 B','headers only by default')}${stat('Limit',`${c.limits.max_seconds}s · ${c.limits.max_mb} MB`,'per capture, one at a time')}${stat('Retention','24 h','then deleted')}</div>
+  <div class="card"><h2>New capture</h2>
+    <p class="muted">Records packet headers (the first bytes of each packet) of matching traffic on this Mac, stored locally and downloadable as a .pcap. It is off until you start it and stops by itself.</p>
+    <form id="captureForm" class="capture-form">
+      <label>Interface ${sel('capIface',ifs.length?ifs:['en0'],pre.iface||ifs[0])}</label>
+      <label>Host (IP) <input id="capHost" value="${esc(pre.host||'')}" placeholder="optional, e.g. 142.250.183.14" /></label>
+      <label>Protocol ${sel('capProto',['any','tcp','udp','icmp'],pre.proto||'any')}</label>
+      <label>Port <input id="capPort" inputmode="numeric" value="${esc(pre.port||'')}" placeholder="optional" /></label>
+      <label>Duration (s) ${sel('capSeconds',[10,30,60,120,300],60)}</label>
+      <label>Bytes / packet ${sel('capSnaplen',[64,96,128,256],96)}</label>
+      <label class="check"><input type="checkbox" id="capConfirm" /> I understand this records packet headers of the matching traffic.</label>
+      <button class="primary" id="capStart" type="submit" ${c.available?'':'disabled'}>Start capture</button>
+    </form>
+    ${c.available?'':'<p class="muted">Without the helper you can run the equivalent <code>sudo tcpdump -n -p -i en0 -s 96 -w nivora.pcap</code> yourself.</p>'}
+  </div>
+  <div class="card"><h2>Captures</h2><div class="table-wrap"><table><thead><tr><th>Started</th><th>Interface</th><th>Filter</th><th>State</th><th>Size</th><th></th></tr></thead><tbody>${(c.sessions||[]).map(x=>`<tr><td>${esc(new Date(x.started).toLocaleTimeString())}</td><td>${esc(x.iface)}</td><td class="mono">${esc(x.filter)}</td><td>${badge(x.state)}</td><td>${fmtBytes(x.bytes)}</td><td class="row-actions">${x.state==='running'?`<button class="glass-btn" data-cap-stop="${esc(x.id)}">Stop</button>`:`<button class="glass-btn" data-cap-dl="${esc(x.id)}">Download</button>`}<button class="glass-btn" data-cap-del="${esc(x.id)}">Delete</button></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">No captures yet.</div></td></tr>'}</tbody></table></div></div>`}
+async function loadCapture(){
+  try{state.capture=await api('/v1/captures')}catch(e){state.capture=null}
+  const body=$('#contentBody');
+  if(state.view==='capture'&&state.snapshot&&!body.contains(document.activeElement?.closest?.('form'))){body.innerHTML=capture(state.snapshot);bindCapture()}
+  stopCapturePoll();
+  if(state.view==='capture'&&(state.capture?.sessions||[]).some(x=>x.state==='running'))capturePoll=setInterval(loadCapture,1500);
+}
+function bindCapture(){
+  const f=$('#captureForm');if(!f)return;
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    if(!$('#capConfirm').checked)return toast('Please confirm that headers will be recorded','warn');
+    const body={iface:$('#capIface').value,proto:$('#capProto').value,seconds:Number($('#capSeconds').value),snaplen:Number($('#capSnaplen').value),confirm:true};
+    if($('#capHost').value.trim())body.host=$('#capHost').value.trim();
+    if($('#capPort').value.trim())body.port=Number($('#capPort').value);
+    try{await api('/v1/captures',{method:'POST',body:JSON.stringify(body)});state.capturePrefill=null;toast('Capture started','ok');loadCapture()}
+    catch(err){toast(`Capture failed: ${err.message}`,'error')}
+  };
+}
+function startCaptureFor(flow){
+  const host=hostOf(flow.remote);
+  state.capturePrefill={iface:flow.interface,host:/^[0-9a-f.:]+$/i.test(host)?host:'',proto:flow.protocol,port:portOf(flow.remote)};
+  closeSheet();setView('capture');
+}
+async function captureAction(kind,id){
+  try{
+    if(kind==='dl'){
+      const r=await fetch(`/v1/captures/${id}/pcap`,{headers:authHeaders({}),cache:'no-store'});
+      if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
+      const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download=`nivora-${id}.pcap`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return;
+    }
+    await api(kind==='stop'?`/v1/captures/${id}/stop`:`/v1/captures/${id}`,{method:kind==='stop'?'POST':'DELETE',body:kind==='stop'?'{}':undefined});
+    loadCapture();
+  }catch(err){toast(`Capture ${kind} failed: ${err.message}`,'error')}
+}
 function groupBar(){
   const opts=[['flat','Flat'],['app','By app'],['host','By host'],['iface','By interface']];
   return `<div class="seg" role="group" aria-label="Group flows">${opts.map(([k,l])=>`<button class="seg-btn ${state.flowGroup===k?'on':''}" data-group="${k}" aria-pressed="${state.flowGroup===k}">${l}</button>`).join('')}<button class="seg-btn" id="baselineBtn">${state.baseline?'Re-pin baseline':'Pin baseline'}</button>${state.baseline?'<button class="seg-btn" id="baselineClear">Clear</button>':''}</div>`}
@@ -115,8 +176,9 @@ function renderFlowSheet(){
   <h3 style="margin:14px 0 6px">Details</h3>${kv('Local',f.local)}${kv('Remote',f.remote)}${kv('State',f.state)}${kv('Interface',f.interface)}${kv('RTT',f.rtt_ms?`${Number(f.rtt_ms).toFixed(1)} ms`:'')}${kv('Source',f.source)}${kv('Bundle',f.bundle_id)}${kv('PID',f.pid?String(f.pid):'')}${kv('First seen',f.first_seen?new Date(f.first_seen).toLocaleTimeString():'')}
   <h3 style="margin:14px 0 6px">Same host (${same.length})</h3><div>${same.map(x=>badge(`${x.process} ${x.remote}`)).join(' ')||'<span class="muted">no other flows</span>'}</div>
   <h3 style="margin:14px 0 6px">Rules</h3>${hits.map(h=>`<div class="metric-inline"><span>${esc(h.action)}</span><span class="mono">${esc(h.rule_id)}</span></div>`).join('')||'<p class="muted" style="font-size:11px">No rule matches this flow. Observe-first: blocking is leased for one hour and needs a signed NetworkExtension to take effect.</p>'}
-  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="glass-btn" id="flowFilterHost">Filter to this host</button><button class="glass-btn" data-frule="observe">Observe</button><button class="glass-btn" data-frule="block">Block host for 1 h</button></div>`;
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="glass-btn" id="flowFilterHost">Filter to this host</button><button class="glass-btn" id="flowCapture">Capture this flow…</button><button class="glass-btn" data-frule="observe">Observe</button><button class="glass-btn" data-frule="block">Block host for 1 h</button></div>`;
   $('#sheetClose').onclick=closeSheet;
+  $('#flowCapture').onclick=()=>startCaptureFor(f);
   $('#flowFilterHost').onclick=()=>{state.search=`host:${host}`;$('#search').value=state.search;closeSheet();setView('flows')};
   el.querySelectorAll('[data-frule]').forEach(b=>b.onclick=async()=>{try{await api('/v1/rules',{method:'POST',body:JSON.stringify({action:b.dataset.frule,app:f.process,ip:host})});toast(`Rule added: ${b.dataset.frule} ${host}`,'ok');refresh()}catch(e){toast(String(e.message||e),'error')}});
 }
@@ -151,7 +213,7 @@ function settings(){
   <div class="settings-row"><span>Preferences are stored only in this browser. The API token is never stored.</span><button id="resetPrefs" class="glass-btn">Reset preferences</button></div></div>`;
 }
 function renderBody(s){
-  const viewFns={overview,health,map:networkMap,applications,flows,domains,dns,interfaces,routes,vpn,local:localNetwork,fluxvm,security,timeline,investigator,settings};
+  const viewFns={overview,health,map:networkMap,applications,flows,domains,dns,interfaces,routes,vpn,local:localNetwork,fluxvm,security,timeline,investigator,settings,capture};
   return (viewFns[state.view]||overview)(s);
 }
 function render(opts={}){
@@ -164,10 +226,10 @@ function render(opts={}){
   if(opts.tick){
     const ae=document.activeElement;
     if(ae&&body.contains(ae)&&/^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName))return;
-    if(['timeline','investigator','settings'].includes(state.view))return;
+    if(['timeline','investigator','settings','capture'].includes(state.view))return;
   }
   body.innerHTML=renderBody(s);
-  if(state.view==='timeline')loadTimeline();if(state.view==='health')loadSeries();if(state.view==='investigator')bindInvestigator();if(state.view==='security')bindSecurity();if(state.view==='overview')loadOverviewChart();
+  if(state.view==='capture')loadCapture();else stopCapturePoll();if(state.view==='timeline')loadTimeline();if(state.view==='health')loadSeries();if(state.view==='investigator')bindInvestigator();if(state.view==='security')bindSecurity();if(state.view==='overview')loadOverviewChart();
   if(state.sheetFlow)renderFlowSheet();else if(state.sheetApp)renderSheet();
 }
 
@@ -278,6 +340,10 @@ for(const d of ['#paletteDialog','#helpDialog','#exportDialog'])$(d).addEventLis
 $('#contentBody').addEventListener('click',e=>{
   const sortTh=e.target.closest('th[data-sort]');
   if(sortTh){const so=state.sort[sortTh.dataset.view];so.dir=so.key===sortTh.dataset.sort&&so.dir==='desc'?'asc':'desc';so.key=sortTh.dataset.sort;render();return}
+  const cs=e.target.closest('[data-cap-stop]'),cd=e.target.closest('[data-cap-dl]'),cx=e.target.closest('[data-cap-del]');
+  if(cs){captureAction('stop',cs.dataset.capStop);return}
+  if(cd){captureAction('dl',cd.dataset.capDl);return}
+  if(cx){captureAction('del',cx.dataset.capDel);return}
   const gb=e.target.closest('[data-group]');
   if(gb){state.flowGroup=gb.dataset.group;render();return}
   const gk=e.target.closest('[data-groupkey]');

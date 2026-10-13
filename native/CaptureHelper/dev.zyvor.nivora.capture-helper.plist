@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- SPDX-License-Identifier: BUSL-1.1 -->
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>dev.zyvor.nivora.capture-helper</string>
+    <key>BundleProgram</key><string>Contents/Library/LaunchServices/dev.zyvor.nivora.capture-helper</string>
+    <key>RunAtLoad</key><false/>
+    <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+    <key>AssociatedBundleIdentifiers</key><array><string>dev.zyvor.nivora</string></array>
+</dict>
+</plist>

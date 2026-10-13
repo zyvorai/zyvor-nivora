@@ -10,7 +10,7 @@ const js=fs.readFileSync(new URL('../web/app.js',import.meta.url),'utf8');
 const lib=fs.readFileSync(new URL('../web/lib.js',import.meta.url),'utf8');
 
 // --- markup / wiring contract
-for(const label of ['Overview','Health','Network Map','Applications','Flows','DNS','Interfaces','Routes','VPN','Local Network','FluxVM','Security','Time Machine','Investigator','Settings']){
+for(const label of ['Overview','Health','Network Map','Applications','Flows','DNS','Interfaces','Routes','VPN','Local Network','FluxVM','Security','Time Machine','Capture','Investigator','Settings']){
   assert(html.includes(label), `missing nav label ${label}`);
 }
 for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','exportDialog','exportForm','sidebarBtn','alertBadge']){
@@ -18,7 +18,7 @@ for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','expo
 }
 assert(css.includes('backdrop-filter'), 'glass UI contract missing');
 assert(css.includes('prefers-reduced-motion'), 'reduced-motion rule missing');
-for(const needle of ["'/v1/snapshot'","'/v1/query'","'/v1/series?limit=80'","networkMap","'/v1/rules'"]){
+for(const needle of ["'/v1/snapshot'","'/v1/query'","'/v1/series?limit=80'","networkMap","'/v1/rules'","'/v1/captures'"]){
   assert(js.includes(needle), `app.js missing ${needle}`);
 }
 assert(!/\balert\(/.test(js), 'alert() must be replaced by toasts');

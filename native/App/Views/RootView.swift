@@ -47,6 +47,7 @@ struct RootView: View {
                     case .local: LocalNetworkView()
                     case .fluxvm: FluxVMView()
                     case .security: SecurityView()
+                    case .capture: CaptureView()
                     case .investigator: InvestigatorView()
                     case .alerts: AlertsView()
                     case .settings: SettingsView()

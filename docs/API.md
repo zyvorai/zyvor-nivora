@@ -58,6 +58,10 @@ A rule needs at least one of `app`, `domain`, `ip`, or `port`. `action` is `obse
 
 Collector-only deployments preview matches but do not alter traffic. Signed NetworkExtension deployments can enforce active `block` rules.
 
+## Captures
+
+See `docs/CAPTURE.md`: `GET/POST /v1/captures`, `POST /v1/captures/{id}/stop`, `GET /v1/captures/{id}/pcap`, `DELETE /v1/captures/{id}`. Capture requires `confirm: true`, is headers-only by default and returns `501` plus a manual command when the helper is missing.
+
 ## Export
 
 `GET /v1/export?kind=flows|apps|timeline|snapshot|bundle&format=csv|json|ndjson|zip[&filter=<query>][&redact=1]`

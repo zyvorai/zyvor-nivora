@@ -134,3 +134,9 @@ mark{background:rgba(255,159,10,.28)}
 .seg{display:inline-flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
 .seg-btn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:980px;padding:3px 11px;font:inherit;font-size:12px;cursor:pointer}
 .seg-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+.capture-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end}
+.capture-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.capture-form input,.capture-form select{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text)}
+.capture-form .check{grid-column:1/-1;flex-direction:row;align-items:center;gap:8px;color:var(--text)}
+.row-actions{display:flex;gap:6px;justify-content:flex-end}
