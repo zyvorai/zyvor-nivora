@@ -9,14 +9,14 @@ enum PaneSection: String, CaseIterable, Identifiable {
 }
 
 enum Pane: String, CaseIterable, Identifiable {
-    case overview = "Overview", health = "Health", applications = "Applications", flows = "Flows"
+    case overview = "Overview", health = "Health", applications = "Applications", flows = "Flows", timeline = "Time Machine"
     case interfaces = "Interfaces", local = "Local Network"
     case fluxvm = "FluxVM", security = "Security", capture = "Capture", investigator = "Investigator"
     case alerts = "Alerts", settings = "Settings"
     var id: Self { self }
     var section: PaneSection {
         switch self {
-        case .overview, .health, .applications, .flows: return .monitor
+        case .overview, .health, .applications, .flows, .timeline: return .monitor
         case .interfaces, .local: return .network
         case .fluxvm, .security, .capture, .investigator: return .zyvor
         case .alerts, .settings: return .system
@@ -28,6 +28,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .health: return "heart.text.square"
         case .applications: return "square.stack.3d.up"
         case .flows: return "arrow.left.arrow.right"
+        case .timeline: return "clock.arrow.circlepath"
         case .interfaces: return "network"
         case .local: return "macwindow.on.rectangle"
         case .fluxvm: return "shippingbox"
@@ -44,6 +45,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .health: return "Route, DNS, latency, interfaces and safety"
         case .applications: return "Every app, its connections and traffic"
         case .flows: return "Live TCP and UDP conversations"
+        case .timeline: return "What changed on this Mac's network, and when"
         case .interfaces: return "Wi‑Fi, Ethernet, VPN and virtual interfaces"
         case .local: return "Neighbors, listeners and exposure"
         case .fluxvm: return "VMs and sandboxes beside host traffic"
@@ -265,6 +267,16 @@ final class NivoraStore: ObservableObject {
         panel.nameFieldStringValue = "nivora-\(id).pcap"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do { try data.write(to: url, options: .atomic) } catch { captureError = error.localizedDescription }
+    }
+
+    // MARK: time machine
+
+    @Published private(set) var timeline: [NivoraSnapshot.Event] = []
+
+    func refreshTimeline() async {
+        guard let data = try? await request("v1/timeline"),
+              let events = try? JSONDecoder().decode([NivoraSnapshot.Event].self, from: data) else { return }
+        timeline = events
     }
 
     func exportSnapshotData() async -> Data? { try? await request("v1/snapshot") }

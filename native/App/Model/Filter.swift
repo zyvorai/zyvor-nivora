@@ -198,3 +198,48 @@ extension FlowFilter {
         }.joined(separator: " ")
     }
 }
+
+/// Time Machine grouping and filtering, pure so it can be unit tested.
+enum TimelineKit {
+    struct Day: Identifiable { let id: String; let events: [NivoraSnapshot.Event] }
+
+    static func kinds(_ events: [NivoraSnapshot.Event]) -> [String] {
+        Array(Set(events.map(\.kind))).sorted()
+    }
+
+    /// Newest first; `kind == nil` keeps all kinds; `query` matches title and detail case-insensitively.
+    static func filter(_ events: [NivoraSnapshot.Event], kind: String?, query: String) -> [NivoraSnapshot.Event] {
+        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        return events.filter { e in
+            (kind == nil || e.kind == kind) &&
+            (q.isEmpty || e.title.lowercased().contains(q) || (e.detail ?? "").lowercased().contains(q) || e.kind.lowercased().contains(q))
+        }
+        .sorted { $0.ts > $1.ts }
+    }
+
+    /// Groups already-sorted events by calendar day of their ISO-8601 timestamp (first 10 chars).
+    static func byDay(_ events: [NivoraSnapshot.Event]) -> [Day] {
+        var order: [String] = [], map: [String: [NivoraSnapshot.Event]] = [:]
+        for e in events {
+            let day = String(e.ts.prefix(10))
+            if map[day] == nil { order.append(day) }
+            map[day, default: []].append(e)
+        }
+        return order.map { Day(id: $0, events: map[$0]!) }
+    }
+
+    static func symbol(for kind: String) -> String {
+        switch kind {
+        case "interface": return "network"
+        case "dns": return "magnifyingglass"
+        case "route": return "arrow.triangle.turn.up.right.diamond"
+        case "vpn": return "lock.shield"
+        case "listener": return "antenna.radiowaves.left.and.right"
+        case "traffic": return "chart.line.uptrend.xyaxis"
+        case "behavior": return "eye"
+        case "capture": return "record.circle"
+        case "startup": return "power"
+        default: return "clock"
+        }
+    }
+}

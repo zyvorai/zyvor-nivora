@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Native Time Machine pane: events by day with kind filter and text filter (`TimelineKit`), icons per kind, auto-refresh.
+- Fix: `--demo` no longer writes simulated snapshots, events or destination baselines into the real history database; the simulated Mac has a seeded in-memory event history instead.
 - Static in-browser demo (`web/demo.js`, `?demo` or `data-demo`): the real dashboard runs on simulated telemetry with no collector; the demo Mac now has 8 apps.
 - GitHub Pages site (`site/`, `scripts/build-site.sh`, `scripts/site-check.mjs`, `.github/workflows/pages.yml`): landing page with a light/dark pane gallery, plus the dashboard under `/demo/`.
 - README rewritten to the Zyvor product standard (hero, why table, screenshots, tiers, maturity, licence); `scripts/shots-native.sh` and `scripts/build-hero.py` regenerate the images from the real app.
