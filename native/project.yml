@@ -1,0 +1,73 @@
+name: Nivora
+options:
+  bundleIdPrefix: dev.zyvor
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.2.0
+
+targets:
+  Nivora:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Shared
+    resources:
+      - path: ../agent/nivora.py
+        buildPhase: resources
+      - path: ../agent/nivora_core.py
+        buildPhase: resources
+      - path: ../web
+        buildPhase: resources
+    info:
+      path: Config/Nivora-Info.plist
+    entitlements:
+      path: Config/Nivora.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora
+        PRODUCT_NAME: Nivora
+    dependencies:
+      - target: NivoraFilterData
+        embed: true
+      - target: NivoraFilterControl
+        embed: true
+
+  NivoraFilterData:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: FilterData
+      - path: Shared
+    info:
+      path: Config/FilterData-Info.plist
+    entitlements:
+      path: Config/NivoraFilter.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter-data
+        PRODUCT_NAME: NivoraFilterData
+        SKIP_INSTALL: YES
+
+  NivoraFilterControl:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: FilterControl
+      - path: Shared
+    info:
+      path: Config/FilterControl-Info.plist
+    entitlements:
+      path: Config/NivoraFilter.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.filter-control
+        PRODUCT_NAME: NivoraFilterControl
+        SKIP_INSTALL: YES

@@ -1,0 +1,15 @@
+{
+  "name": "zyvor-nivora",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Mac-native application and network intelligence",
+  "license": "BUSL-1.1",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "dev": "python3 agent/nivora.py --demo",
+    "test": "bash scripts/test.sh",
+    "collector": "python3 agent/nivora.py",
+    "demo": "python3 agent/nivora.py --demo"
+  },
+  "repository": {"type": "git", "url": "https://github.com/zyvorai/zyvor-nivora.git"}
+}

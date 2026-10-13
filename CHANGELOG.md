@@ -1,0 +1,43 @@
+# Changelog
+
+## Unreleased
+
+- Dashboard UX pass toward Vytrix parity: command palette (`⌘K`), keyboard shortcuts, application detail sheet, sortable/highlighted tables, throughput chart with tooltip, per-app sparklines, toasts, skeleton/error states, Settings view (theme, accent, density, refresh, alert threshold, pinned apps), snapshot JSON and flows CSV export.
+- Health ring now reflects the real score and status.
+- Fix: the collector rejected the dashboard's own same-origin `Origin` header (module script fetch and rule POSTs returned 403 in a browser). Loopback same-origin is now accepted; foreign origins are still rejected.
+- Web logic split into `web/lib.js` with unit tests.
+- Web dashboard recoloured with the Netra palette and SF type scale (light-first, dark via OS or Settings); accents are now blue/cyan/green/amber/purple/graphite.
+- Native app rebuilt in Vytrix's structure (Model/Views split, Panel/MetricTile/Meter components, Swift Charts, Settings, menu-bar window, Alerts, app detail sheet, `--appearance`/`--section` flags) with the same Netra palette; palette parity with the web is tested.
+- Fix: the collector no longer crashes at startup when the App Group rules directory cannot be created (unsigned builds); it falls back to `~/.local/share/nivora/rules.json`.
+- Known: the NetworkExtension sources do not compile against the macOS SDK yet (see `native/README.md`).
+
+## 0.2.0 — 2026-10-13
+
+- Live per-flow and per-app RX/TX rates from counter deltas.
+- 0–100 network health model with explainable route/DNS/latency/interface/safety components.
+- Local network diagnosis and traffic history series.
+- App → interface → destination Network Map.
+- ARP/NDP neighbors, listening services and exposure classification.
+- `networksetup` hardware-port/Wi-Fi enrichment.
+- Persistent destination behavior learning with first-seen findings and Time Machine events.
+- VPN-state, listener and traffic-spike Time Machine events.
+- One-hour default leases for block rules; validation for predicates, ports, IPs and expiries.
+- FluxVM network health, endpoints, Hubble flows and observe-state integration, plus host-flow correlation.
+- New health/traffic/topology/neighbors/listeners/behavior/diagnose/series APIs and CLI commands.
+- Native Health and Local Network views, live bandwidth columns and menu-bar health/rates.
+- Web Health, Network Map and Local Network views.
+- Local API/static-serving hardening.
+- Expanded portable test suite from 13 to 21 Python tests plus web/plist/demo/Swift syntax gates.
+
+## 0.1.0 — 2026-10-13
+
+- Initial Nivora product repository.
+- Per-app flow model with NetworkExtension JSONL ingestion, `nettop` and `lsof` fallback.
+- DNS, route, interface and VPN inventory.
+- FluxVM integration against the local REST API.
+- SQLite history and Network Time Machine events.
+- Observe/allow/block rules with live preview and signed extension enforcement path.
+- Local investigator.
+- Vytrix-style dependency-free dashboard.
+- Native SwiftUI app, filter-data provider and filter-control provider.
+- `nivoractl`, `launchd` installer, CI and test suite.

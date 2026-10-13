@@ -1,0 +1,3 @@
+process,bytes_in,bytes_out,rtt_avg,state,interface,local,remote,protocol
+Slack.602,98566144,12582912,181.0,ESTABLISHED,utun4,192.168.1.42:53102,13.107.6.175:443,tcp
+Xcode.711,67108864,83886080,36.0,ESTABLISHED,en0,192.168.1.42:53200,github.com:443,tcp
