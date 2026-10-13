@@ -46,7 +46,7 @@
         </div>
       </aside>
       <section class="content">
-        <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Search or filter: app:Safari port:443 &gt;1mbps  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export flows as CSV">CSV</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
+        <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Search or filter: app:Safari port:443 &gt;1mbps  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export…">Export</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
         <div id="contentBody" class="content-body"></div>
       </section>
     </div>
@@ -62,6 +62,17 @@
     </div>
   </dialog>
 
+  <dialog id="exportDialog" class="palette">
+    <form method="dialog" class="palette-card help" id="exportForm">
+      <h2>Export</h2>
+      <label class="metric-inline"><span>Data</span><select id="exportKind"><option value="flows">Flows</option><option value="apps">Applications</option><option value="timeline">Time Machine events</option><option value="bundle">Bundle (.zip)</option></select></label>
+      <label class="metric-inline"><span>Format</span><select id="exportFormat"><option value="csv">CSV</option><option value="json">JSON</option><option value="ndjson">NDJSON</option></select></label>
+      <label class="metric-inline"><span>Apply current filter</span><input type="checkbox" id="exportFiltered" checked /></label>
+      <label class="metric-inline"><span>Redact private IPs, MACs, SSID, hostname</span><input type="checkbox" id="exportRedact" /></label>
+      <p class="muted">Exports contain connection metadata only; no packet payloads.</p>
+      <div class="header-actions"><button type="button" id="exportCancel" class="glass-btn">Cancel</button><button type="submit" class="primary" id="exportGo">Download</button></div>
+    </form>
+  </dialog>
   <dialog id="helpDialog" class="palette">
     <div class="palette-card help">
       <h2>Keyboard shortcuts</h2>

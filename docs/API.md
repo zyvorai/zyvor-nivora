@@ -58,6 +58,12 @@ A rule needs at least one of `app`, `domain`, `ip`, or `port`. `action` is `obse
 
 Collector-only deployments preview matches but do not alter traffic. Signed NetworkExtension deployments can enforce active `block` rules.
 
+## Export
+
+`GET /v1/export?kind=flows|apps|timeline|snapshot|bundle&format=csv|json|ndjson|zip[&filter=<query>][&redact=1]`
+
+Returns an attachment (`Content-Disposition`). `bundle`/`zip` contains `README.txt`, `snapshot.json`, `flows.csv` and `timeline.ndjson`. CSV cells that start with `= + - @` are prefixed with `'` so spreadsheets do not evaluate them. `redact=1` replaces private IPv4/link-local IPv6 addresses, MACs, SSIDs, DNS names/search domains and this Mac's hostname with per-export salted hash tokens (`ip-1a2b3c4d`); the same value maps to the same token within one export only. Exports never contain packet payloads. Unknown kind/format returns `400`.
+
 ## Filter grammar
 
 One grammar is shared by the collector (`parse_filter`/`match_flow` in `agent/nivora_core.py`), the web UI (`parseFilter`/`matchFilter` in `web/lib.js`) and the native app (`FlowFilter` in `native/App/Model/Filter.swift`). Parity is enforced by `tests/fixtures/filter-vectors.json`.

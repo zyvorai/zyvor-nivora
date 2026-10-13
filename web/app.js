@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => [...document.querySelectorAll(q)];
-import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,flowsToCSV,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
+import {ACCENTS,esc,fmtBytes,fmtRate,hostOf,portOf,initials,matchQuery,filterFlows,filterChips,dropFilterChip,sortRows,scoreStatus,sparklinePath,mergePrefs,pushSample,highlight,rateAlerts} from '/lib.js';
 const PREF_KEY='nivora-prefs';
 const state = { token: '', snapshot: null, view: 'overview', paused: false, timer: null, search: '', sort: {applications:{key:'total_bps',dir:'desc'},flows:{key:'rx_bps',dir:'desc'}}, samples: {}, prefs: mergePrefs(null), error: '', updatedAt: 0, alerted: new Set(), sheetApp: null, goto: false };
 try{state.prefs=mergePrefs(localStorage.getItem(PREF_KEY))}catch{}
@@ -200,7 +200,22 @@ function runPalette(i){const it=paletteItems[i];if(!it)return;$('#paletteDialog'
 /* export */
 function download(name,type,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function exportSnapshot(){if(!state.snapshot)return toast('Nothing to export yet','warn');download(`nivora-snapshot-${Date.now()}.json`,'application/json',JSON.stringify(state.snapshot,null,2));toast('Snapshot exported','ok')}
-function exportFlows(){if(!state.snapshot)return toast('Nothing to export yet','warn');download(`nivora-flows-${Date.now()}.csv`,'text/csv',flowsToCSV(filteredFlows()));toast('Flows exported','ok')}
+async function exportServer(){
+  const kind=$('#exportKind').value;let fmt=$('#exportFormat').value;
+  if(kind==='bundle')fmt='zip';
+  const qs=new URLSearchParams({kind,format:fmt});
+  if($('#exportFiltered').checked&&state.search.trim()&&kind!=='timeline')qs.set('filter',state.search.trim());
+  if($('#exportRedact').checked)qs.set('redact','1');
+  try{
+    const r=await fetch(`/v1/export?${qs}`,{headers:authHeaders({}),cache:'no-store'});
+    if(r.status===401){showConnect();return}
+    if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
+    const blob=await r.blob(),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download=(r.headers.get('Content-Disposition')||'').match(/filename="([^"]+)"/)?.[1]||`nivora-${kind}.${fmt}`;
+    a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Export downloaded','ok');
+  }catch(err){toast(`Export failed: ${err.message}`,'error')}
+}
+function openExport(){const d=$('#exportDialog');if(!d.open)d.showModal()}
 
 async function loadTimeline(){try{const events=await api('/v1/timeline');$('#timelineBody').innerHTML=events.slice().reverse().map(e=>`<div class="event"><time>${esc(new Date(e.ts).toLocaleString())} · ${esc(e.kind)}</time><strong>${esc(e.title)}</strong><p>${esc(e.detail||'')}</p></div>`).join('')||'<div class="empty">No changes recorded yet.</div>'}catch(e){$('#timelineBody').innerHTML=`<div class="empty">${esc(e)}</div>`}}
 async function loadSeries(){try{const rows=await api('/v1/series?limit=80');const el=$('#seriesBody');if(!el)return;const max=Math.max(1,...rows.map(x=>(x.rx_bps||0)+(x.tx_bps||0)));el.innerHTML=rows.map(x=>`<div class="spark-col" title="${esc(new Date(x.timestamp).toLocaleTimeString())} · ↓ ${esc(fmtRate(x.rx_bps))} · ↑ ${esc(fmtRate(x.tx_bps))}"><i style="height:${Math.max(3,((x.rx_bps||0)+(x.tx_bps||0))/max*100)}%"></i></div>`).join('')||'<div class="empty">History will appear after a few samples.</div>'}catch(e){const el=$('#seriesBody');if(el)el.innerHTML=`<div class="empty">${esc(e)}</div>`}}
@@ -211,7 +226,9 @@ $('#refreshBtn').onclick=()=>refresh();
 function togglePause(){state.paused=!state.paused;const b=$('#pauseBtn');b.textContent=state.paused?'▶':'Ⅱ';b.setAttribute('aria-pressed',String(state.paused));b.setAttribute('aria-label',state.paused?'Resume updates':'Pause updates');setLive(!state.paused,state.paused?'Paused':null)}
 $('#pauseBtn').onclick=togglePause;
 $('#sidebarBtn').onclick=()=>document.documentElement.classList.toggle('sidebar-hidden');
-$('#exportBtn').onclick=exportSnapshot;$('#exportCsvBtn').onclick=exportFlows;
+$('#exportBtn').onclick=exportSnapshot;$('#exportCsvBtn').onclick=openExport;
+$('#exportForm').onsubmit=e=>{e.preventDefault();$('#exportDialog').close();exportServer()};
+$('#exportCancel').onclick=()=>$('#exportDialog').close();
 $('#paletteBtn').onclick=openPalette;
 $('#search').oninput=e=>{state.search=e.target.value;render()};
 $('#themeBtn').onclick=()=>{const order=['auto','light','dark'];state.prefs.appearance=order[(order.indexOf(state.prefs.appearance)+1)%3];savePrefs();toast(`Appearance: ${state.prefs.appearance}`);if(state.view==='settings')render()};
@@ -224,7 +241,7 @@ $('#paletteInput').onkeydown=e=>{
   else if(e.key==='Enter')runPalette(paletteIdx);
 };
 $('#paletteList').onclick=e=>{const i=e.target.closest('[data-i]');if(i)runPalette(Number(i.dataset.i))};
-for(const d of ['#paletteDialog','#helpDialog'])$(d).addEventListener('click',e=>{if(e.target===$(d))$(d).close()});
+for(const d of ['#paletteDialog','#helpDialog','#exportDialog'])$(d).addEventListener('click',e=>{if(e.target===$(d))$(d).close()});
 
 $('#contentBody').addEventListener('click',e=>{
   const sortTh=e.target.closest('th[data-sort]');

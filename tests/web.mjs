@@ -13,7 +13,7 @@ const lib=fs.readFileSync(new URL('../web/lib.js',import.meta.url),'utf8');
 for(const label of ['Overview','Health','Network Map','Applications','Flows','DNS','Interfaces','Routes','VPN','Local Network','FluxVM','Security','Time Machine','Investigator','Settings']){
   assert(html.includes(label), `missing nav label ${label}`);
 }
-for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','sidebarBtn','alertBadge']){
+for(const id of ['paletteDialog','helpDialog','sheet','toasts','exportBtn','exportDialog','exportForm','sidebarBtn','alertBadge']){
   assert(html.includes(`id="${id}"`), `missing #${id}`);
 }
 assert(css.includes('backdrop-filter'), 'glass UI contract missing');

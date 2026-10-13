@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `GET /v1/export` (flows/apps/timeline/snapshot/bundle; CSV/JSON/NDJSON/zip; current filter; salted-hash redaction) with an Export dialog in the web UI and an Export menu in the native Flows pane.
 - Flow filter grammar (`app: host: port: proto: iface: state: source: >1mbps !neg`) shared by collector, web and native, with `GET /v1/flows?filter=`, `nivoractl flows --filter`, removable filter chips and saved views (web localStorage / native UserDefaults, palette + Views menu).
 - Native Flows pane exports the current (filtered, sorted) flows as CSV with spreadsheet-formula neutralisation, matching the web export.
 - Native XCTest target `NivoraTests` (snapshot decoding, alert rules) with a demo-collector fixture; run in the macOS CI job.

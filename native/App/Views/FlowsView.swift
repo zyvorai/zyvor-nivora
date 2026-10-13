@@ -37,12 +37,20 @@ struct FlowsView: View {
                 } label: { Label("Views", systemImage: "line.3.horizontal.decrease.circle") }
             }
             ToolbarItem {
-                ShareLink(item: FlowExport.csv(flows), preview: SharePreview("Nivora flows.csv")) {
-                    Label("Export CSV", systemImage: "square.and.arrow.up")
-                }
+                Menu {
+                    Button("Flows as CSV (current filter)") { Task { await store.export(kind: "flows", format: "csv", redact: false) } }
+                    Button("Flows as CSV, redacted") { Task { await store.export(kind: "flows", format: "csv", redact: true) } }
+                    Button("Flows as NDJSON") { Task { await store.export(kind: "flows", format: "ndjson", redact: false) } }
+                    Divider()
+                    Button("Bundle (.zip)") { Task { await store.export(kind: "bundle", format: "zip", redact: false) } }
+                    Button("Bundle (.zip), redacted") { Task { await store.export(kind: "bundle", format: "zip", redact: true) } }
+                } label: { Label("Export", systemImage: "square.and.arrow.up") }
                 .disabled(flows.isEmpty)
             }
         }
+        .alert("Export", isPresented: Binding(get: { store.exportError != nil }, set: { if !$0 { store.exportError = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: { Text(store.exportError ?? "") }
         .overlay { if flows.isEmpty { ContentUnavailableView("No flows", systemImage: "arrow.left.arrow.right", description: Text(store.search.isEmpty ? "No flows in the current sample." : "Nothing matches your search.")) } }
     }
 }

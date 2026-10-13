@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -63,6 +64,7 @@ final class NivoraStore: ObservableObject {
     @Published var paused = false
     @Published var search = ""
     @Published var selectedApp: String?
+    @Published var exportError: String?
     @Published var investigatorAnswer = "Ask what is happening on this Mac."
     @Published var thresholdMbps: Double = UserDefaults.standard.double(forKey: "nivora.thresholdMbps") {
         didSet { UserDefaults.standard.set(thresholdMbps, forKey: "nivora.thresholdMbps") }
@@ -194,4 +196,24 @@ final class NivoraStore: ObservableObject {
 
     /// The latest sample as JSON for Export.
     func exportSnapshotData() async -> Data? { try? await request("v1/snapshot") }
+
+    /// Server-side export (`/v1/export`): honours the current filter and optional redaction, then asks where to save.
+    func export(kind: String, format: String, redact: Bool, filtered: Bool = true) async {
+        var items = [URLQueryItem(name: "kind", value: kind), URLQueryItem(name: "format", value: format)]
+        let q = search.trimmingCharacters(in: .whitespaces)
+        if filtered, !q.isEmpty, kind != "timeline" { items.append(URLQueryItem(name: "filter", value: q)) }
+        if redact { items.append(URLQueryItem(name: "redact", value: "1")) }
+        var comps = URLComponents(); comps.queryItems = items
+        guard let data = try? await request("v1/export?" + (comps.percentEncodedQuery ?? "")) else {
+            exportError = "Export failed. The collector did not return data."
+            return
+        }
+        let stamp = Int(Date().timeIntervalSince1970)
+        let ext = format == "zip" ? "zip" : format
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "nivora-\(kind)-\(stamp).\(ext)"
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do { try data.write(to: url, options: .atomic) } catch { exportError = error.localizedDescription }
+    }
 }

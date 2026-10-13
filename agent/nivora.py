@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, filter_flows, timeline_events
+from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
 class State:
@@ -183,6 +183,8 @@ class Handler(BaseHTTPRequestHandler):
             }
             if path in mapping:
                 return self._json(mapping[path])
+            if path == "/v1/export":
+                return self._export(parse_qs(u.query), snap, timeline)
             if path in {"/v1/history", "/v1/series"}:
                 try: limit = int(parse_qs(u.query).get("limit", [120])[0])
                 except (TypeError, ValueError): limit = 120
@@ -190,6 +192,37 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(self.state.history.series(limit) if path == "/v1/series" else self.state.history.history(limit))
             return self._json({"error":"not found"}, 404)
         return self._static(path)
+
+    def _export(self, q, snap, timeline):
+        kind = q.get("kind", ["flows"])[0]
+        fmt = q.get("format", ["csv"])[0]
+        query = q.get("filter", [""])[0][:400]
+        redactor = Redactor() if q.get("redact", ["0"])[0] in {"1", "true", "yes"} else None
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        try:
+            if kind in {"bundle", "snapshot"} and fmt in {"zip", "json"}:
+                if kind == "bundle" or fmt == "zip":
+                    body, ctype, name = build_bundle(snap, timeline, query, redactor), "application/zip", f"nivora-bundle-{stamp}.zip"
+                else:
+                    data = redactor.walk(snap) if redactor else snap
+                    body, ctype, name = json.dumps(data, indent=2).encode(), "application/json", f"nivora-snapshot-{stamp}.json"
+            else:
+                rows = export_rows(snap, timeline, kind, query)
+                if redactor:
+                    rows = redactor.walk(rows)
+                body, ctype = render_export(rows, kind, fmt)
+                name = f"nivora-{kind}-{stamp}.{fmt}"
+        except (ValueError, KeyError) as exc:
+            return self._json({"error": str(exc)}, 400)
+        self.send_response(200)
+        self._cors()
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_POST(self):
         if not self._guard():

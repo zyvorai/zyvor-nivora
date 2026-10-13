@@ -52,6 +52,24 @@ class APITests(unittest.TestCase):
         self.assertTrue(only and all(f["protocol"]==proto for f in only))
         with self.req("/v1/flows?filter=app%3Anope-does-not-exist") as r: self.assertEqual(json.loads(r.read()),[])
 
+    def test_export_formats_filter_and_redaction(self):
+        import io, zipfile
+        with self.req("/v1/export?kind=flows&format=csv") as r:
+            self.assertIn("attachment", r.headers["Content-Disposition"])
+            rows=r.read().decode().strip().split("\n")
+        self.assertTrue(rows[0].startswith("process,protocol"))
+        with self.req("/v1/export?kind=flows&format=ndjson&filter=app%3Anope-nothing") as r:
+            self.assertEqual(r.read(),b"")
+        with self.req("/v1/export?kind=snapshot&format=json&redact=1") as r:
+            snap=json.loads(r.read())
+        self.assertTrue(snap["host"]["name"].startswith("host-"))
+        self.assertNotRegex(json.dumps(snap), r"\b192\.168\.\d+\.\d+\b")
+        with self.req("/v1/export?kind=bundle&format=zip") as r:
+            names=zipfile.ZipFile(io.BytesIO(r.read())).namelist()
+        self.assertEqual(sorted(names),["README.txt","flows.csv","snapshot.json","timeline.ndjson"])
+        with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/export?kind=flows&format=xml")
+        self.assertEqual(c.exception.code,400)
+
     def test_requires_token(self):
         with self.assertRaises(urllib.error.HTTPError) as c: self.req("/v1/snapshot",token=False)
         self.assertEqual(c.exception.code,401)

@@ -704,6 +704,110 @@ def filter_flows(flows: list[dict[str, Any]], query: str) -> list[dict[str, Any]
     return [f for f in flows if match_flow(f, terms)] if terms else list(flows)
 
 
+# ---- exports -----------------------------------------------------------------------------------
+
+EXPORT_COLUMNS = {
+    "flows": ["process", "protocol", "local", "remote", "state", "interface", "rtt_ms", "rx_bps", "tx_bps", "bytes_in", "bytes_out"],
+    "apps": ["name", "pid", "bundle_id", "connections", "rx_bps", "tx_bps", "bytes_in", "bytes_out", "domains"],
+    "timeline": ["ts", "kind", "title", "detail"],
+}
+_PRIVATE_V4 = re.compile(r"\b(?:10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2})\b")
+_MAC = re.compile(r"\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b")
+_LINK_LOCAL_V6 = re.compile(r"\bfe80::[0-9a-fA-F:]*")
+_SENSITIVE_KEYS = {"ssid", "domains", "search", "nameservers"}
+
+
+class Redactor:
+    """Replaces private addresses, MACs, SSIDs and hostnames with stable per-export tokens."""
+
+    def __init__(self, salt: bytes | None = None):
+        self.salt = salt or os.urandom(8)
+
+    def token(self, kind: str, value: str) -> str:
+        digest = hashlib.sha256(self.salt + kind.encode() + value.encode()).hexdigest()[:8]
+        return f"{kind}-{digest}"
+
+    def text(self, value: str) -> str:
+        value = _MAC.sub(lambda m: self.token("mac", m.group(0).lower()), value)
+        value = _LINK_LOCAL_V6.sub(lambda m: self.token("ip6", m.group(0)), value)
+        return _PRIVATE_V4.sub(lambda m: self.token("ip", m.group(0)), value)
+
+    def walk(self, obj: Any, key: str = "") -> Any:
+        if isinstance(obj, dict):
+            out = {k: self.walk(v, str(k)) for k, v in obj.items()}
+            if key == "host" and isinstance(obj.get("name"), str) and obj["name"]:
+                out["name"] = self.token("host", obj["name"])   # this Mac's hostname
+            return out
+        if isinstance(obj, list):
+            return [self.walk(v, key) for v in obj]
+        if isinstance(obj, str):
+            if key in _SENSITIVE_KEYS and obj:
+                return self.token(key.rstrip("s") or "name", obj)
+            return self.text(obj)
+        return obj
+
+
+def export_rows(snapshot: dict[str, Any], timeline: list[dict[str, Any]], kind: str, query: str = "") -> list[dict[str, Any]]:
+    if kind == "flows":
+        return filter_flows(snapshot.get("flows", []), query)
+    if kind == "apps":
+        apps = snapshot.get("apps", [])
+        terms = parse_filter(query)
+        if not terms:
+            return list(apps)
+        return [a for a in apps if match_flow({**a, "process": a.get("name", ""), "remote": (a.get("domains") or [""])[0],
+                                               "interface": (a.get("interfaces") or [""])[0]}, terms)]
+    if kind == "timeline":
+        return list(timeline)
+    raise ValueError(f"unknown export kind: {kind}")
+
+
+def _csv_cell(value: Any) -> str:
+    if isinstance(value, (list, tuple)):
+        value = "; ".join(str(v) for v in value)
+    text = "" if value is None else str(value)
+    return "'" + text if text[:1] in {"=", "+", "-", "@", "\t", "\r"} else text  # spreadsheet formula guard
+
+
+def render_export(rows: list[dict[str, Any]], kind: str, fmt: str) -> tuple[bytes, str]:
+    if fmt == "json":
+        return json.dumps(rows, indent=2).encode(), "application/json"
+    if fmt == "ndjson":
+        return ("\n".join(json.dumps(r, separators=(",", ":")) for r in rows) + ("\n" if rows else "")).encode(), "application/x-ndjson"
+    if fmt == "csv":
+        import io
+        buf = io.StringIO()
+        writer = csv.writer(buf, lineterminator="\n")
+        cols = EXPORT_COLUMNS.get(kind)
+        if cols is None:
+            raise ValueError("csv export is only available for flows, apps and timeline")
+        writer.writerow(cols)
+        for r in rows:
+            writer.writerow([_csv_cell(r.get(c)) for c in cols])
+        return buf.getvalue().encode(), "text/csv; charset=utf-8"
+    raise ValueError(f"unknown export format: {fmt}")
+
+
+def build_bundle(snapshot: dict[str, Any], timeline: list[dict[str, Any]], query: str = "", redactor: Redactor | None = None) -> bytes:
+    """A zip with the snapshot, flows CSV, timeline NDJSON and a README; optionally redacted."""
+    import io
+    import zipfile
+    snap = dict(snapshot)
+    flows, tl = export_rows(snap, timeline, "flows", query), export_rows(snap, timeline, "timeline")
+    if redactor:
+        snap, flows, tl = redactor.walk(snap), redactor.walk(flows), redactor.walk(tl)
+    readme = ("Nivora export bundle\n"
+              f"Generated: {utc_now()}\nFilter: {query or '(none)'}\nRedacted: {'yes' if redactor else 'no'}\n"
+              "Contains metadata only; no packet payloads.\n")
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("README.txt", readme)
+        z.writestr("snapshot.json", json.dumps(snap, indent=2))
+        z.writestr("flows.csv", render_export(flows, "flows", "csv")[0])
+        z.writestr("timeline.ndjson", render_export(tl, "timeline", "ndjson")[0])
+    return out.getvalue()
+
+
 def classify_remote(host: str) -> str:
     if not host:
         return "unknown"
