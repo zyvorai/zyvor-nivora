@@ -9,6 +9,20 @@ struct FlowsView: View {
     var body: some View {
         let flows = store.flows.sorted(using: order)
         VStack(spacing: 0) {
+            if store.history.count > 1 {
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label(rateString(store.history.last?.rx ?? 0), systemImage: "arrow.down").foregroundStyle(Palette.accent)
+                        Label(rateString(store.history.last?.tx ?? 0), systemImage: "arrow.up").foregroundStyle(Palette.purple)
+                    }
+                    .font(.caption.weight(.medium)).monospacedDigit().frame(width: 110, alignment: .leading)
+                    RateChart(samples: store.history, height: 64, compact: true)
+                }
+                .padding(.horizontal, 16).padding(.vertical, 8)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Live throughput")
+                Divider()
+            }
             FilterBar(shown: flows.count, total: store.snapshot?.flows.count ?? 0)
             Divider()
             BaselineCard().padding(.horizontal, 16).padding(.top, store.baseline == nil ? 0 : 12)

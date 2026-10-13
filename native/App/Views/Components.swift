@@ -112,6 +112,8 @@ struct Page<Content: View>: View {
 
 struct RateChart: View {
     let samples: [Sample]
+    var height: CGFloat = 180
+    var compact = false
     var body: some View {
         Chart {
             ForEach(samples) { s in
@@ -123,7 +125,8 @@ struct RateChart: View {
                     .foregroundStyle(Palette.purple)
             }
         }
-        .chartYAxis { AxisMarks { v in AxisGridLine(); AxisValueLabel { if let d = v.as(Double.self) { Text(rateString(d)) } } } }
-        .frame(height: 180)
+        .chartYAxis { AxisMarks(values: .automatic(desiredCount: compact ? 2 : 4)) { v in AxisGridLine(); AxisValueLabel { if let d = v.as(Double.self) { Text(rateString(d)) } } } }
+        .chartXAxis(compact ? .hidden : .automatic)
+        .frame(height: height)
     }
 }
