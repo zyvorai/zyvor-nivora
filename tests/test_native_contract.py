@@ -113,6 +113,20 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn("./scripts/package-dmg.sh", wf)
         self.assertNotIn("notarytool", wf)         # no signing claims without credentials
 
+    def test_brand_assets_are_wired_in(self):
+        """One master SVG; the icns, favicon and share image derive from it and are actually referenced."""
+        for rel in ["docs/brand/nivora-icon.svg", "native/Nivora.icns", "web/favicon.svg",
+                    "web/apple-touch-icon.png", "docs/social/og.png", "scripts/build-brand.sh"]:
+            self.assertTrue((ROOT / rel).is_file(), rel)
+        self.assertEqual((ROOT / "docs/brand/nivora-icon.svg").read_text(), (ROOT / "web/favicon.svg").read_text())
+        project = (ROOT / "native" / "project.yml").read_text()
+        self.assertIn("path: Nivora.icns", project)
+        self.assertIn("CFBundleIconFile: Nivora", project)
+        html = (ROOT / "web" / "index.html").read_text()
+        self.assertIn('rel="icon" href="favicon.svg"', html)
+        self.assertIn('rel="apple-touch-icon"', html)
+        self.assertEqual((ROOT / "native" / "Nivora.icns").read_bytes()[:4], b"icns")
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

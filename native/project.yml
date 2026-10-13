@@ -23,6 +23,8 @@ targets:
         includes: ["Protocol.swift", "Validator.swift"]
       # The stdlib-only collector and dashboard ship inside the app (Contents/Resources).
       # xcodegen has no top-level `resources:` key; these must be sources with buildPhase: resources.
+      - path: Nivora.icns
+        buildPhase: resources
       - path: ../agent/nivora.py
         buildPhase: resources
       - path: ../agent/nivora_core.py
@@ -36,6 +38,7 @@ targets:
     info:
       path: Config/Nivora-Info.plist
       properties:
+        CFBundleIconFile: Nivora
         NSSystemExtensionUsageDescription: Nivora uses a content-filter system extension to attribute network flows to applications. It observes metadata only; no payloads are collected.
     entitlements:
       path: Config/Nivora.entitlements
