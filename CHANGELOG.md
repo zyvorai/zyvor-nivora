@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Native Flows pane shows a live throughput strip above the filter bar; the Overview Connections tile has a sparkline.
+- Native: byte/rate formatters show "0 bytes" instead of "Zero KB"; the app activates and fronts its window on launch (first `open` from LaunchServices could leave it hidden).
 - Native UX: filter bar (removable chips, quick filters, "N of M", saved views) on Flows and Applications, baseline compare card, flow rate sparkline in the inspector, inspector reachable from the application sheet, "Clear filter" empty states, ⌘1–⌘9 pane shortcuts (Go menu), last pane remembered, wider table columns.
 - Fix: the app bundle never contained the collector or dashboard (xcodegen ignores a top-level `resources:` key); they are now bundled as resource sources, including `capture.py`, and `install-macos.sh` installs `capture.py`. A contract test guards both.
 - Opt-in packet capture: privileged `NivoraCaptureHelper` (SMAppService daemon; fixed-argv tcpdump, structured validated requests, caps, 24 h retention), `/v1/captures` API, web and native Capture panes, "Capture this flow", pcap download, demo simulation. Compile- and unit-verified only; see `docs/CAPTURE.md`.

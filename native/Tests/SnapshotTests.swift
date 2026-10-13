@@ -27,7 +27,8 @@ final class SnapshotTests: XCTestCase {
     }
 
     func testFormatters() {
-        XCTAssertFalse(byteString(0).isEmpty)
+        XCTAssertFalse(byteString(0).lowercased().contains("zero"))
+        XCTAssertFalse(rateString(0).lowercased().contains("zero"))
         XCTAssertTrue(byteString(1_048_576).contains("MB"))
         XCTAssertTrue(rateString(2048).hasSuffix("/s"))
     }
