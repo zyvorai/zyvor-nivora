@@ -140,3 +140,10 @@ mark{background:rgba(255,159,10,.28)}
 .capture-form input,.capture-form select{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text)}
 .capture-form .check{grid-column:1/-1;flex-direction:row;align-items:center;gap:8px;color:var(--text)}
 .row-actions{display:flex;gap:6px;justify-content:flex-end}
+
+.chip.ghost{background:transparent;color:var(--muted);border-style:dashed}
+.chip.ghost:hover{color:var(--blue)}
+.filter-bar .count{font-size:12px;margin-right:4px;font-variant-numeric:tabular-nums}
+.seg-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.seg.baseline .seg-btn{border-style:dashed}
+.empty .glass-btn{margin-left:8px}
