@@ -56,6 +56,14 @@ struct NivoraApp: App {
                 Divider()
                 Button("Settings") { store.pane = .settings }.keyboardShortcut(",", modifiers: .command)
             }
+            CommandGroup(replacing: .help) {
+                Button("Keyboard Shortcuts") { NotificationCenter.default.post(name: .nivoraShowShortcuts, object: nil) }
+                    .keyboardShortcut("/", modifiers: .command)
+                Divider()
+                Link("Nivora on GitHub", destination: URL(string: "https://github.com/zyvorai/zyvor-nivora")!)
+                Link("Privacy and What Nivora Collects", destination: URL(string: "https://github.com/zyvorai/zyvor-nivora#privacy-and-safety")!)
+                Link("Report an Issue", destination: URL(string: "https://github.com/zyvorai/zyvor-nivora/issues/new")!)
+            }
             CommandMenu("Source") {
                 Button("Monitor This Mac") { store.useThisMac() }.keyboardShortcut("1", modifiers: [.command, .shift])
                 Button("Show Demo Data") { store.useDemo() }.keyboardShortcut("2", modifiers: [.command, .shift])

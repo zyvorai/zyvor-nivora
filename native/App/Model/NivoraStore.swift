@@ -75,6 +75,7 @@ final class NivoraStore: ObservableObject {
     }
     @Published private(set) var baseline: (time: Date, flows: [NivoraSnapshot.Flow])?
     @Published private(set) var flowRates: [String: [Double]] = [:]
+    @Published private(set) var appRates = RateHistory()
 
     func pinBaseline() { if let s = snapshot { baseline = (Date(), s.flows) } }
     func clearBaseline() { baseline = nil }
@@ -185,6 +186,9 @@ final class NivoraStore: ObservableObject {
             for f in s.flows { rates[f.id, default: []].append(f.total_bps); if rates[f.id]!.count > 60 { rates[f.id]!.removeFirst() } }
             for k in rates.keys where !s.flows.contains(where: { $0.id == k }) { rates[k] = nil }
             flowRates = rates
+            var appBuf = appRates
+            appBuf.record(Dictionary(s.apps.map { ($0.name, $0.total_bps) }, uniquingKeysWith: { a, b in a + b }))
+            appRates = appBuf
             history.append(Sample(time: Date(), rx: s.traffic.rx_bps, tx: s.traffic.tx_bps, health: s.health.score, flows: s.flows.count))
             if history.count > maxSamples { history.removeFirst(history.count - maxSamples) }
             status = .live

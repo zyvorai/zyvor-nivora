@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
+  <meta name="author" content="Zyvor AI Labs Private Limited" />
   <title>Nivora — Mac network intelligence</title>
   <meta name="theme-color" content="#1d1d1f" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -20,7 +21,7 @@
     </div>
     <div class="shell">
       <aside class="sidebar">
-        <div class="brand"><div class="brand-mark">N</div><div><strong>Nivora</strong><small>Network Intelligence</small></div></div>
+        <div class="brand"><img class="brand-icon" src="favicon.svg" width="30" height="30" alt="" /><div><strong>Nivora</strong><small>Network Intelligence</small></div></div>
         <div class="status-pill"><span id="liveDot" class="dot"></span><span id="liveLabel" role="status" aria-live="polite">Connecting</span></div>
         <nav id="nav">
           <div class="nav-label">Monitor</div>
@@ -52,6 +53,7 @@
       <section class="content">
         <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Filter…  app:Safari port:443  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export…">Export</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
         <div id="contentBody" class="content-body"></div>
+        <footer class="legal"><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · <a href="https://zyvor.dev" rel="noopener">zyvor.dev</a></footer>
       </section>
     </div>
   </main>
@@ -92,7 +94,7 @@
 
   <dialog id="connectDialog">
     <form method="dialog" class="dialog-card">
-      <div class="brand-mark large">N</div>
+      <img class="brand-icon large" src="favicon.svg" width="48" height="48" alt="" />
       <h2>Connect to Nivora</h2>
       <p>The collector protects its local API with a bearer token. Paste the token printed by <code>nivora.py</code>. It is kept only in this tab.</p>
       <label>Token<input id="tokenInput" type="password" autocomplete="off" placeholder="NIVORA_TOKEN" /></label>

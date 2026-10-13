@@ -127,6 +127,17 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn('rel="apple-touch-icon"', html)
         self.assertEqual((ROOT / "native" / "Nivora.icns").read_bytes()[:4], b"icns")
 
+    def test_zyvor_name_copyright_and_licence_match_vytrix(self):
+        """Same owner, notice and licence wording as ../zyvor-vytrix, everywhere users look."""
+        owner = "Zyvor AI Labs Private Limited"
+        self.assertIn(f"Licensor: {owner}", (ROOT / "LICENSE").read_text())
+        self.assertIn("Licensed Work: Zyvor Nivora", (ROOT / "LICENSE").read_text())
+        self.assertIn(f"Copyright 2026 {owner}", (ROOT / "NOTICE").read_text())
+        self.assertIn(f"NSHumanReadableCopyright: Copyright © 2026 {owner}.", (ROOT / "native" / "project.yml").read_text())
+        self.assertIn(owner, (ROOT / "native" / "App" / "Views" / "WelcomeView.swift").read_text())
+        self.assertIn(owner, (ROOT / "web" / "index.html").read_text())
+        self.assertIn("BUSL-1.1", (ROOT / "scripts" / "build-brand.sh").read_text())
+
     def test_native_app_is_split_like_vytrix(self):
         for rel in ("NivoraApp.swift", "Model/NivoraStore.swift", "Model/Preferences.swift", "Model/Alerts.swift",
                     "Model/CollectorProcess.swift", "Views/RootView.swift", "Views/Components.swift", "Views/Theme.swift",

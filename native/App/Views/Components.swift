@@ -130,3 +130,19 @@ struct RateChart: View {
         .frame(height: height)
     }
 }
+
+/// Axis-free line for dense rows; decorative, so hidden from accessibility.
+struct Sparkline: View {
+    let values: [Double]
+    var tint: Color = Palette.accent
+    var body: some View {
+        if values.count > 1 {
+            Chart(Array(values.enumerated()), id: \.offset) { LineMark(x: .value("t", $0.offset), y: .value("v", $0.element)) }
+                .chartXAxis(.hidden).chartYAxis(.hidden)
+                .foregroundStyle(tint)
+                .accessibilityHidden(true)
+        } else {
+            Color.clear
+        }
+    }
+}

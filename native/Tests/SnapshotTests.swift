@@ -135,3 +135,22 @@ final class DiffAndChipTests: XCTestCase {
         XCTAssertTrue(d.changed.isEmpty)
     }
 }
+
+final class WelcomeAndHistoryTests: XCTestCase {
+    func testWelcomeShowsOnceAndNotForScripts() {
+        XCTAssertTrue(WelcomeGate.shouldShow(welcomed: false, arguments: ["Nivora"]))
+        XCTAssertFalse(WelcomeGate.shouldShow(welcomed: true, arguments: ["Nivora"]))
+        XCTAssertFalse(WelcomeGate.shouldShow(welcomed: false, arguments: ["Nivora", "--demo"]))
+        XCTAssertFalse(WelcomeGate.shouldShow(welcomed: false, arguments: ["Nivora", "--section", "flows"]))
+        XCTAssertTrue(WelcomeGate.shouldShow(welcomed: true, arguments: ["Nivora", "--demo", "--welcome"]))
+    }
+
+    func testRateHistoryCapsAndDropsGoneKeys() {
+        var h = RateHistory(capacity: 3)
+        for i in 0..<5 { h.record(["a": Double(i), "b": 1]) }
+        XCTAssertEqual(h["a"], [2, 3, 4])
+        h.record(["a": 9])
+        XCTAssertTrue(h["b"].isEmpty)
+        XCTAssertEqual(h["missing"], [])
+    }
+}

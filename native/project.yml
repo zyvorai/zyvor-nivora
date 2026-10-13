@@ -39,6 +39,7 @@ targets:
       path: Config/Nivora-Info.plist
       properties:
         CFBundleIconFile: Nivora
+        NSHumanReadableCopyright: Copyright © 2026 Zyvor AI Labs Private Limited.
         NSSystemExtensionUsageDescription: Nivora uses a content-filter system extension to attribute network flows to applications. It observes metadata only; no payloads are collected.
     entitlements:
       path: Config/Nivora.entitlements
@@ -120,6 +121,7 @@ targets:
       - path: App/Model/Snapshot.swift
       - path: App/Model/Alerts.swift
       - path: App/Model/Filter.swift
+      - path: App/Model/Welcome.swift
       - path: CaptureHelper/Protocol.swift
       - path: CaptureHelper/Validator.swift
     settings:

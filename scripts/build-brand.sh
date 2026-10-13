@@ -29,9 +29,10 @@ cat > "$TMP/og.svg" <<SVG
 <defs><radialGradient id="b" cx="22%" cy="0%" r="90%"><stop offset="0" stop-color="#14263d"/><stop offset="1" stop-color="#000"/></radialGradient></defs>
 <rect width="1200" height="630" fill="url(#b)"/>
 <image x="110" y="135" width="360" height="360" xlink:href="data:image/png;base64,$ICON_B64"/>
-<text x="540" y="290" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="96" font-weight="700" fill="#f5f5f7" letter-spacing="-3">Nivora</text>
+<text x="540" y="290" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="96" font-weight="700" fill="#f5f5f7" letter-spacing="-3">Zyvor Nivora</text>
 <text x="544" y="352" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="38" fill="#64d2ff">See every connection on your Mac.</text>
 <text x="544" y="420" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26" fill="#a1a1a6">Apps, flows, DNS, routes, VPNs. Local-first.</text>
+<text x="544" y="560" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="22" fill="#6e6e73">© 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · zyvor.dev</text>
 </svg>
 SVG
 rsvg-convert "$TMP/og.svg" -o "$ROOT/docs/social/og.png"

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Brand: app icon (an N drawn as a network path) with `scripts/build-brand.sh` deriving the icns, favicon, apple-touch icon and share image from one master SVG; the real icon replaces the letter badge in the dashboard.
+- Native: first-run welcome sheet (once; `--welcome` forces it), per-app sparklines and a "What changed" panel on the Overview, Help menu links and a ⌘/ shortcuts sheet, About section in Settings.
+- Legal: Zyvor name, `© 2026 Zyvor AI Labs Private Limited` and BUSL-1.1 shown in the app (bundle copyright, welcome, Settings), the dashboard footer and the share image, matching Zyvor Vytrix.
+- The collector no longer writes `__pycache__` into the app bundle.
 - Release workflow: pushing a `v*` tag builds an unsigned DMG with checksums and drafts a GitHub release (checks the tag against `package.json`).
 ## 0.3.0 — 2026-10-13
 
