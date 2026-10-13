@@ -100,7 +100,10 @@ class NativeContractTests(unittest.TestCase):
         import json
         version = json.loads((ROOT / "package.json").read_text())["version"]
         self.assertRegex((ROOT / "agent" / "nivora_core.py").read_text(), rf'VERSION = "{re.escape(version)}"')
-        self.assertIn(f"MARKETING_VERSION: {version}", (ROOT / "native" / "project.yml").read_text())
+        yml = (ROOT / "native" / "project.yml").read_text()
+        self.assertIn(f"MARKETING_VERSION: {version}", yml)
+        # xcodegen otherwise writes a literal 1.0 into Info.plist, so About/Finder showed the wrong version
+        self.assertIn("CFBundleShortVersionString: $(MARKETING_VERSION)", yml)
         fixture = json.loads((ROOT / "native" / "Tests" / "Fixtures" / "demo-snapshot.json").read_text())
         self.assertEqual(fixture["version"], version, "regenerate native/Tests/Fixtures/demo-snapshot.json")
         self.assertIn("package.json", (ROOT / "scripts" / "package-dmg.sh").read_text())
