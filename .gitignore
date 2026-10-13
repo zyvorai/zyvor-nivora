@@ -10,3 +10,4 @@ native/build/
 *.zip
 .env
 *.sha256
+_site/

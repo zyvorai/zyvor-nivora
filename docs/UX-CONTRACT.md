@@ -42,3 +42,9 @@ Nivora should feel like a sibling of Vytrix, not a generic network dashboard. Co
 - Group-by (app/host/interface) and "Pin baseline" compare are read-only summaries over the current sample.
 - Exports state that they contain metadata only and offer redaction.
 
+## Brand
+
+- The mark is an **N drawn as a network path** on a charcoal squircle with the Netra blue→cyan gradient; `docs/brand/nivora-icon.svg` is the only master. Run `./scripts/build-brand.sh` to regenerate `native/Nivora.icns`, the favicon, the apple-touch icon and the share image.
+- Product name in user-facing copy is **Zyvor Nivora** (short form "Nivora" in the UI chrome). Legal line everywhere: `© 2026 Zyvor AI Labs Private Limited · BUSL-1.1`.
+- Screenshots are always simulated telemetry and are labelled as such; capture them only with `./scripts/shots-native.sh` (window-only).
+

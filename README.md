@@ -1,269 +1,159 @@
 <div align="center">
 
-# Nivora
+<img src="docs/brand/nivora-icon.svg" width="112" alt="Zyvor Nivora app icon" />
+
+# Zyvor Nivora
+
+[![verify](https://github.com/zyvorai/zyvor-nivora/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/zyvor-nivora/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-BUSL--1.1-0071e3)](LICENSE)
+[![Platform](https://img.shields.io/badge/macOS%2014%2B-000000)](docs/TESTING.md)
+[![Collector](https://img.shields.io/badge/collector-python%203%20%C2%B7%200%20deps-32ade6)](agent/nivora.py)
+[![Mode](https://img.shields.io/badge/mode-observe--first-34c759)](#privacy-and-safety)
+
+![Zyvor Nivora: see every connection on your Mac](docs/social/nivora-hero.jpg)
 
 ### See every connection on your Mac.
 
-**Mac-native application and network intelligence for apps, processes, DNS, routes, VPNs, interfaces, FluxVM VMs and sandboxes.** Nivora uses Apple's NetworkExtension APIs when the signed entitlement is available, with a dependency-free `nettop`/`lsof` collector fallback that works immediately.
+**Mac-native application and network intelligence.** Which app is talking to what, over which interface: per-app flows, DNS, routes, VPNs, listeners and FluxVM workloads, in a native SwiftUI app with a dependency-free collector. Local-first, observe-first.
 
-**macOS only** · **Local-first** · **Live per-app bandwidth** · **0–100 health score** · **Network Map** · **Behavior learning** · **FluxVM aware**
+**macOS only** · **Local-first** · **Observe-first** · **Live per-app bandwidth** · **0–100 health** · **FluxVM aware**
+
+🎮 **[Live demo](https://zyvorai.github.io/zyvor-nivora/demo/)** · 🌐 **[Site](https://zyvorai.github.io/zyvor-nivora/)** · 🚀 **[Quickstart](#quickstart)** · 🧩 **[How it fits](#how-it-fits-together)** · 🔒 **[Privacy](#privacy-and-safety)** · 📖 **[API](docs/API.md)**
 
 </div>
 
 ## Why Nivora
 
-Nivora fills the per-application networking gap between a system monitor and a datacenter network observability platform. It answers questions such as:
+| When this happens | Nivora gives you |
+| --- | --- |
+| "Something is eating my bandwidth" and Activity Monitor only shows a total | **Live ↓/↑ per application**, grouped the way you think about apps, with an inspector for every app and flow |
+| "What is this connection to `17.253.x.x`?" | The owning app, remote endpoint, interface (Wi-Fi, VPN, virtual), RTT and every other flow to the same host |
+| "Did my VPN or DNS just change?" | A **Time Machine** of interface, DNS, route, VPN and listener changes, kept in SQLite |
+| "Is the network actually healthy?" | A **0–100 score** with explained components (route, DNS, latency, interfaces, safety) and a local, offline investigator |
+| "I need to hand this to someone" | **CSV / JSON / NDJSON exports** of the current filter, optionally redacted of private IPs, MACs, SSID and hostname |
+| You run VMs or sandboxes with FluxVM | Workloads beside host traffic through FluxVM's local REST API |
 
-- Which application is uploading or downloading the most?
-- Which process is using a port?
-- Where is an application connecting, and over Wi-Fi, VPN, or a virtual interface?
-- Did DNS, the default route, a VPN, or an interface change when connectivity broke?
-- What traffic belongs to FluxVM processes, VMs, and sandboxes?
-- Which outbound destinations or ports look unusual?
+## See it
 
-The UI deliberately follows the same macOS-oriented visual language as Zyvor Vytrix: grouped application views, compact cards and tables, light/dark glass surfaces, a local-first collector and deterministic demo telemetry.
+**[Try the live demo](https://zyvorai.github.io/zyvor-nivora/demo/)**: the real dashboard running in your browser on simulated telemetry. Nothing to install, nothing leaves the page.
 
-## Dashboard UX (unreleased)
+| Light | Dark |
+| --- | --- |
+| ![Overview, light](docs/ux/native-light-overview.png) | ![Overview, dark](docs/ux/native-dark-overview.png) |
+| ![Flows, light](docs/ux/native-light-flows.png) | ![Flows, dark](docs/ux/native-dark-flows.png) |
+| ![Applications, light](docs/ux/native-light-applications.png) | ![Capture, dark](docs/ux/native-dark-capture.png) |
 
-Command palette (`⌘K`), keyboard shortcuts (`?`), click-through application sheet, sortable tables, throughput chart, toasts, Settings (theme/accent/density/refresh/alerts/pinned apps) and local JSON/CSV export. See `docs/UX-CONTRACT.md`.
+*Every image is the native app's built-in **simulated telemetry** (host `zyvor-mac-studio`). They are real window captures from `./scripts/shots-native.sh`.*
 
-The web dashboard and native app share the Netra palette and type scale; the native app follows Vytrix's structure. The native app and its content-filter system extension build with Xcode (unsigned). Signing, entitlement approval and extension activation have not been tested; see `native/README.md`.
-
-## What’s new in 0.2
-
-- **Live bandwidth**, not only cumulative counters: per-flow and per-app RX/TX rates derived from consecutive samples.
-- **Network Health 0–100** with route, DNS, latency, active-interface and safety components.
-- **Network Map** joining apps → interfaces → top destinations.
-- **Behavior learning** persisted in SQLite; destinations first seen after the baseline become Time Machine events and security findings.
-- **Local Network** inventory from ARP/NDP plus listening services and bind exposure.
-- **Safer blocking**: block rules default to a one-hour lease unless explicitly made permanent.
-- **Deeper FluxVM context** from current `/v1/network/health`, `/v1/network/endpoints`, `/v1/network/hubble/flows` and `/v1/network/observe` APIs, with the richer telemetry contract still accepted when available.
-- Hardened local HTTP serving, bounded history-series endpoint, richer local diagnosis and expanded CLI.
-
-## Architecture
-
-```text
-                         Nivora.app / Browser
-                                 |
-                           HTTP JSON API
-                                 |
-                             nivora.py
-                          local collector
-                _____________|________________
-               /             |                \
-      NetworkExtension     macOS tools       FluxVM
-       filter reports     nettop/lsof        :7788
-          |                ifconfig            |
-          |                netstat          VMs/sandboxes
-          |                scutil               |
-          +---------> SQLite time machine <----+
-```
-
-### Visibility tiers
-
-**Tier 1 — signed NetworkExtension.** `NEFilterDataProvider` sees new app flows, sets `shouldReport`, and the same provider receives flow reports including inbound/outbound byte counts (a system extension on macOS). Nivora writes metadata only into its App Group and never exports packet payloads.
-
-**Tier 2 — collector fallback.** On a Mac without the entitlement, `nettop` provides app/process byte counters where available, and `lsof` supplies socket endpoints as a fallback. `ifconfig`, `netstat`, `scutil`, `networksetup`, `arp`, and `ndp` provide interface, Wi‑Fi, route, DNS, VPN and local-neighbor state. `lsof` is always sampled for listening services even when another flow source wins.
-
-The dashboard and API use one schema regardless of tier.
-
-## Features
-
-### Applications
-
-- Grouped per-app network activity
-- TCP/UDP flow inventory
-- Received/sent counters
-- Destination and interface rollups
-- Bundle ID when reported by NetworkExtension
-- Search by app, endpoint, IP, host or port
-
-### Network
-
-- Wi-Fi/Ethernet/loopback/bridge/virtual/`utun` inventory
-- IPv4 and IPv6 addresses
-- Default routes and gateways
-- DNS resolver inventory and scoped VPN resolvers
-- Configured/active VPN services
-- RTT from `nettop` where macOS exposes it
-
-### Live health and topology
-
-- Per-flow and per-app RX/TX bytes per second
-- 0–100 health score with explainable components
-- Local diagnosis for route, DNS, latency, VPN path and recent configuration changes
-- App → interface → destination topology
-- Compact history series for throughput/health charts
-
-### Local Network
-
-- ARP + IPv6 NDP neighbor cache
-- Listening TCP/UDP services
-- Loopback/local/all-interface exposure classification
-- Hardware-port enrichment (Wi‑Fi, Ethernet, Thunderbolt) and current Wi‑Fi SSID where `networksetup` exposes it
-
-### Network Time Machine
-
-- Interface appeared/disappeared/status changes
-- DNS resolver changes
-- Default-route changes
-- SQLite snapshot history, 30-day retention
-- Local event journal capped to 5,000 events
-- VPN state, new listener and traffic-spike events
-- Persistent app/destination behavior baseline with “new destination” events
-
-### Security
-
-- Observe-first findings
-- Unusual outbound port finding
-- High-volume outbound finding
-- Rule preview against live flows
-- Block rules are lease-bounded to one hour by default
-- Observe / allow / block rule model
-- Signed NetworkExtension can apply `block` rules by app, domain, IP or port
-- Rules can expire automatically
-
-### FluxVM
-
-Nivora probes FluxVM on `http://127.0.0.1:7788` by default, matching the current `fluxctl serve` default. It reads:
-
-- `/healthz`
-- `/v1/vms`
-- `/v1/sandboxes`
-- `/v1/network/health`
-- `/v1/network/endpoints`
-- `/v1/network/hubble/flows`
-- `/v1/network/observe`
-- optional `/v1/network/telemetry` for the richer direct-attribution contract
-
-Set `FLUXVM_SERVER` and `FLUXVM_TOKEN` to override.
-
-### Local investigator
-
-The initial investigator is deterministic and offline. Examples:
-
-```text
-Which app uploaded the most?
-What uses port 443?
-Is my VPN active?
-Which DNS resolvers are active?
-Why is the network slow?
-Show FluxVM.
-Anything suspicious?
-```
-
-No cloud model or API key is required.
-
-## Quick start
-
-### Demo anywhere
+## Quickstart
 
 ```bash
+# 1. Try it with simulated data, no install
 python3 agent/nivora.py --demo
-```
 
-Open the URL printed by the collector. The token is placed in the URL fragment, read by the page, and removed from the address bar; it is not stored in local storage.
-
-### Live on macOS
-
-```bash
+# 2. Monitor this Mac (dashboard + API on 127.0.0.1:9857)
 python3 agent/nivora.py
-```
 
-The collector binds to `127.0.0.1:9857`, generates a bearer token and serves both the dashboard and API.
-
-One snapshot:
-
-```bash
-python3 agent/nivora.py --once > snapshot.json
-```
-
-Install it as a per-user `launchd` service with the token in Login Keychain:
-
-```bash
-./scripts/install-macos.sh
-```
-
-Remove it:
-
-```bash
-./scripts/uninstall-macos.sh
-```
-
-## CLI
-
-```bash
-python3 agent/nivoractl.py status
-python3 agent/nivoractl.py health
-python3 agent/nivoractl.py traffic
-python3 agent/nivoractl.py apps
-python3 agent/nivoractl.py flows
-python3 agent/nivoractl.py topology
-python3 agent/nivoractl.py neighbors
-python3 agent/nivoractl.py listeners
-python3 agent/nivoractl.py behavior
-python3 agent/nivoractl.py diagnose
-python3 agent/nivoractl.py fluxvm
-python3 agent/nivoractl.py ask why is Slack slow
-python3 agent/nivoractl.py rule-add --action block --domain example.com --duration 900
-python3 agent/nivoractl.py rule-add --action allow --app Safari --domain example.com
-python3 agent/nivoractl.py rules
-```
-
-`nivoractl` reads `NIVORA_TOKEN`; on macOS it also looks for the token stored by `install-macos.sh` in Login Keychain.
-
-## Native Mac app
-
-The SwiftUI app starts the bundled collector on loopback with a random in-memory token and displays the same data contract natively.
-
-```bash
+# 3. Or the native app (needs Xcode and xcodegen)
 brew install xcodegen
 ./scripts/build-native.sh
 open native/build/Build/Products/Release/Nivora.app
 ```
 
-Run the native app with simulated data:
+The collector prints a URL with a one-time token in the fragment; the page reads it and removes it from the address bar. The native app starts its bundled collector on loopback with a random in-memory token.
+
+Release builds from GitHub Releases are **unsigned**: macOS Gatekeeper will warn, and the content filter and capture helper need a signed, provisioned build (see [Maturity](#maturity)).
+
+<details>
+<summary><b>Install as a per-user service, CLI and more</b></summary>
 
 ```bash
-open native/build/Build/Products/Release/Nivora.app --args --demo
+./scripts/install-macos.sh          # launchd agent, token in Login Keychain
+./scripts/uninstall-macos.sh
+
+python3 agent/nivoractl.py status
+python3 agent/nivoractl.py flows --filter 'app:Safari port:443 >1mbps'
+python3 agent/nivoractl.py rule-add --action block --domain example.com --duration 900
 ```
 
-NetworkExtension activation requires Apple provisioning/entitlements for the signing team. See `docs/NETWORKEXTENSION.md`.
+`nivoractl` reads `NIVORA_TOKEN`; on macOS it also looks for the token stored by `install-macos.sh`.
 
-## API
+</details>
 
-Default endpoint: `http://127.0.0.1:9857`.
+## How it fits together
 
 ```text
-GET    /healthz
-GET    /v1/snapshot
-GET    /v1/apps
-GET    /v1/flows
-GET    /v1/interfaces
-GET    /v1/routes
-GET    /v1/dns
-GET    /v1/vpn
-GET    /v1/fluxvm
-GET    /v1/findings
-GET    /v1/health
-GET    /v1/traffic
-GET    /v1/topology
-GET    /v1/neighbors
-GET    /v1/listeners
-GET    /v1/behavior
-GET    /v1/diagnose
-GET    /v1/series?limit=120
-GET    /v1/timeline
-GET    /v1/history?limit=120
-GET    /v1/rules
-POST   /v1/query
-POST   /v1/rules
-DELETE /v1/rules/{id}
+              Nivora.app (SwiftUI)  /  browser dashboard
+                            │   HTTP JSON · 127.0.0.1 · bearer token
+                        nivora.py   (Python stdlib only)
+            ┌───────────────┼────────────────┐
+     NetworkExtension    nettop · lsof     FluxVM :7788
+     content filter     ifconfig · netstat  VMs · sandboxes
+     (signed, opt-in)   scutil · arp · ndp
+            └───────────────┴──────→ SQLite time machine
 ```
 
-Every `/v1/*` endpoint requires `Authorization: Bearer <token>` when a token is configured. `/healthz` and static dashboard assets are public on the local listener.
+| Visibility tier | Needs | Gives you |
+| --- | --- | --- |
+| **Collector fallback** | Nothing: works today | Per-app flows and byte counters (`nettop`/`lsof`), interfaces, routes, DNS, VPNs, neighbours, listeners |
+| **Content filter** | Signed build + Apple entitlement | Per-flow app attribution and byte reports from the system |
+| **Capture helper** | Signed build + your approval | Headers-only `.pcap` of one flow, host or app, for a few minutes |
 
-See `docs/API.md`.
+The dashboard, native app, CLI and exports all use one JSON schema regardless of tier. See [Architecture](docs/ARCHITECTURE.md).
+
+## Features
+
+| Pane | What it does |
+| --- | --- |
+| **Overview** | Health, ↓/↑ rate, connections, throughput chart, top apps with sparklines, what changed, what needs attention |
+| **Applications / Flows** | Sortable tables, **filter grammar** with chips and saved views, grouping by app/host/interface, baseline compare, flow inspector, CSV/JSON export |
+| **Health** | Explained 0–100 score and history |
+| **Interfaces / Local Network** | Wi-Fi, Ethernet, VPN and virtual interfaces; ARP/NDP neighbours; listeners and exposure |
+| **FluxVM** | VMs and sandboxes beside host traffic |
+| **Security** | Observe-first findings, leased rules (block rules expire after an hour) |
+| **Capture** | Opt-in, headers-only packet capture through a separately approved helper; pcap download |
+| **Investigator** | Deterministic, offline answers ("Which app uploaded the most?") |
+
+Filter syntax, shared by the native app, dashboard, API and CLI:
+
+```text
+app:Safari  host:example.com  port:443  port:8000-9000  proto:tcp  iface:en0
+state:established  source:nettop  >1mbps  <500kbps  !iface:lo0  app:"Google Chrome"
+```
+
+Keyboard: `⌘1…⌘9` panes · `⌘/` shortcuts · `⌘R` refresh · `⌘P` pause · `⇧⌘1/2` live/demo data.
+
+## Privacy and safety
+
+- **Local-first**: no account, no cloud, no telemetry upload. The API binds to loopback with a bearer token.
+- **Observe-first**: rules default to observe; block rules are one-hour leases and only take effect through the signed content filter.
+- **No payloads**: flow metadata only. The single exception, [packet capture](docs/CAPTURE.md), is off until you start it, headers-only by default (96 bytes), capped (≤ 5 min, ≤ 64 MB), root-only on disk and deleted after 24 hours.
+- **Read-only collection**: the fallback runs read-only macOS commands; API mutations are limited to Nivora's own rule file.
+- Exports can be **redacted** (private IPs, MACs, SSID, hostname become salted hash tokens).
+
+See [SECURITY.md](SECURITY.md).
+
+## Maturity
+
+| Area | Status |
+| --- | --- |
+| Collector, API, dashboard, CLI, exports, filters | Built and tested in CI (Python, Node) |
+| Native app (SwiftUI) and unit tests | Builds and runs unsigned with Xcode; XCTest suite passes |
+| Content filter (system extension) and capture helper | **Compile-verified only.** Signing, entitlement approval, activation and root capture are untested; they need a provisioned, signed Mac |
+| Release DMG | Unsigned, not notarised |
+
+## Documentation
+
+| Doc | Topic |
+| --- | --- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components and data flow |
+| [docs/API.md](docs/API.md) | HTTP endpoints, filter grammar, exports |
+| [docs/CAPTURE.md](docs/CAPTURE.md) | Packet-capture design and guarantees |
+| [docs/NETWORKEXTENSION.md](docs/NETWORKEXTENSION.md) | Content filter, signing and entitlements |
+| [docs/FLUXVM.md](docs/FLUXVM.md) | FluxVM integration |
+| [docs/UX-CONTRACT.md](docs/UX-CONTRACT.md) | Design tokens and interaction rules |
+| [docs/TESTING.md](docs/TESTING.md) | Test suite and release steps |
+| [CONTRIBUTING.md](CONTRIBUTING.md) · [CHANGELOG.md](CHANGELOG.md) | Contributing and history |
 
 ## Test
 
@@ -271,31 +161,24 @@ See `docs/API.md`.
 ./scripts/test.sh
 ```
 
-The portable suite currently covers 29 Python tests plus web, plist, demo and Swift syntax gates: collectors, rate calculation, local-network parsers, behavior learning, health/topology/diagnosis, rule leases, Time Machine, SQLite history, API authentication/CORS/intelligence endpoints, and native/web contracts.
-
-The native NetworkExtension targets require Xcode/macOS for type-check/build verification. CI includes a macOS job that generates the Xcode project and performs an unsigned build.
-
-## Repository layout
-
-```text
-agent/                 collector, core, CLI
-web/                   dependency-free Vytrix-style dashboard
-native/App/            SwiftUI shell
-native/FilterData/     NEFilterDataProvider system extension
-native/Shared/         app-group flow contract
-docs/                  architecture, API, Apple signing, FluxVM
-scripts/               test, install, Xcode build/package
-```
-
-## Privacy and safety
-
-- Local-first; no telemetry upload is implemented.
-- Payload collection is not implemented, except the opt-in, headers-only, time/size-capped packet capture described in `docs/CAPTURE.md` (off by default, needs a separately approved privileged helper).
-- The fallback collector executes read-only macOS commands.
-- Rules default to observe-only.
-- NetworkExtension filtering requires explicit enablement in the native app and valid Apple provisioning.
-- API mutations are limited to Nivora's local rule file.
+Runs the Python suite, web and demo tests, the static-site check, plist and Swift syntax gates and a demo-collector run. The native app and unit tests build with `./scripts/build-native.sh`.
 
 ## License
 
-Business Source License 1.1, matching Vytrix's commercial model. Production/commercial use beyond the license grant requires a Zyvor commercial agreement. See `LICENSE`.
+Nivora is licensed under the **Business Source License 1.1**.
+
+You may use Nivora for development, evaluation, testing, demonstration, and other non-production purposes under the terms of the BSL.
+
+**Production and commercial deployments require a commercial license from Zyvor AI Labs Private Limited.**
+
+Each version converts to the **Apache License 2.0** four years after its initial release under the Business Source License.
+
+See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Copyright © 2026 Zyvor AI Labs Private Limited · [zyvor.dev](https://zyvor.dev)
+
+<div align="center">
+
+**See every connection on your Mac.** · [Quickstart](#quickstart) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md)
+
+</div>
