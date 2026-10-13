@@ -58,3 +58,20 @@ final class AlertTests: XCTestCase {
         XCTAssertEqual(alerts.first { $0.id == "health-poor" }?.severity, .critical)
     }
 }
+
+final class ExportTests: XCTestCase {
+    func testCellNeutralisesFormulasAndQuotes() {
+        XCTAssertEqual(FlowExport.cell("=1+1"), "'=1+1")
+        XCTAssertEqual(FlowExport.cell("a,b"), "\"a,b\"")
+        XCTAssertEqual(FlowExport.cell("say \"hi\""), "\"say \"\"hi\"\"\"")
+        XCTAssertEqual(FlowExport.cell("Safari"), "Safari")
+    }
+
+    func testCSVHasHeaderAndOneRowPerFlow() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("Fixtures/demo-snapshot.json")
+        let s = try JSONDecoder().decode(NivoraSnapshot.self, from: Data(contentsOf: url))
+        let lines = FlowExport.csv(s.flows).split(separator: "\n")
+        XCTAssertEqual(lines.count, s.flows.count + 1)
+        XCTAssertTrue(lines[0].hasPrefix("process,protocol"))
+    }
+}

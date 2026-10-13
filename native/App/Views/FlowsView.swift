@@ -19,6 +19,14 @@ struct FlowsView: View {
             TableColumn("↓ Live", value: \.rx_bps) { Text(rateString($0.rx_bps)).monospacedDigit() }
             TableColumn("↑ Live", value: \.tx_bps) { Text(rateString($0.tx_bps)).monospacedDigit() }
         }
+        .toolbar {
+            ToolbarItem {
+                ShareLink(item: FlowExport.csv(flows), preview: SharePreview("Nivora flows.csv")) {
+                    Label("Export CSV", systemImage: "square.and.arrow.up")
+                }
+                .disabled(flows.isEmpty)
+            }
+        }
         .overlay { if flows.isEmpty { ContentUnavailableView("No flows", systemImage: "arrow.left.arrow.right", description: Text(store.search.isEmpty ? "No flows in the current sample." : "Nothing matches your search.")) } }
     }
 }

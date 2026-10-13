@@ -35,3 +35,21 @@ enum AlertRules {
         return out
     }
 }
+
+/// Flow CSV export; mirrors `flowsToCSV` in web/lib.js, including spreadsheet-formula neutralisation.
+enum FlowExport {
+    static let columns = ["process", "protocol", "local", "remote", "state", "interface", "rtt_ms", "rx_bps", "tx_bps", "bytes_in", "bytes_out"]
+
+    static func cell(_ value: String) -> String {
+        let safe = value.first.map { "=+-@\t\r".contains($0) } == true ? "'" + value : value
+        return safe.contains(where: { "\",\n\r".contains($0) }) ? "\"" + safe.replacingOccurrences(of: "\"", with: "\"\"") + "\"" : safe
+    }
+
+    static func csv(_ flows: [NivoraSnapshot.Flow]) -> String {
+        let rows = flows.map { f -> String in
+            [f.process, f.protocol, f.local, f.remote, f.state, f.interface, String(f.rtt_ms), String(f.rx_bps),
+             String(f.tx_bps), String(f.bytes_in), String(f.bytes_out)].map(cell).joined(separator: ",")
+        }
+        return ([columns.joined(separator: ",")] + rows).joined(separator: "\n") + "\n"
+    }
+}
