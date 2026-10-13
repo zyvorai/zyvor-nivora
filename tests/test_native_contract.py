@@ -95,6 +95,16 @@ class NativeContractTests(unittest.TestCase):
         self.assertNotRegex(project, r"(?m)^    resources:", "xcodegen ignores a top-level resources: key; use sources with buildPhase: resources")
         self.assertRegex(project, r"(?s)path: \.\./web\s+type: folder\s+buildPhase: resources")
 
+    def test_unsigned_install_is_documented_where_users_look(self):
+        """Release builds are unsigned: the README, the site and docs/INSTALL.md must say so and say what to do."""
+        install = (ROOT / "docs" / "INSTALL.md").read_text()
+        for needle in ["not signed", "Open Anyway", "xattr -dr com.apple.quarantine", "SHA256SUMS"]:
+            self.assertIn(needle.lower(), install.lower(), needle)
+        self.assertIn("docs/INSTALL.md", (ROOT / "README.md").read_text())
+        site = (ROOT / "site" / "index.html").read_text()
+        self.assertIn("Open Anyway", site)
+        self.assertIn("docs/INSTALL.md", site)
+
     def test_release_version_is_single_sourced(self):
         """package.json, the collector, the Xcode project and the DMG script must agree."""
         import json

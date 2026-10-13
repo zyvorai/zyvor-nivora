@@ -84,3 +84,5 @@ details p{margin:0 0 14px;color:var(--dim)}
 footer{border-top:1px solid var(--line);padding:30px max(20px,calc((100% - 1080px)/2));color:var(--dim);font-size:14px;text-align:center}
 footer a{color:inherit}
 @media (max-width:720px){#sections{display:none}.hero{padding-top:44px}}
+.card ol{margin:8px 0 12px;padding-left:22px;color:var(--dim)}
+.card li{margin:6px 0}
