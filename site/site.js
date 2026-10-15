@@ -18,18 +18,32 @@
 
   // gallery: appearance x pane -> one of the real screenshots in ux/
   var pick = { mode: root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light', pane: 'overview' };
-  var NAMES = { overview: 'Overview', flows: 'Flows', applications: 'Applications', health: 'Health', capture: 'Capture', security: 'Security', timeline: 'Time Machine' };
-  var img = document.getElementById('shot'), cap = document.getElementById('shot-cap');
+  var NAMES = { overview: 'Overview', flows: 'Flows', applications: 'Applications', health: 'Health', capture: 'Capture', security: 'Security', timeline: 'Time Machine', insights: 'Insights', alerts: 'Alerts', settings: 'Settings' };
+  var DEMO = { alerts: 'security', timeline: 'timeline' };
+  var img = document.getElementById('shot'), cap = document.getElementById('shot-cap'), demoLink = document.getElementById('shot-demo');
   function drawShot() {
     if (!img) return;
     img.src = 'ux/native-' + pick.mode + '-' + pick.pane + '.png';
     img.alt = 'Nivora ' + NAMES[pick.pane] + ' pane, ' + pick.mode + ' appearance, simulated telemetry';
+    if (demoLink) demoLink.href = 'demo/#' + (DEMO[pick.pane] || pick.pane);
     cap.textContent = 'Native app · ' + pick.mode + ' · ' + NAMES[pick.pane] + ' · simulated telemetry';
-    document.querySelectorAll('#panes [role=radio]').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.value === pick.pane)); });
+    document.querySelectorAll('#panes [role=radio]').forEach(function (b) { var on = b.dataset.value === pick.pane; b.setAttribute('aria-checked', String(on)); b.setAttribute('tabindex', on ? '0' : '-1'); });
     document.querySelectorAll('#modes [role=radio]').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.value === pick.mode)); });
   }
   document.querySelectorAll('#panes [role=radio]').forEach(function (b) {
     b.addEventListener('click', function () { pick.pane = b.dataset.value; drawShot(); });
+  });
+  // arrow keys move through the panes (radiogroup behaviour)
+  var paneBtns = Array.prototype.slice.call(document.querySelectorAll('#panes [role=radio]'));
+  paneBtns.forEach(function (b, i) {
+    b.setAttribute('tabindex', b.getAttribute('aria-checked') === 'true' ? '0' : '-1');
+    b.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = paneBtns[(i + d + paneBtns.length) % paneBtns.length];
+      n.focus(); n.click();
+    });
   });
   document.querySelectorAll('#modes [role=radio]').forEach(function (b) {
     b.addEventListener('click', function () { pick.mode = b.dataset.value; drawShot(); });
