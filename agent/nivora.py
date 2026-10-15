@@ -23,6 +23,8 @@ from containers import enrich_flows_with_containers, summarize_containers
 from ports import annotate_listeners, find_conflicts
 from anomalies import detect_anomalies, merge_findings
 from dns_diag import diagnose_resolvers
+from diff import diff_snapshots, narrate_incident
+from pathcheck import check_target, validate_target
 from explain import explain_flow, rule_impact
 from lan import diff_lan, dns_vpn_leak
 from metrics import render_metrics
@@ -51,6 +53,7 @@ class State:
         self.snapshot = None
         self.timeline = demo_events() if args.demo else []
         self.lock = threading.Lock()
+        self.pathcheck_lock = threading.Lock()
         self.stop = threading.Event()
 
     # ---- packet capture (opt-in, headers-only by default; see agent/capture.py) ----
@@ -254,6 +257,34 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _time_query(self, path, q):
+        if not self.state.history:
+            return self._json({"error": "history is disabled"}, 400)
+        now = dt.datetime.now(dt.timezone.utc)
+        def parse(name, default):
+            raw = (q.get(name) or [""])[0]
+            if not raw:
+                return default
+            try:
+                t = dt.datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            except ValueError:
+                raise ValueError(f"{name} must be an ISO 8601 timestamp")
+            return t if t.tzinfo else t.replace(tzinfo=dt.timezone.utc)
+        try:
+            end = parse("to", now)
+            start = parse("from", end - dt.timedelta(minutes=30))
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
+        if start >= end or end - start > dt.timedelta(days=30):
+            return self._json({"error": "from must be before to, within 30 days"}, 400)
+        fmt = lambda t: t.isoformat(timespec="seconds")
+        a, b = self.state.history.snapshot_at(fmt(start)), self.state.history.snapshot_at(fmt(end))
+        if not a or not b:
+            return self._json({"error": "no stored snapshots for that window"}, 404)
+        if path == "/v1/diff":
+            return self._json(diff_snapshots(a, b))
+        return self._json(narrate_incident(a, b, self.state.history.events_between(fmt(start), fmt(end)), fmt(start), fmt(end)))
+
     def _capture_call(self, fn):
         """Runs a capture operation; maps CaptureError to an HTTP error (and returns None)."""
         try:
@@ -364,6 +395,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(data)
                 return
+            if path in {"/v1/diff", "/v1/incident"}:
+                return self._time_query(path, parse_qs(u.query))
             if path == "/v1/export":
                 return self._export(parse_qs(u.query), snap, timeline)
             if path in {"/v1/history", "/v1/series"}:
@@ -413,6 +446,17 @@ class Handler(BaseHTTPRequestHandler):
             data = self._read_json()
         except (ValueError, json.JSONDecodeError) as exc:
             return self._json({"error":str(exc)}, 400)
+        if path == "/v1/path-check":
+            try:
+                host, port = validate_target(data.get("host"), data.get("port"))
+            except ValueError as exc:
+                return self._json({"error": str(exc)}, 400)
+            if not self.state.pathcheck_lock.acquire(blocking=False):
+                return self._json({"error": "a path check is already running"}, 429)
+            try:
+                return self._json(check_target(host, port))
+            finally:
+                self.state.pathcheck_lock.release()
         if path == "/v1/query":
             with self.state.lock:
                 snap = self.state.snapshot

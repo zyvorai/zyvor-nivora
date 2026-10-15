@@ -27,6 +27,9 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 - `GET /metrics` — Prometheus text exposition (health, flows, rates, findings by severity, listeners, port conflicts, top apps); same token as the API
 - `GET /v1/usage` — today's bytes per app and budget status; budgets live in `budgets.json` beside the history database, `{"app name substring": bytes_per_day}`
 - `GET /v1/projects` — traffic grouped by project folder (nearest ancestor of the process working directory holding `.git`, `package.json`, etc., inside the home directory); flows carry `project`
+- `GET /v1/diff?from=&to=` — what differs between the stored snapshots at two times (ISO 8601; default last 30 min, max 30 days): health delta, flow groups added/removed, app rate movers, listeners, DNS servers, default route, devices, new findings. Needs history enabled
+- `GET /v1/incident?from=&to=` — the same window as an ordered narrative (events, route/traffic changes, new findings) with a one-line headline
+- `POST /v1/path-check` `{"host":"example.com","port":443}` — on-demand DNS → TCP → TLS reachability check with timings; the only active probe, runs only when asked, one at a time
 - `GET /v1/rule-impact` — per rule: matched flows, apps, bytes and rate, and whether it is enforced
 - `GET /v1/behavior`
 - `GET /v1/diagnose`
@@ -94,3 +97,7 @@ One grammar is shared by the collector (`parse_filter`/`match_flow` in `agent/ni
 
 Different keys combine with AND; repeating a key (`app:safari app:ssh`) is OR; exclusions always win.
 
+
+## MCP
+
+`agent/nivora_mcp.py` is a read-only MCP server over stdio (JSON-RPC 2.0, stdlib only). Set `NIVORA_URL` and `NIVORA_TOKEN`, then register it with your MCP client, for example `{"command": "python3", "args": ["agent/nivora_mcp.py"], "env": {"NIVORA_TOKEN": "..."}}`. Tools: `summary`, `flows`, `findings`, `explain_flow`, `ask`, `diff`, `incident`, `port_conflicts`, `rule_impact`, `path_check`. None creates or removes rules.
