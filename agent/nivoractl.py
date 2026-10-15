@@ -38,6 +38,9 @@ def main():
     a=sub.add_parser("ask");a.add_argument("question",nargs="+")
     a=sub.add_parser("rule-add");a.add_argument("--action",choices=["observe","allow","block","shadow"],default="observe");a.add_argument("--app");a.add_argument("--domain");a.add_argument("--ip");a.add_argument("--port",type=int);a.add_argument("--expires-at");a.add_argument("--duration",type=int,help="block lease seconds (default 3600)");a.add_argument("--permanent",action="store_true")
     a=sub.add_parser("explain");a.add_argument("flow_id")
+    for c in ("diff","incident"):
+        a=sub.add_parser(c);a.add_argument("--from",dest="since");a.add_argument("--to",dest="until")
+    a=sub.add_parser("path-check");a.add_argument("host");a.add_argument("--port",type=int,default=443)
     sub.add_parser("rule-impact")
     a=sub.add_parser("rule-delete");a.add_argument("id")
     args=p.parse_args()
@@ -52,6 +55,10 @@ def main():
         if path: print(json.dumps(request(args.url,path,args.token),indent=2)); return
         if args.cmd=="explain": print(json.dumps(request(args.url,"/v1/flows/"+urllib.parse.quote(args.flow_id,safe="")+"/explain",args.token),indent=2)); return
         if args.cmd=="rule-impact": print(json.dumps(request(args.url,"/v1/rule-impact",args.token),indent=2)); return
+        if args.cmd in ("diff","incident"):
+            q=urllib.parse.urlencode({k:v for k,v in (("from",args.since),("to",args.until)) if v})
+            print(json.dumps(request(args.url,"/v1/"+args.cmd+("?"+q if q else ""),args.token),indent=2)); return
+        if args.cmd=="path-check": print(json.dumps(request(args.url,"/v1/path-check",args.token,"POST",{"host":args.host,"port":args.port}),indent=2)); return
         if args.cmd=="ask": print(json.dumps(request(args.url,"/v1/query",args.token,"POST",{"question":" ".join(args.question)}),indent=2)); return
         if args.cmd=="rule-add":
             body={k:getattr(args,k) for k in ["action","app","domain","ip","port","expires_at"] if getattr(args,k,None) is not None}; body.update({"duration_seconds":args.duration} if args.duration else {}); body.update({"permanent":True} if args.permanent else {})

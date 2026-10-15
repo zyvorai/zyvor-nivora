@@ -1076,6 +1076,17 @@ class HistoryStore:
             "apps": len(s.get("apps", [])),
         } for s in self.history(limit)]
 
+    def snapshot_at(self, ts: str) -> dict[str, Any] | None:
+        """Newest stored snapshot at or before `ts` (ISO 8601), else the oldest one after it."""
+        with self.lock, self._connect() as db:
+            row = db.execute("SELECT payload FROM snapshots WHERE ts <= ? ORDER BY ts DESC LIMIT 1", (ts,)).fetchone()
+            if row is None:
+                row = db.execute("SELECT payload FROM snapshots WHERE ts > ? ORDER BY ts ASC LIMIT 1", (ts,)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def events_between(self, start: str, end: str, limit: int = 200) -> list[dict[str, Any]]:
+        return [e for e in self.events(5000) if start <= str(e.get("ts") or "") <= end][-limit:]
+
     def events(self, limit: int = 500) -> list[dict[str, Any]]:
         limit = max(1, min(limit, 5000))
         with self.lock, self._connect() as db:

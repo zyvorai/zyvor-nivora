@@ -49,6 +49,10 @@ targets:
         buildPhase: resources
       - path: ../agent/usage.py
         buildPhase: resources
+      - path: ../agent/diff.py
+        buildPhase: resources
+      - path: ../agent/pathcheck.py
+        buildPhase: resources
       - path: ../web
         type: folder
         buildPhase: resources
