@@ -22,6 +22,7 @@ from containers import enrich_flows_with_containers, summarize_containers
 from ports import annotate_listeners, find_conflicts
 from anomalies import detect_anomalies, merge_findings
 from dns_diag import diagnose_resolvers
+from explain import explain_flow, rule_impact
 from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
@@ -153,6 +154,7 @@ class State:
         current.setdefault("capabilities", {})["capture"] = self.capture_available()
         current["rules"] = self.rules.list()
         current["rule_hits"] = apply_rule_preview(current.get("flows", []), current["rules"])
+        current["rule_impact"] = rule_impact(current.get("flows", []), current["rules"], current["rule_hits"])
         current["recent_events"] = (existing_timeline + events)[-20:]
         current["health"] = compute_health(current)
         current["diagnosis"] = diagnose_network(current)
@@ -284,11 +286,16 @@ class Handler(BaseHTTPRequestHandler):
                 "/v1/listeners": snap.get("listeners", []),
                 "/v1/containers": snap.get("containers", []),
                 "/v1/port-conflicts": snap.get("port_conflicts", []),
+                "/v1/rule-impact": snap.get("rule_impact", []),
                 "/v1/behavior": snap.get("behavior", {}),
                 "/v1/diagnose": snap.get("diagnosis") or diagnose_network(snap),
                 "/v1/rules": self.state.rules.list(),
                 "/v1/timeline": (self.state.history.events(500) if self.state.history else timeline),
             }
+            m = re.fullmatch(r"/v1/flows/([A-Za-z0-9_.:-]{1,128})/explain", path)
+            if m:
+                out = explain_flow(snap, m.group(1))
+                return self._json(out if out is not None else {"error": "no such flow"}, 200 if out is not None else 404)
             if path in mapping:
                 return self._json(mapping[path])
             if path == "/v1/captures":
