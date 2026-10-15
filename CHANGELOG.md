@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).
+
 - Site: the static demo now simulates flow explain, profiles, fleet, path check, diff/incident, policy dry-run and rule impact; gallery adds Insights, Alerts and Settings with arrow-key navigation and a link into the matching demo pane; new feature cards.
 
 

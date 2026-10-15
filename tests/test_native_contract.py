@@ -103,7 +103,7 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn("docs/INSTALL.md", (ROOT / "README.md").read_text())
         site = (ROOT / "site" / "index.html").read_text()
         self.assertIn("Open Anyway", site)
-        self.assertIn("docs/INSTALL.md", site)
+        self.assertIn("docs/install.html", site)  # the site's own copy of docs/INSTALL.md (scripts/build-docs.py)
 
     def test_release_version_is_single_sourced(self):
         """package.json, the collector, the Xcode project and the DMG script must agree."""

@@ -34,7 +34,7 @@
 <header class="bar">
   <a class="brand" href="./" aria-label="Zyvor Nivora home"><img class="logo" src="favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
   <nav aria-label="Sections" id="sections">
-    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="#faq">FAQ</a>
+    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
   </nav>
   <div class="bar-actions">
     <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
@@ -96,8 +96,8 @@
       <div class="card"><div class="ico" aria-hidden="true">⚑</div><h3>Why is this flow here?</h3><p>Evidence and plain-language reasons for one connection, plus <b>shadow rules</b> that count what a block would match without enforcing anything.</p></div>
       <div class="card"><div class="ico" aria-hidden="true">◷</div><h3>What changed since it worked?</h3><p>Diff any two points in the Time Machine and get an incident narrative: health delta, new destinations, DNS, routes and devices.</p></div>
       <div class="card"><div class="ico" aria-hidden="true">☰</div><h3>Policy as code</h3><p>Keep rules in a file, plan them against the live rule store, apply only when you say so. Dry-run by default; blocks stay leased.</p></div>
-      <div class="card"><div class="ico" aria-hidden="true">⌘</div><h3>Ask from your tools</h3><p>A read-only MCP server and a CLI expose summary, flows, explain, diff and path checks. Nothing that changes rules.</p></div>
-      <div class="card"><div class="ico" aria-hidden="true">▤</div><h3>Widget and Shortcuts</h3><p>A small and medium widget and “How is my network?” in Shortcuts and Siri. Compile-verified; not yet seen in the widget gallery.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⌘</div><h3>Ask from your tools</h3><p>A read-only MCP server and a CLI expose summary, flows, explain, diff and path checks. Nothing that changes rules. <a href="docs/api.html#mcp">MCP setup</a>.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">▤</div><h3>Widget and Shortcuts</h3><p>A small and medium widget and “How is my network?” in Shortcuts and Siri. Compile-verified; not yet seen in the widget gallery. <a href="docs/widgets.html">Details</a>.</p></div>
     </div>
   </section>
 
@@ -142,7 +142,7 @@
         <li><b>Open Anyway.</b> Try to open the app, then go to <b>System Settings &rarr; Privacy &amp; Security</b>, scroll to Security and click <b>Open Anyway</b>. On macOS 14 you can instead Control-click the app and choose <b>Open</b>.</li>
         <li><b>Terminal:</b> <code>xattr -dr com.apple.quarantine /Applications/Nivora.app</code>, only after checking the download against <code>SHA256SUMS.txt</code>.</li>
       </ol>
-      <p>Details and uninstall steps: <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">docs/INSTALL.md</a>.</p>
+      <p>Details and uninstall steps: <a href="docs/install.html">the install guide</a>.</p>
     </div>
     <!--DOWNLOAD-->
     <pre><code># try it with simulated data, no install
@@ -155,7 +155,7 @@ python3 agent/nivora.py
 brew install xcodegen
 ./scripts/build-native.sh
 open native/build/Build/Products/Release/Nivora.app</code></pre>
-    <p class="cta" style="justify-content:flex-start"><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases">Releases</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora#quickstart">Full quickstart</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">Install guide</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/NETWORKEXTENSION.md">Signing and entitlements</a></p>
+    <p class="cta" style="justify-content:flex-start"><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases">Releases</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora#quickstart">Full quickstart</a><a class="btn" href="docs/install.html">Install guide</a><a class="link" href="docs/networkextension.html">Signing and entitlements</a></p>
   </section>
 
   <section id="faq">
@@ -170,7 +170,7 @@ open native/build/Build/Products/Release/Nivora.app</code></pre>
 </main>
 
 <footer>
-  <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/API.md">API</a> · <a href="demo/">Live demo</a> · <a href="feed.xml">Feed</a></p>
+  <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="docs/api.html">API</a> · <a href="docs/">Docs</a> · <a href="demo/">Live demo</a> · <a href="feed.xml">Feed</a></p>
   <p class="build">v{{VERSION}} · built {{DATE}} · {{COMMIT}}</p>
 </footer>
 <script src="site.js"></script>

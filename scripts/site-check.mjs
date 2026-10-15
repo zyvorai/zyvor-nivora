@@ -5,7 +5,10 @@ import path from 'node:path';
 
 const root = path.resolve(process.argv[2] || new URL('../_site', import.meta.url).pathname);
 const problems = [];
-const pages = ['index.html', '404.html', 'demo/index.html'];
+const pages = ['index.html', '404.html', 'demo/index.html', 'docs/index.html'];
+for (const f of fs.existsSync(path.join(root, 'docs')) ? fs.readdirSync(path.join(root, 'docs')) : []) {
+  if (f.endsWith('.html') && f !== 'index.html') pages.push('docs/' + f);
+}
 for (const page of pages) {
   const file = path.join(root, page);
   if (!fs.existsSync(file)) { problems.push(`missing ${page}`); continue; }
@@ -28,7 +31,7 @@ for (const page of pages) {
     problems.push(`${page}: external subresource ${m[1]}`);
   }
 }
-for (const f of ['feed.xml', 'robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
+for (const f of ['docs.js', 'docs/search.json', 'feed.xml', 'robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
   if (!fs.existsSync(path.join(root, f))) problems.push(`missing ${f}`);
 // release-aware content: the page must carry the package.json version and no leftover placeholders
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
