@@ -98,6 +98,7 @@ final class NivoraStore: ObservableObject {
     @Published private(set) var demo = CommandLine.arguments.contains("--demo")
 
     private let collector = CollectorProcess()
+    private let widgetBridge = WidgetBridge()
     private var loop: Task<Void, Never>?
     private let maxSamples = 600
     private let session: URLSession = {
@@ -191,6 +192,7 @@ final class NivoraStore: ObservableObject {
             let s = try JSONDecoder().decode(NivoraSnapshot.self, from: try await request("v1/snapshot"))
             snapshot = s
             DestinationPrompts.shared.consider(s)
+            widgetBridge.publish(s)
             var rates = flowRates
             for f in s.flows { rates[f.id, default: []].append(f.total_bps); if rates[f.id]!.count > 60 { rates[f.id]!.removeFirst() } }
             for k in rates.keys where !s.flows.contains(where: { $0.id == k }) { rates[k] = nil }

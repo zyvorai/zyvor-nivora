@@ -3,7 +3,7 @@ PORT ?= 7799
 TOKEN ?=
 APP := native/build/Build/Products/Release/Nivora.app
 
-.PHONY: help check test test-one demo run native app fixtures stop clean
+.PHONY: help check test test-one demo run native widgets app fixtures stop clean
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -27,6 +27,9 @@ run: ## Real collector, no history written (PORT=, TOKEN=)
 
 native: ## Build the unsigned native app
 	./scripts/build-native.sh
+
+widgets: ## Build the app with the WidgetKit extension (ad-hoc signed)
+	./scripts/build-native-widgets.sh
 
 app: native ## Build and launch the native app
 	open $(APP)
