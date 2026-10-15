@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-python3 -m py_compile agent/nivora_core.py agent/capture.py agent/nivora.py agent/nivoractl.py agent/containers.py agent/ports.py agent/anomalies.py agent/dns_diag.py agent/explain.py agent/lan.py agent/metrics.py agent/projects.py agent/usage.py agent/diff.py agent/pathcheck.py agent/nivora_mcp.py
+python3 -m py_compile agent/nivora_core.py agent/capture.py agent/nivora.py agent/nivoractl.py agent/containers.py agent/ports.py agent/anomalies.py agent/dns_diag.py agent/explain.py agent/lan.py agent/metrics.py agent/projects.py agent/usage.py agent/diff.py agent/pathcheck.py agent/nivora_mcp.py agent/identity.py agent/trust.py agent/privacy.py agent/policy.py agent/profiles.py agent/egress.py agent/fleet.py
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 node --experimental-vm-modules tests/web.mjs
 node tests/demo.mjs

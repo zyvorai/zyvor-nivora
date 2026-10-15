@@ -33,13 +33,16 @@ def main():
     p=argparse.ArgumentParser(prog="nivoractl",description="Nivora local CLI")
     p.add_argument("--url",default=DEFAULT);p.add_argument("--token",default=keychain_token())
     sub=p.add_subparsers(dest="cmd",required=True)
-    for c in ["status","apps","interfaces","routes","dns","vpn","fluxvm","findings","timeline","rules","health","traffic","topology","neighbors","listeners","behavior","diagnose","series","usage","projects","containers","port-conflicts"]: sub.add_parser(c)
+    for c in ["status","apps","interfaces","routes","dns","vpn","fluxvm","findings","timeline","rules","health","traffic","topology","neighbors","listeners","behavior","diagnose","series","usage","projects","containers","port-conflicts","trust","privacy","egress","profiles","fleet","policy-export"]: sub.add_parser(c)
     sub.add_parser("flows").add_argument("--filter", default="", help='e.g. app:Safari port:443 proto:tcp >1mbps')
     a=sub.add_parser("ask");a.add_argument("question",nargs="+")
     a=sub.add_parser("rule-add");a.add_argument("--action",choices=["observe","allow","block","shadow"],default="observe");a.add_argument("--app");a.add_argument("--domain");a.add_argument("--ip");a.add_argument("--port",type=int);a.add_argument("--expires-at");a.add_argument("--duration",type=int,help="block lease seconds (default 3600)");a.add_argument("--permanent",action="store_true")
     a=sub.add_parser("explain");a.add_argument("flow_id")
     for c in ("diff","incident"):
         a=sub.add_parser(c);a.add_argument("--from",dest="since");a.add_argument("--to",dest="until")
+    a=sub.add_parser("profile");a.add_argument("name")
+    for c in ("policy-plan","policy-apply"):
+        a=sub.add_parser(c);a.add_argument("file",help="policy JSON file: {\"name\": ..., \"rules\": [...]}")
     a=sub.add_parser("path-check");a.add_argument("host");a.add_argument("--port",type=int,default=443)
     sub.add_parser("rule-impact")
     a=sub.add_parser("rule-delete");a.add_argument("id")
@@ -51,13 +54,17 @@ def main():
             rows=request(args.url,"/v1/apps",args.token); table(rows,[("name","APP"),("connections","CONN"),("bytes_in","RX"),("bytes_out","TX")]); return
         if args.cmd=="flows":
             rows=request(args.url,"/v1/flows"+("?"+urllib.parse.urlencode({"filter":args.filter}) if args.filter else ""),args.token); table(rows,[("process","APP"),("protocol","PROTO"),("remote","REMOTE"),("interface","IFACE"),("state","STATE")]); return
-        path={"interfaces":"/v1/interfaces","routes":"/v1/routes","dns":"/v1/dns","vpn":"/v1/vpn","fluxvm":"/v1/fluxvm","findings":"/v1/findings","timeline":"/v1/timeline","rules":"/v1/rules","health":"/v1/health","traffic":"/v1/traffic","topology":"/v1/topology","neighbors":"/v1/neighbors","listeners":"/v1/listeners","behavior":"/v1/behavior","diagnose":"/v1/diagnose","series":"/v1/series","usage":"/v1/usage","projects":"/v1/projects","containers":"/v1/containers","port-conflicts":"/v1/port-conflicts"}.get(args.cmd)
+        path={"interfaces":"/v1/interfaces","routes":"/v1/routes","dns":"/v1/dns","vpn":"/v1/vpn","fluxvm":"/v1/fluxvm","findings":"/v1/findings","timeline":"/v1/timeline","rules":"/v1/rules","health":"/v1/health","traffic":"/v1/traffic","topology":"/v1/topology","neighbors":"/v1/neighbors","listeners":"/v1/listeners","behavior":"/v1/behavior","diagnose":"/v1/diagnose","series":"/v1/series","usage":"/v1/usage","projects":"/v1/projects","containers":"/v1/containers","port-conflicts":"/v1/port-conflicts","trust":"/v1/trust","privacy":"/v1/privacy-report","egress":"/v1/egress","profiles":"/v1/profiles","fleet":"/v1/fleet","policy-export":"/v1/policy/export"}.get(args.cmd)
         if path: print(json.dumps(request(args.url,path,args.token),indent=2)); return
         if args.cmd=="explain": print(json.dumps(request(args.url,"/v1/flows/"+urllib.parse.quote(args.flow_id,safe="")+"/explain",args.token),indent=2)); return
         if args.cmd=="rule-impact": print(json.dumps(request(args.url,"/v1/rule-impact",args.token),indent=2)); return
         if args.cmd in ("diff","incident"):
             q=urllib.parse.urlencode({k:v for k,v in (("from",args.since),("to",args.until)) if v})
             print(json.dumps(request(args.url,"/v1/"+args.cmd+("?"+q if q else ""),args.token),indent=2)); return
+        if args.cmd=="profile": print(json.dumps(request(args.url,"/v1/profiles",args.token,"POST",{"name":args.name}),indent=2)); return
+        if args.cmd in ("policy-plan","policy-apply"):
+            with open(args.file) as fh: policy=json.load(fh)
+            print(json.dumps(request(args.url,"/v1/policy",args.token,"POST",{"policy":policy,"dry_run":args.cmd=="policy-plan"}),indent=2)); return
         if args.cmd=="path-check": print(json.dumps(request(args.url,"/v1/path-check",args.token,"POST",{"host":args.host,"port":args.port}),indent=2)); return
         if args.cmd=="ask": print(json.dumps(request(args.url,"/v1/query",args.token,"POST",{"question":" ".join(args.question)}),indent=2)); return
         if args.cmd=="rule-add":

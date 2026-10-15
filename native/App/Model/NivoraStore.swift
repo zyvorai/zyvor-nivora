@@ -11,14 +11,14 @@ enum PaneSection: String, CaseIterable, Identifiable {
 enum Pane: String, CaseIterable, Identifiable {
     case overview = "Overview", health = "Health", applications = "Applications", flows = "Flows", timeline = "Time Machine"
     case interfaces = "Interfaces", local = "Local Network"
-    case fluxvm = "FluxVM", security = "Security", capture = "Capture", investigator = "Investigator"
+    case fluxvm = "FluxVM", security = "Security", insights = "Insights", capture = "Capture", investigator = "Investigator"
     case alerts = "Alerts", settings = "Settings"
     var id: Self { self }
     var section: PaneSection {
         switch self {
         case .overview, .health, .applications, .flows, .timeline: return .monitor
         case .interfaces, .local: return .network
-        case .fluxvm, .security, .capture, .investigator: return .zyvor
+        case .fluxvm, .security, .insights, .capture, .investigator: return .zyvor
         case .alerts, .settings: return .system
         }
     }
@@ -33,6 +33,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .local: return "macwindow.on.rectangle"
         case .fluxvm: return "shippingbox"
         case .security: return "lock.shield"
+        case .insights: return "checkmark.shield"
         case .capture: return "record.circle"
         case .investigator: return "sparkles"
         case .alerts: return "bell.badge"
@@ -50,6 +51,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .local: return "Neighbors, listeners and exposure"
         case .fluxvm: return "VMs and sandboxes beside host traffic"
         case .security: return "Observe-first findings and rules"
+        case .insights: return "Trust, privacy, situation profiles and egress"
         case .capture: return "Opt-in, headers-only packet capture"
         case .investigator: return "Ask the local telemetry"
         case .alerts: return "Findings and threshold checks"
@@ -145,7 +147,11 @@ final class NivoraStore: ObservableObject {
 
     // MARK: lifecycle
 
+    /// The running store, for App Intents (they execute inside the app process).
+    static weak var current: NivoraStore?
+
     func start() {
+        NivoraStore.current = self
         guard loop == nil else { return }
         do { try collector.start(demo: demo) } catch { status = .failed(error.localizedDescription) }
         loop = Task { [weak self] in
@@ -184,6 +190,7 @@ final class NivoraStore: ObservableObject {
         do {
             let s = try JSONDecoder().decode(NivoraSnapshot.self, from: try await request("v1/snapshot"))
             snapshot = s
+            DestinationPrompts.shared.consider(s)
             var rates = flowRates
             for f in s.flows { rates[f.id, default: []].append(f.total_bps); if rates[f.id]!.count > 60 { rates[f.id]!.removeFirst() } }
             for k in rates.keys where !s.flows.contains(where: { $0.id == k }) { rates[k] = nil }
@@ -208,9 +215,30 @@ final class NivoraStore: ObservableObject {
     }
 
     /// Adds a rule for an app. `block` is leased for one hour by the collector unless made permanent.
-    func addRule(action: String, app: String) async {
-        _ = try? await request("v1/rules", method: "POST", body: ["action": action, "app": app])
+    func addRule(action: String, app: String, destination: String? = nil) async {
+        var body: [String: Any] = ["action": action, "app": app]
+        if let d = destination, !d.isEmpty {
+            // IP literals match `ip`; anything else is treated as a domain.
+            body[d.contains(where: { $0.isLetter && $0 != ":" }) ? "domain" : "ip"] = d
+        }
+        _ = try? await request("v1/rules", method: "POST", body: body)
         await refresh()
+    }
+
+    /// Situation profiles only change alert posture; they never relax blocking rules or leases.
+    func setProfile(_ name: String) async {
+        _ = try? await request("v1/profiles", method: "POST", body: ["name": name])
+        await refresh()
+    }
+
+    /// Plain-language status for Shortcuts and Siri.
+    var statusSentence: String {
+        guard let s = snapshot else { return "Nivora is still starting." }
+        let top = s.apps.max { $0.total_bps < $1.total_bps }
+        var out = "Network health is \(s.health.score) out of 100. Downloading \(rateString(s.traffic.rx_bps)), uploading \(rateString(s.traffic.tx_bps))."
+        if let top, top.total_bps > 0 { out += " \(top.name) is the busiest app." }
+        if !s.findings.isEmpty { out += " \(s.findings.count) finding\(s.findings.count == 1 ? "" : "s")." }
+        return out
     }
 
     func deleteRule(_ id: String) async {

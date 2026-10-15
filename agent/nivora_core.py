@@ -1192,7 +1192,9 @@ class RuleStore:
         os.chmod(tmp, 0o600)
         os.replace(tmp, self.path)
 
-    def add(self, rule: dict[str, Any]) -> dict[str, Any]:
+    @staticmethod
+    def clean_rule(rule: dict[str, Any]) -> dict[str, Any]:
+        """Validate and normalise a rule (leasing blocks); raises ValueError."""
         allowed = {"app", "domain", "ip", "port", "action", "expires_at", "note", "permanent", "duration_seconds"}
         clean = {k: rule.get(k) for k in allowed if rule.get(k) not in (None, "")}
         action = clean.get("action", "observe")
@@ -1220,6 +1222,10 @@ class RuleStore:
         if clean.get("expires_at"):
             try: dt.datetime.fromisoformat(str(clean["expires_at"]).replace("Z", "+00:00"))
             except ValueError as exc: raise ValueError("expires_at must be ISO-8601") from exc
+        return clean
+
+    def add(self, rule: dict[str, Any]) -> dict[str, Any]:
+        clean = self.clean_rule(rule)
         clean["id"] = stable_id(utc_now(), clean)
         clean["created_at"] = utc_now()
         with self.lock:

@@ -7,7 +7,7 @@ from typing import Any
 HIGH_APP_BPS = 5 * 1024 * 1024
 
 
-def detect_anomalies(current: dict[str, Any]) -> list[dict[str, Any]]:
+def detect_anomalies(current: dict[str, Any], high_bps: float = HIGH_APP_BPS) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     flows = current.get("flows") or []
     per_app: dict[str, float] = {}
@@ -16,7 +16,7 @@ def detect_anomalies(current: dict[str, Any]) -> list[dict[str, Any]]:
         per_app[name] = per_app.get(name, 0.0) + float(f.get("total_bps") or 0)
     if per_app:
         top = max(per_app, key=per_app.get)
-        if per_app[top] > HIGH_APP_BPS:
+        if per_app[top] > high_bps:
             findings.append({"severity": "warning", "kind": "anomaly", "title": "High bandwidth application",
                              "detail": f"{top} is using {per_app[top] / 1048576:.1f} MB/s.", "app": top})
     vpn_ifaces = {i.get("name") for i in current.get("interfaces") or [] if str(i.get("name") or "").startswith(("utun", "ppp", "ipsec"))}
