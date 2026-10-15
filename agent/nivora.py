@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import hmac
 import json
 import mimetypes
@@ -23,6 +24,10 @@ from ports import annotate_listeners, find_conflicts
 from anomalies import detect_anomalies, merge_findings
 from dns_diag import diagnose_resolvers
 from explain import explain_flow, rule_impact
+from lan import diff_lan, dns_vpn_leak
+from metrics import render_metrics
+from projects import summarize_projects
+from usage import budget_findings, budget_status, load_budgets
 from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
@@ -129,6 +134,15 @@ class State:
             return c["pcap"]
         return self.capture.fetch(sid)
 
+    @staticmethod
+    def _elapsed(prev: str | None, cur: str | None) -> float:
+        try:
+            a = dt.datetime.fromisoformat(str(prev).replace("Z", "+00:00"))
+            b = dt.datetime.fromisoformat(str(cur).replace("Z", "+00:00"))
+            return max(0.0, (b - a).total_seconds())
+        except ValueError:
+            return 0.0
+
     def sample(self):
         with self.lock:
             previous = self.snapshot
@@ -145,6 +159,18 @@ class State:
                     "detail": event["detail"], "app": event.get("app"), "remote": event.get("remote")
                 })
         current["behavior"] = behavior
+        lan = diff_lan(current, previous) + dns_vpn_leak(current)
+        usage: dict[str, int] = {}
+        if self.history:
+            lan += self.history.observe_devices(current)
+            prev_ts = (previous or {}).get("timestamp")
+            usage = self.history.observe_usage(current, self._elapsed(prev_ts, current.get("timestamp")))
+        budgets = budget_status(usage, load_budgets(os.path.join(os.path.dirname(os.path.expanduser(self.args.database)), "budgets.json")))
+        current["usage"] = {"day": str(current.get("timestamp", ""))[:10], "apps": usage, "budgets": budgets}
+        current["projects"] = summarize_projects(current.get("flows") or [])
+        current.setdefault("findings", []).extend(lan + budget_findings(budgets))
+        for f in lan:
+            events.append({"ts": current["timestamp"], "kind": "lan", "title": f["title"], "detail": f["detail"]})
         enrich_flows_with_containers(current.get("flows") or [])
         current["containers"] = summarize_containers(current.get("flows") or [])
         current["listeners"] = annotate_listeners(current.get("listeners") or [])
@@ -261,6 +287,18 @@ class Handler(BaseHTTPRequestHandler):
             return
         u = urlparse(self.path)
         path = u.path
+        if path == "/metrics":
+            with self.state.lock:
+                snap = self.state.snapshot
+            body = render_metrics(snap or self.state.sample()).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if path == "/healthz":
             return self._json({"status":"ok","product":"nivora"})
         if path.startswith("/v1/"):
@@ -286,6 +324,8 @@ class Handler(BaseHTTPRequestHandler):
                 "/v1/listeners": snap.get("listeners", []),
                 "/v1/containers": snap.get("containers", []),
                 "/v1/port-conflicts": snap.get("port_conflicts", []),
+                "/v1/usage": snap.get("usage", {}),
+                "/v1/projects": snap.get("projects", []),
                 "/v1/rule-impact": snap.get("rule_impact", []),
                 "/v1/behavior": snap.get("behavior", {}),
                 "/v1/diagnose": snap.get("diagnosis") or diagnose_network(snap),

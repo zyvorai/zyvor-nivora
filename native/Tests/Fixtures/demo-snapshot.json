@@ -1,6 +1,6 @@
 {
   "version": "0.3.0",
-  "timestamp": "2026-10-15T02:01:55+00:00",
+  "timestamp": "2026-10-15T02:07:03+00:00",
   "host": {
     "name": "zyvor-mac-studio",
     "os": "macOS",
@@ -156,16 +156,16 @@
       "local": "192.168.1.42:53001",
       "remote": "142.250.183.14:443",
       "state": "ESTABLISHED",
-      "bytes_in": 935582237,
-      "bytes_out": 41536231,
-      "rx_bps": 1745777.69,
-      "tx_bps": 87288.88,
-      "total_bps": 1833066.57,
+      "bytes_in": 1446490815,
+      "bytes_out": 67081662,
+      "rx_bps": 1681615.74,
+      "tx_bps": 84080.79,
+      "total_bps": 1765696.53,
       "interface": "en0",
       "rtt_ms": 31.2,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -177,16 +177,16 @@
       "local": "192.168.1.42:53102",
       "remote": "13.107.6.175:443",
       "state": "ESTABLISHED",
-      "bytes_in": 119060997,
-      "bytes_out": 15534170,
-      "rx_bps": 177495.93,
-      "tx_bps": 25559.41,
-      "total_bps": 203055.34,
+      "bytes_in": 111918416,
+      "bytes_out": 14505640,
+      "rx_bps": 31514.08,
+      "tx_bps": 4538.03,
+      "total_bps": 36052.11,
       "interface": "utun4",
       "rtt_ms": 181.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -198,16 +198,16 @@
       "local": "192.168.1.42:53200",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 90531164,
-      "bytes_out": 134554731,
-      "rx_bps": 202849.12,
-      "tx_bps": 438816.47,
-      "total_bps": 641665.59,
+      "bytes_in": 172238507,
+      "bytes_out": 311309396,
+      "rx_bps": 248127.35,
+      "tx_bps": 536765.3,
+      "total_bps": 784892.65,
       "interface": "en0",
       "rtt_ms": 36.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -219,16 +219,16 @@
       "local": "10.0.2.15:40544",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 60544990,
-      "bytes_out": 12426588,
-      "rx_bps": 70290.37,
-      "tx_bps": 16808.57,
-      "total_bps": 87098.94,
+      "bytes_in": 114940355,
+      "bytes_out": 25434174,
+      "rx_bps": 147539.99,
+      "tx_bps": 35281.3,
+      "total_bps": 182821.29,
       "interface": "vmnet8",
       "rtt_ms": 42.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -240,16 +240,16 @@
       "local": "192.168.1.42:53310",
       "remote": "17.253.144.10:443",
       "state": "ESTABLISHED",
-      "bytes_in": 320880991,
-      "bytes_out": 15676565,
-      "rx_bps": 960286.17,
-      "tx_bps": 63018.78,
-      "total_bps": 1023304.95,
+      "bytes_in": 466800194,
+      "bytes_out": 25252513,
+      "rx_bps": 606100.71,
+      "tx_bps": 39775.36,
+      "total_bps": 645876.07,
       "interface": "en0",
       "rtt_ms": 24.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -261,16 +261,16 @@
       "local": "192.168.1.42:53311",
       "remote": "17.57.144.52:993",
       "state": "ESTABLISHED",
-      "bytes_in": 13497667,
-      "bytes_out": 2070516,
-      "rx_bps": 38952.1,
-      "tx_bps": 7539.12,
-      "total_bps": 46491.22,
+      "bytes_in": 17872561,
+      "bytes_out": 2917271,
+      "rx_bps": 20941.05,
+      "tx_bps": 4053.11,
+      "total_bps": 24994.16,
       "interface": "en0",
       "rtt_ms": 48.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -282,16 +282,16 @@
       "local": "192.168.1.42:53390",
       "remote": "162.125.1.18:443",
       "state": "ESTABLISHED",
-      "bytes_in": 45158561,
-      "bytes_out": 172853735,
-      "rx_bps": 36015.27,
-      "tx_bps": 111319.93,
-      "total_bps": 147335.2,
+      "bytes_in": 101969709,
+      "bytes_out": 348451824,
+      "rx_bps": 143900.92,
+      "tx_bps": 444784.65,
+      "total_bps": 588685.57,
       "interface": "en0",
       "rtt_ms": 55.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     },
     {
@@ -303,16 +303,16 @@
       "local": "192.168.1.42:5353",
       "remote": "224.0.0.251:5353",
       "state": "",
-      "bytes_in": 310439,
-      "bytes_out": 207829,
-      "rx_bps": 783.25,
-      "tx_bps": 587.44,
-      "total_bps": 1370.69,
+      "bytes_in": 812292,
+      "bytes_out": 584220,
+      "rx_bps": 1397.93,
+      "tx_bps": 1048.45,
+      "total_bps": 2446.38,
       "interface": "en0",
       "rtt_ms": 0.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:01:55+00:00",
-      "last_seen": "2026-10-15T02:01:55+00:00",
+      "first_seen": "2026-10-15T02:07:03+00:00",
+      "last_seen": "2026-10-15T02:07:03+00:00",
       "container": false
     }
   ],
@@ -363,16 +363,16 @@
         "local": "10.0.2.15:40544",
         "remote": "github.com:443",
         "state": "ESTABLISHED",
-        "bytes_in": 60544990,
-        "bytes_out": 12426588,
-        "rx_bps": 70290.37,
-        "tx_bps": 16808.57,
-        "total_bps": 87098.94,
+        "bytes_in": 114940355,
+        "bytes_out": 25434174,
+        "rx_bps": 147539.99,
+        "tx_bps": 35281.3,
+        "total_bps": 182821.29,
         "interface": "vmnet8",
         "rtt_ms": 42.0,
         "source": "demo",
-        "first_seen": "2026-10-15T02:01:55+00:00",
-        "last_seen": "2026-10-15T02:01:55+00:00",
+        "first_seen": "2026-10-15T02:07:03+00:00",
+        "last_seen": "2026-10-15T02:07:03+00:00",
         "container": false
       }
     ],
@@ -395,10 +395,10 @@
       "pid": 510,
       "bundle_id": "com.google.Chrome",
       "connections": 1,
-      "bytes_in": 935582237,
-      "bytes_out": 41536231,
-      "rx_bps": 1745777.69,
-      "tx_bps": 87288.88,
+      "bytes_in": 1446490815,
+      "bytes_out": 67081662,
+      "rx_bps": 1681615.74,
+      "tx_bps": 84080.79,
       "domains": [
         "142.250.183.14"
       ],
@@ -406,18 +406,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 977118468,
-      "total_bps": 1833066.57
+      "total_bytes": 1513572477,
+      "total_bps": 1765696.53
     },
     {
       "name": "Safari",
       "pid": 420,
       "bundle_id": "com.apple.Safari",
       "connections": 1,
-      "bytes_in": 320880991,
-      "bytes_out": 15676565,
-      "rx_bps": 960286.17,
-      "tx_bps": 63018.78,
+      "bytes_in": 466800194,
+      "bytes_out": 25252513,
+      "rx_bps": 606100.71,
+      "tx_bps": 39775.36,
       "domains": [
         "17.253.144.10"
       ],
@@ -425,18 +425,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 336557556,
-      "total_bps": 1023304.95
+      "total_bytes": 492052707,
+      "total_bps": 645876.07
     },
     {
       "name": "Xcode",
       "pid": 711,
       "bundle_id": "com.apple.dt.Xcode",
       "connections": 1,
-      "bytes_in": 90531164,
-      "bytes_out": 134554731,
-      "rx_bps": 202849.12,
-      "tx_bps": 438816.47,
+      "bytes_in": 172238507,
+      "bytes_out": 311309396,
+      "rx_bps": 248127.35,
+      "tx_bps": 536765.3,
       "domains": [
         "github.com"
       ],
@@ -444,18 +444,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 225085895,
-      "total_bps": 641665.59
+      "total_bytes": 483547903,
+      "total_bps": 784892.65
     },
     {
       "name": "Dropbox",
       "pid": 690,
       "bundle_id": "com.getdropbox.dropbox",
       "connections": 1,
-      "bytes_in": 45158561,
-      "bytes_out": 172853735,
-      "rx_bps": 36015.27,
-      "tx_bps": 111319.93,
+      "bytes_in": 101969709,
+      "bytes_out": 348451824,
+      "rx_bps": 143900.92,
+      "tx_bps": 444784.65,
       "domains": [
         "162.125.1.18"
       ],
@@ -463,37 +463,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 218012296,
-      "total_bps": 147335.2
-    },
-    {
-      "name": "Slack",
-      "pid": 602,
-      "bundle_id": "com.tinyspeck.slackmacgap",
-      "connections": 1,
-      "bytes_in": 119060997,
-      "bytes_out": 15534170,
-      "rx_bps": 177495.93,
-      "tx_bps": 25559.41,
-      "domains": [
-        "13.107.6.175"
-      ],
-      "interfaces": [
-        "utun4"
-      ],
-      "internet_connections": 1,
-      "total_bytes": 134595167,
-      "total_bps": 203055.34
+      "total_bytes": 450421533,
+      "total_bps": 588685.57
     },
     {
       "name": "fluxvm-vz-runner",
       "pid": 889,
       "bundle_id": "dev.zyvor.fluxvm",
       "connections": 1,
-      "bytes_in": 60544990,
-      "bytes_out": 12426588,
-      "rx_bps": 70290.37,
-      "tx_bps": 16808.57,
+      "bytes_in": 114940355,
+      "bytes_out": 25434174,
+      "rx_bps": 147539.99,
+      "tx_bps": 35281.3,
       "domains": [
         "github.com"
       ],
@@ -501,18 +482,37 @@
         "vmnet8"
       ],
       "internet_connections": 1,
-      "total_bytes": 72971578,
-      "total_bps": 87098.94
+      "total_bytes": 140374529,
+      "total_bps": 182821.29
+    },
+    {
+      "name": "Slack",
+      "pid": 602,
+      "bundle_id": "com.tinyspeck.slackmacgap",
+      "connections": 1,
+      "bytes_in": 111918416,
+      "bytes_out": 14505640,
+      "rx_bps": 31514.08,
+      "tx_bps": 4538.03,
+      "domains": [
+        "13.107.6.175"
+      ],
+      "interfaces": [
+        "utun4"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 126424056,
+      "total_bps": 36052.11
     },
     {
       "name": "Mail",
       "pid": 455,
       "bundle_id": "com.apple.mail",
       "connections": 1,
-      "bytes_in": 13497667,
-      "bytes_out": 2070516,
-      "rx_bps": 38952.1,
-      "tx_bps": 7539.12,
+      "bytes_in": 17872561,
+      "bytes_out": 2917271,
+      "rx_bps": 20941.05,
+      "tx_bps": 4053.11,
       "domains": [
         "17.57.144.52"
       ],
@@ -520,18 +520,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 15568183,
-      "total_bps": 46491.22
+      "total_bytes": 20789832,
+      "total_bps": 24994.16
     },
     {
       "name": "mDNSResponder",
       "pid": 118,
       "bundle_id": "",
       "connections": 1,
-      "bytes_in": 310439,
-      "bytes_out": 207829,
-      "rx_bps": 783.25,
-      "tx_bps": 587.44,
+      "bytes_in": 812292,
+      "bytes_out": 584220,
+      "rx_bps": 1397.93,
+      "tx_bps": 1048.45,
       "domains": [
         "224.0.0.251"
       ],
@@ -539,14 +539,14 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 518268,
-      "total_bps": 1370.69
+      "total_bytes": 1396512,
+      "total_bps": 2446.38
     }
   ],
   "traffic": {
-    "rx_bps": 3232449.9,
-    "tx_bps": 750938.6,
-    "total_bps": 3983388.5,
+    "rx_bps": 2881137.77,
+    "tx_bps": 1150326.99,
+    "total_bps": 4031464.76,
     "active_flows": 8,
     "internet_flows": 8,
     "vpn_flows": 1,
@@ -567,6 +567,12 @@
       "detail": "Zyvor WireGuard"
     },
     {
+      "severity": "warning",
+      "kind": "dns",
+      "title": "DNS may bypass the VPN",
+      "detail": "A VPN is active but no resolver is bound to a tunnel interface: 1.1.1.1."
+    },
+    {
       "severity": "info",
       "kind": "anomaly",
       "title": "Mixed VPN and direct traffic",
@@ -574,7 +580,7 @@
     }
   ],
   "health": {
-    "score": 98,
+    "score": 97,
     "status": "healthy",
     "median_rtt_ms": 42.0,
     "components": [
@@ -600,8 +606,8 @@
       },
       {
         "name": "Safety",
-        "score": 90,
-        "detail": "0 critical \u00b7 1 warning"
+        "score": 80,
+        "detail": "0 critical \u00b7 2 warning"
       }
     ]
   },
@@ -716,128 +722,128 @@
         "source": "app:f437b770fa7a4018",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 977118468,
-        "bps": 1833066.57,
+        "bytes": 1513572477,
+        "bps": 1765696.53,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:bfb57b8f124403e8",
         "kind": "reaches",
-        "bytes": 977118468,
-        "bps": 1833066.57,
+        "bytes": 1513572477,
+        "bps": 1765696.53,
         "flows": 1
       },
       {
         "source": "app:638dc1bc546b9725",
         "target": "if:utun4",
         "kind": "uses",
-        "bytes": 134595167,
-        "bps": 203055.34,
+        "bytes": 126424056,
+        "bps": 36052.11,
         "flows": 1
       },
       {
         "source": "if:utun4",
         "target": "dst:2131f530233c50a6",
         "kind": "reaches",
-        "bytes": 134595167,
-        "bps": 203055.34,
+        "bytes": 126424056,
+        "bps": 36052.11,
         "flows": 1
       },
       {
         "source": "app:c9b0fcb81024d804",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 225085895,
-        "bps": 641665.59,
+        "bytes": 483547903,
+        "bps": 784892.65,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 225085895,
-        "bps": 641665.59,
+        "bytes": 483547903,
+        "bps": 784892.65,
         "flows": 1
       },
       {
         "source": "app:626e006293c58cfb",
         "target": "if:vmnet8",
         "kind": "uses",
-        "bytes": 72971578,
-        "bps": 87098.94,
+        "bytes": 140374529,
+        "bps": 182821.29,
         "flows": 1
       },
       {
         "source": "if:vmnet8",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 72971578,
-        "bps": 87098.94,
+        "bytes": 140374529,
+        "bps": 182821.29,
         "flows": 1
       },
       {
         "source": "app:9988d0d84818faeb",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 336557556,
-        "bps": 1023304.95,
+        "bytes": 492052707,
+        "bps": 645876.07,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3a0c99df59f50901",
         "kind": "reaches",
-        "bytes": 336557556,
-        "bps": 1023304.95,
+        "bytes": 492052707,
+        "bps": 645876.07,
         "flows": 1
       },
       {
         "source": "app:6b224393d033f023",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 15568183,
-        "bps": 46491.22,
+        "bytes": 20789832,
+        "bps": 24994.16,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:34fd04f78125cfa7",
         "kind": "reaches",
-        "bytes": 15568183,
-        "bps": 46491.22,
+        "bytes": 20789832,
+        "bps": 24994.16,
         "flows": 1
       },
       {
         "source": "app:4f423af333043688",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 218012296,
-        "bps": 147335.2,
+        "bytes": 450421533,
+        "bps": 588685.57,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:8e1125068885d850",
         "kind": "reaches",
-        "bytes": 218012296,
-        "bps": 147335.2,
+        "bytes": 450421533,
+        "bps": 588685.57,
         "flows": 1
       },
       {
         "source": "app:7682f4f8b37ea610",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 518268,
-        "bps": 1370.69,
+        "bytes": 1396512,
+        "bps": 2446.38,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:35b5e20b23f0d24c",
         "kind": "reaches",
-        "bytes": 518268,
-        "bps": 1370.69,
+        "bytes": 1396512,
+        "bps": 2446.38,
         "flows": 1
       }
     ]
@@ -848,42 +854,54 @@
   },
   "recent_events": [
     {
-      "ts": "2026-10-14T22:51:55+00:00",
+      "ts": "2026-10-14T22:57:03+00:00",
       "kind": "interface",
       "title": "Interface en0 appeared",
       "detail": "active"
     },
     {
-      "ts": "2026-10-14T23:39:55+00:00",
+      "ts": "2026-10-14T23:45:03+00:00",
       "kind": "dns",
       "title": "DNS resolver changed",
       "detail": "('192.168.1.1',) \u2192 ('1.1.1.1', '2606:4700:4700::1111')"
     },
     {
-      "ts": "2026-10-15T00:24:55+00:00",
+      "ts": "2026-10-15T00:30:03+00:00",
       "kind": "vpn",
       "title": "VPN state changed",
       "detail": "Active: Zyvor WireGuard"
     },
     {
-      "ts": "2026-10-15T00:57:55+00:00",
+      "ts": "2026-10-15T01:03:03+00:00",
       "kind": "listener",
       "title": "New listening service on port 7000",
       "detail": "AirPlayXPCHelper \u00b7 TCP \u00b7 all"
     },
     {
-      "ts": "2026-10-15T01:38:55+00:00",
+      "ts": "2026-10-15T01:44:03+00:00",
       "kind": "traffic",
       "title": "Traffic rate spiked",
       "detail": "0.4 \u2192 3.1 MB/s"
     },
     {
-      "ts": "2026-10-15T02:01:55+00:00",
+      "ts": "2026-10-15T02:07:03+00:00",
       "kind": "startup",
       "title": "Nivora started observing",
       "detail": "Initial network snapshot captured."
+    },
+    {
+      "ts": "2026-10-15T02:07:03+00:00",
+      "kind": "lan",
+      "title": "DNS may bypass the VPN",
+      "detail": "A VPN is active but no resolver is bound to a tunnel interface: 1.1.1.1."
     }
   ],
+  "usage": {
+    "day": "2026-10-15",
+    "apps": {},
+    "budgets": []
+  },
+  "projects": [],
   "containers": [],
   "port_conflicts": [],
   "dns_diagnosis": {
@@ -900,7 +918,7 @@
   "diagnosis": {
     "summary": "High application latency.",
     "health": {
-      "score": 98,
+      "score": 97,
       "status": "healthy",
       "median_rtt_ms": 42.0,
       "components": [
@@ -926,8 +944,8 @@
         },
         {
           "name": "Safety",
-          "score": 90,
-          "detail": "0 critical \u00b7 1 warning"
+          "score": 80,
+          "detail": "0 critical \u00b7 2 warning"
         }
       ]
     },
@@ -948,7 +966,7 @@
         "title": "Recent network configuration change",
         "detail": "VPN state changed",
         "event": {
-          "ts": "2026-10-15T00:24:55+00:00",
+          "ts": "2026-10-15T00:30:03+00:00",
           "kind": "vpn",
           "title": "VPN state changed",
           "detail": "Active: Zyvor WireGuard"
@@ -957,40 +975,46 @@
     ],
     "recent_events": [
       {
-        "ts": "2026-10-14T22:51:55+00:00",
+        "ts": "2026-10-14T22:57:03+00:00",
         "kind": "interface",
         "title": "Interface en0 appeared",
         "detail": "active"
       },
       {
-        "ts": "2026-10-14T23:39:55+00:00",
+        "ts": "2026-10-14T23:45:03+00:00",
         "kind": "dns",
         "title": "DNS resolver changed",
         "detail": "('192.168.1.1',) \u2192 ('1.1.1.1', '2606:4700:4700::1111')"
       },
       {
-        "ts": "2026-10-15T00:24:55+00:00",
+        "ts": "2026-10-15T00:30:03+00:00",
         "kind": "vpn",
         "title": "VPN state changed",
         "detail": "Active: Zyvor WireGuard"
       },
       {
-        "ts": "2026-10-15T00:57:55+00:00",
+        "ts": "2026-10-15T01:03:03+00:00",
         "kind": "listener",
         "title": "New listening service on port 7000",
         "detail": "AirPlayXPCHelper \u00b7 TCP \u00b7 all"
       },
       {
-        "ts": "2026-10-15T01:38:55+00:00",
+        "ts": "2026-10-15T01:44:03+00:00",
         "kind": "traffic",
         "title": "Traffic rate spiked",
         "detail": "0.4 \u2192 3.1 MB/s"
       },
       {
-        "ts": "2026-10-15T02:01:55+00:00",
+        "ts": "2026-10-15T02:07:03+00:00",
         "kind": "startup",
         "title": "Nivora started observing",
         "detail": "Initial network snapshot captured."
+      },
+      {
+        "ts": "2026-10-15T02:07:03+00:00",
+        "kind": "lan",
+        "title": "DNS may bypass the VPN",
+        "detail": "A VPN is active but no resolver is bound to a tunnel interface: 1.1.1.1."
       }
     ]
   }

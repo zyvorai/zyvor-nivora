@@ -23,6 +23,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
 
+from projects import attribute_projects, parse_lsof_cwd
+
 VERSION = "0.3.0"
 
 
@@ -1028,6 +1030,8 @@ class HistoryStore:
             db.execute("CREATE TABLE IF NOT EXISTS snapshots(ts TEXT PRIMARY KEY, payload TEXT NOT NULL)")
             db.execute("CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, payload TEXT NOT NULL)")
             db.execute("CREATE TABLE IF NOT EXISTS behavior(app TEXT NOT NULL, remote TEXT NOT NULL, port INTEGER NOT NULL, first_seen TEXT NOT NULL, last_seen TEXT NOT NULL, hits INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(app,remote,port))")
+            db.execute("CREATE TABLE IF NOT EXISTS devices(mac TEXT PRIMARY KEY, ip TEXT NOT NULL, interface TEXT NOT NULL, first_seen TEXT NOT NULL, last_seen TEXT NOT NULL)")
+            db.execute("CREATE TABLE IF NOT EXISTS usage(day TEXT NOT NULL, app TEXT NOT NULL, bytes INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day,app))")
 
     @contextmanager
     def _connect(self):
@@ -1104,6 +1108,45 @@ class HistoryStore:
             db.execute("DELETE FROM behavior WHERE last_seen < ?", (cutoff,))
             total = db.execute("SELECT COUNT(*) FROM behavior").fetchone()[0]
         return {"new_destinations": new, "known_destinations": total}
+
+    def observe_devices(self, snapshot: dict[str, Any]) -> list[dict[str, Any]]:
+        """Persist LAN devices by MAC; return findings for devices first seen after the baseline seed."""
+        ts = snapshot.get("timestamp", utc_now())
+        seen = {}
+        for n in snapshot.get("neighbors", []):
+            mac = (n.get("mac") or "").lower()
+            # broadcast/multicast and incomplete entries are not devices
+            if not mac or mac.startswith(("ff:ff:", "01:00:5e", "33:33")) or n.get("state") == "incomplete":
+                continue
+            seen[mac] = (n.get("ip") or "", n.get("interface") or "")
+        new: list[dict[str, Any]] = []
+        with self.lock, self._connect() as db:
+            baseline = db.execute("SELECT COUNT(*) FROM devices").fetchone()[0]
+            for mac, (ip, iface) in seen.items():
+                row = db.execute("SELECT 1 FROM devices WHERE mac=?", (mac,)).fetchone()
+                if row is None:
+                    db.execute("INSERT INTO devices VALUES(?,?,?,?,?)", (mac, ip, iface, ts, ts))
+                    if baseline > 0:
+                        new.append({"severity": "info", "kind": "lan", "title": "New device on the local network",
+                                    "detail": f"{ip or 'unknown IP'} ({mac}) on {iface or 'unknown interface'}", "remote": ip})
+                else:
+                    db.execute("UPDATE devices SET ip=?, interface=?, last_seen=? WHERE mac=?", (ip, iface, ts, mac))
+        return new
+
+    def observe_usage(self, snapshot: dict[str, Any], elapsed: float) -> dict[str, int]:
+        """Add rate*elapsed per app to today's usage; returns today's totals."""
+        day = str(snapshot.get("timestamp", utc_now()))[:10]
+        elapsed = max(0.0, min(elapsed, 300.0))
+        add: dict[str, float] = {}
+        for a in snapshot.get("apps", []):
+            add[a.get("name", "Unknown")] = (as_float(a.get("rx_bps")) + as_float(a.get("tx_bps"))) * elapsed
+        with self.lock, self._connect() as db:
+            for app, b in add.items():
+                if b >= 1:
+                    db.execute("INSERT INTO usage(day,app,bytes) VALUES(?,?,?) ON CONFLICT(day,app) DO UPDATE SET bytes=bytes+?", (day, app, int(b), int(b)))
+            db.execute("DELETE FROM usage WHERE day < date(?, '-60 day')", (day,))
+            rows = db.execute("SELECT app, bytes FROM usage WHERE day=?", (day,)).fetchall()
+        return {app: b for app, b in rows}
 
 
 class RuleStore:
@@ -1321,10 +1364,12 @@ class MacCollector:
         extension_path = str(Path.home() / "Library/Group Containers/group.dev.zyvor.nivora/flows.jsonl")
         extension_flows = parse_extension_events(extension_path)
         lsof_rows = parse_lsof(lsof_text)
+        cwd_text = self.runner.run(["lsof", "-nP", "-a", "-d", "cwd", "-Fpn"]) if is_mac else ""
         flows = extension_flows or parse_nettop(nettop_text)
         if not flows:
             flows = [x for x in lsof_rows if x.get("remote")]
         annotate_rates(flows, previous, timestamp)
+        attribute_projects(flows, parse_lsof_cwd(cwd_text))
         interfaces = parse_ifconfig(ifconfig)
         ports = parse_networksetup_hardware_ports(hardware_text)
         enrich_interface_hardware(interfaces, ports)
