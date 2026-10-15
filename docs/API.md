@@ -24,6 +24,9 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 - `GET /v1/containers` (container runtime traffic summary)
 - `GET /v1/port-conflicts` (ports bound by multiple processes)
 - `GET /v1/flows/{id}/explain` — evidence for one flow: app, destination, path, traffic share, new-destination status, matching rules and related findings, plus plain-language `reasons`
+- `GET /metrics` — Prometheus text exposition (health, flows, rates, findings by severity, listeners, port conflicts, top apps); same token as the API
+- `GET /v1/usage` — today's bytes per app and budget status; budgets live in `budgets.json` beside the history database, `{"app name substring": bytes_per_day}`
+- `GET /v1/projects` — traffic grouped by project folder (nearest ancestor of the process working directory holding `.git`, `package.json`, etc., inside the home directory); flows carry `project`
 - `GET /v1/rule-impact` — per rule: matched flows, apps, bytes and rate, and whether it is enforced
 - `GET /v1/behavior`
 - `GET /v1/diagnose`

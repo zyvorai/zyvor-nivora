@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- LAN change detection: new device on the network (learned by MAC after a baseline), IP→MAC change, gateway MAC change (critical), Wi-Fi network change, and "DNS may bypass the VPN"; findings and Time Machine events.
+- Daily per-app usage with optional budgets (`budgets.json`), `/v1/usage`; project attribution (`project` on flows, `/v1/projects`); Prometheus `/metrics`.
+- Web: "Why this flow?" in the flow sheet and a shadow rule option. Draft Homebrew cask in `packaging/homebrew/` (unverified).
 - Why this flow?: `GET /v1/flows/{id}/explain` and `nivoractl explain <id>` collect the evidence for one flow. Shadow rules (`action: shadow`) and `/v1/rule-impact` show what a block would match before it is enabled.
 - Dev: `make help`, `check`, `test-one`, `fixtures`, `app`, `stop`, `clean` shortcuts (documented in `docs/TESTING.md`).
 
