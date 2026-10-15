@@ -1,0 +1,57 @@
+# The app plus the WidgetKit extension, ad-hoc signed, for ../scripts/build-native-widgets.sh.
+# It deliberately leaves out the content-filter system extension and the capture helper: their restricted
+# entitlements cannot be satisfied by ad-hoc signing. The plain app and the full signed build use project.yml.
+name: NivoraWidgetsApp
+options:
+  bundleIdPrefix: dev.zyvor
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.4.0
+targets:
+  Nivora:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Shared
+      - path: CaptureHelper
+        includes: ["Protocol.swift", "Validator.swift"]
+      - path: Nivora.icns
+        buildPhase: resources
+      - path: ../agent
+        includes: ["*.py"]
+        excludes: ["nivoractl.py", "nivora_mcp.py"]
+        buildPhase: resources
+      - path: ../web
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        INFOPLIST_FILE: Config/Nivora-Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora
+        PRODUCT_NAME: Nivora
+        ENABLE_HARDENED_RUNTIME: NO
+    dependencies:
+      - target: NivoraWidgets
+        embed: true
+        codeSign: true
+  NivoraWidgets:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Widgets
+        excludes: ["Info.plist", "Widgets.entitlements"]
+      - path: Shared/WidgetData.swift
+    settings:
+      base:
+        INFOPLIST_FILE: Widgets/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: dev.zyvor.nivora.widgets
+        PRODUCT_NAME: NivoraWidgets
+        CODE_SIGN_ENTITLEMENTS: Widgets/Widgets.entitlements
+        SKIP_INSTALL: YES

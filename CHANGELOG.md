@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Native: WidgetKit "Network" widget (small and medium) fed by `widget.json` in the widget's container, built with `make widgets`; documented in `docs/WIDGETS.md`. Compile- and codesign-verified only.
+
 ## 0.4.0 — 2026-10-15
 
 - Fix: the bundled collector no longer outlives the app. It exits when the launching process is gone (`--parent-pid`), and the app picks the next free loopback port if 9857 is held by a stale collector.

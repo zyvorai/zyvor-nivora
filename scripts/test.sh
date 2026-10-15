@@ -9,7 +9,7 @@ node --experimental-vm-modules tests/web.mjs
 node tests/demo.mjs
 ./scripts/build-site.sh >/dev/null && node scripts/site-check.mjs
 if command -v swiftc >/dev/null 2>&1; then
-  while IFS= read -r f; do swiftc -parse "$f"; done < <(find native/App native/Shared native/FilterData native/CaptureHelper native/Tests -name '*.swift' | sort)
+  while IFS= read -r f; do swiftc -parse "$f"; done < <(find native/App native/Shared native/FilterData native/CaptureHelper native/Widgets native/Tests -name '*.swift' | sort)
   echo "swift syntax: PASS"
 else
   echo "swiftc unavailable: SKIP syntax parse"
