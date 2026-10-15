@@ -41,6 +41,16 @@ from usage import budget_findings, budget_status, load_budgets
 from nivora_core import classify_remote, endpoint_host, HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
 class State:
     def __init__(self, args):
         self.args = args
@@ -232,6 +242,13 @@ class State:
 
     def loop(self):
         while not self.stop.is_set():
+            # A launcher (the native app) that dies without cleanup would otherwise leave this process
+            # holding the port; stop when the launcher's pid is gone.
+            if self.args.parent_pid and not _pid_alive(self.args.parent_pid):
+                self.stop.set()
+                if getattr(self, "server", None):
+                    threading.Thread(target=self.server.shutdown, daemon=True).start()
+                return
             try:
                 self.sample()
             except Exception as exc:
@@ -592,6 +609,7 @@ def parser():
     p.add_argument("--fluxvm-token", default=os.getenv("FLUXVM_TOKEN", ""))
     p.add_argument("--web-root", default=str(Path(__file__).resolve().parent.parent / "web"))
     p.add_argument("--quiet", action="store_true")
+    p.add_argument("--parent-pid", type=int, default=0, help="exit when this process (the launcher) is gone")
     p.add_argument("--fleet-push", default="", help="coordinator base URL to push a compact summary to (push-only)")
     p.add_argument("--fleet-token", default=os.getenv("NIVORA_FLEET_TOKEN", ""))
     p.add_argument("--fleet-interval", type=float, default=30.0)
@@ -611,6 +629,7 @@ def main():
         raise SystemExit("refusing non-loopback bind without token")
     server = ThreadingHTTPServer((args.bind, args.port), Handler)
     server.state = state
+    state.server = server
     thread = threading.Thread(target=state.loop, name="nivora-sampler", daemon=True)
     thread.start()
     print(f"Nivora listening at http://{args.bind}:{args.port}")

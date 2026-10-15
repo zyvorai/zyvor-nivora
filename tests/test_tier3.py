@@ -157,5 +157,27 @@ class ProfileFleetEgressTests(unittest.TestCase):
         self.assertEqual(json.loads(json.dumps(r)), r)
 
 
+class OrphanTests(unittest.TestCase):
+    def test_collector_exits_when_launcher_dies(self):
+        import subprocess, time
+        agent = Path(__file__).resolve().parents[1] / "agent" / "nivora.py"
+        with tempfile.TemporaryDirectory() as d:
+            cmd = (f"{sys.executable} -B {agent} --demo --port 0 --interval 0.3 --quiet --parent-pid $$ "
+                   f"--token t --database {d}/h.sqlite --rules {d}/r.json >/dev/null 2>&1 & echo $!")
+            out = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, timeout=10).stdout.strip()
+            pid = int(out)
+            deadline = time.time() + 10
+            alive = True
+            while time.time() < deadline and alive:
+                time.sleep(0.3)
+                try:
+                    os.kill(pid, 0)
+                except ProcessLookupError:
+                    alive = False
+            if alive:
+                os.kill(pid, 15)
+            self.assertFalse(alive, "collector kept running after its launcher exited")
+
+
 if __name__ == "__main__":
     unittest.main()
