@@ -22,5 +22,6 @@ p.write_text(s)
 PY
 python3 "$ROOT/scripts/build-site-data.py" "$OUT"
 python3 "$ROOT/scripts/build-docs.py" "$OUT"
+python3 "$ROOT/scripts/build-site-terminal.py" "$OUT"
 touch "$OUT/.nojekyll"
 echo "site built in $OUT"

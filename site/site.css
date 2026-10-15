@@ -124,3 +124,17 @@ footer a{color:inherit}
 .doc-cards li span{display:block;margin-top:4px;color:var(--dim);font-size:14px}
 .muted{color:var(--dim);margin:6px 8px}
 @media (max-width:980px){.docs{grid-template-columns:1fr}.docs-nav,.docs-toc{position:static;max-height:none}.docs-toc{order:-1}}
+
+/* terminal + palette */
+.term{margin-top:18px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--code-bg)}
+.term-tabs{display:flex;gap:2px;padding:8px;border-bottom:1px solid rgba(255,255,255,.1);overflow-x:auto}
+.term-tabs button{min-height:36px;padding:0 14px;border:0;border-radius:99px;background:transparent;color:#a1a1a6;font:inherit;font-weight:600;cursor:pointer}
+.term-tabs button[aria-selected="true"]{background:rgba(255,255,255,.12);color:#f5f5f7}
+.term-pane{margin:0;border-radius:0;max-height:420px;overflow:auto;font-size:13px;line-height:1.5}
+#palette-dialog{border:1px solid var(--line);border-radius:16px;padding:0;width:min(560px,calc(100% - 32px));background:var(--bg);color:var(--text);box-shadow:var(--shadow);margin-top:12vh}
+#palette-dialog::backdrop{background:rgba(0,0,0,.45)}
+#palette-input{width:100%;min-height:52px;padding:0 18px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font:inherit;font-size:17px;outline:none}
+#palette-results{max-height:50vh;overflow:auto;padding:6px}
+#palette-results a{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--text)}
+#palette-results a span{color:var(--dim);font-size:13px}
+#palette-results a[aria-selected="true"],#palette-results a:hover{background:var(--bg2)}
