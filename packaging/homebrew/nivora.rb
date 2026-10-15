@@ -4,7 +4,7 @@
 # replace `sha256` with the value from that release's SHA256SUMS.txt. The DMG is unsigned and not notarised,
 # so Gatekeeper still asks for "Open Anyway" (see docs/INSTALL.md).
 cask "nivora" do
-  version "0.4.0"
+  version "0.5.0"
   sha256  "REPLACE_WITH_SHA256_FROM_SHA256SUMS_TXT"
 
   url "https://github.com/zyvorai/zyvor-nivora/releases/download/v#{version}/Nivora-#{version}.dmg"
