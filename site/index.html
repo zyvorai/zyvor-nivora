@@ -74,10 +74,13 @@
         <button type="button" role="radio" aria-checked="false" data-value="capture">Capture</button>
         <button type="button" role="radio" aria-checked="false" data-value="security">Security</button>
         <button type="button" role="radio" aria-checked="false" data-value="timeline">Time Machine</button>
+        <button type="button" role="radio" aria-checked="false" data-value="insights">Insights</button>
+        <button type="button" role="radio" aria-checked="false" data-value="alerts">Alerts</button>
+        <button type="button" role="radio" aria-checked="false" data-value="settings">Settings</button>
       </div>
     </div>
     <figure class="shot"><img id="shot" src="ux/native-light-overview.png" width="1800" height="1160" alt="Nivora Overview pane, simulated telemetry" />
-      <figcaption id="shot-cap">Native app · light · Overview · simulated telemetry</figcaption></figure>
+      <figcaption><span id="shot-cap">Native app · light · Overview · simulated telemetry</span> · <a id="shot-demo" href="demo/#overview">Open this pane in the demo</a></figcaption></figure>
   </section>
 
   <section id="features">
@@ -89,6 +92,12 @@
       <div class="card"><div class="ico" aria-hidden="true">⇩</div><h3>Take the evidence with you</h3><p>Export flows, apps and the timeline as CSV, JSON or NDJSON, optionally redacted of private IPs, MACs, SSID and hostname.</p></div>
       <div class="card"><div class="ico" aria-hidden="true">◉</div><h3>Capture, only when you ask</h3><p>Opt-in, headers-only packet capture through a separately approved helper: capped in time and size, downloadable as .pcap.</p></div>
       <div class="card"><div class="ico" aria-hidden="true">▣</div><h3>FluxVM aware</h3><p>Sees your VMs and sandboxes beside host traffic, via FluxVM's local REST API on <code>127.0.0.1:7788</code>.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">✓</div><h3>How much should I trust this app?</h3><p>A 0–100 trust score per app where every point is attributed to a visible check: code signing, new destinations, trackers, cleartext, exposure.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⚑</div><h3>Why is this flow here?</h3><p>Evidence and plain-language reasons for one connection, plus <b>shadow rules</b> that count what a block would match without enforcing anything.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">◷</div><h3>What changed since it worked?</h3><p>Diff any two points in the Time Machine and get an incident narrative: health delta, new destinations, DNS, routes and devices.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">☰</div><h3>Policy as code</h3><p>Keep rules in a file, plan them against the live rule store, apply only when you say so. Dry-run by default; blocks stay leased.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⌘</div><h3>Ask from your tools</h3><p>A read-only MCP server and a CLI expose summary, flows, explain, diff and path checks. Nothing that changes rules.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">▤</div><h3>Widget and Shortcuts</h3><p>A small and medium widget and “How is my network?” in Shortcuts and Siri. Compile-verified; not yet seen in the widget gallery.</p></div>
     </div>
   </section>
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Site: the static demo now simulates flow explain, profiles, fleet, path check, diff/incident, policy dry-run and rule impact; gallery adds Insights, Alerts and Settings with arrow-key navigation and a link into the matching demo pane; new feature cards.
+
 
 ## 0.5.1 — 2026-10-15
 
