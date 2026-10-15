@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+# UDP ports that are legitimately shared (multicast/broadcast discovery via SO_REUSEPORT).
+SHARED_UDP_PORTS = {137, 138, 1900, 5353}
+
 
 def _groups(listeners: list[dict[str, Any]]) -> dict[tuple[str, int], dict[int, dict[str, Any]]]:
     groups: dict[tuple[str, int], dict[int, dict[str, Any]]] = {}
@@ -11,7 +14,10 @@ def _groups(listeners: list[dict[str, Any]]) -> dict[tuple[str, int], dict[int, 
         port = int(l.get("port") or 0)
         if port <= 0:
             continue
-        key = (str(l.get("protocol") or ""), port)
+        proto = str(l.get("protocol") or "")
+        if proto == "udp" and port in SHARED_UDP_PORTS:
+            continue
+        key = (proto, port)
         groups.setdefault(key, {}).setdefault(int(l.get("pid") or 0), l)
     return groups
 

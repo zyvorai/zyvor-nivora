@@ -44,6 +44,16 @@ class IntelligenceTests(unittest.TestCase):
         self.assertTrue(ls[0]["conflict"])
         self.assertFalse(ls[2]["conflict"])
 
+    def test_shared_multicast_udp_ports_not_conflicts(self):
+        ls = [{"process": "Google", "pid": 1, "protocol": "udp", "port": 5353, "address": "*"},
+              {"process": "node", "pid": 2, "protocol": "udp", "port": 5353, "address": "*"},
+              {"process": "a", "pid": 3, "protocol": "tcp", "port": 5353, "address": "*"},
+              {"process": "b", "pid": 4, "protocol": "tcp", "port": 5353, "address": "*"}]
+        c = find_conflicts(ls)
+        self.assertEqual([(x["protocol"], x["port"]) for x in c], [("tcp", 5353)])
+        annotate_listeners(ls)
+        self.assertEqual([l["conflict"] for l in ls], [False, False, True, True])
+
     def test_anomalies_and_merge(self):
         snap = {"flows": [{"process": "rsync", "total_bps": 6 * 1048576, "interface": "en0"},
                           {"process": "x", "total_bps": 1, "interface": "utun4"}],
