@@ -11,3 +11,4 @@ native/build/
 .env
 *.sha256
 _site/
+SHA256SUMS.txt
