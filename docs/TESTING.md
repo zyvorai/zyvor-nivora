@@ -53,3 +53,7 @@ The fixture `Tests/Fixtures/demo-snapshot.json` comes from `python3 agent/nivora
 
 The DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see `docs/NETWORKEXTENSION.md`, `docs/CAPTURE.md`).
 
+
+## Developer shortcuts
+
+`make help` lists them. `make check` is the fast loop (compile + Python unit tests); `make test` is the full gate; `make test-one T=test_intelligence` runs one module; `make fixtures` regenerates the demo snapshot fixtures after changing snapshot keys; `make app` builds and launches the native app.
