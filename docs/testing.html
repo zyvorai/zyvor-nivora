@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>Testing · Nivora docs</title>
+<meta name="description" content="Run:" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="canonical" href="https://zyvorai.github.io/zyvor-nivora/docs/testing.html" />
+<meta property="og:title" content="Testing · Nivora docs" />
+<meta property="og:description" content="Run:" />
+<meta property="og:image" content="https://zyvorai.github.io/zyvor-nivora/social/og.png" />
+<script src="../theme.js"></script>
+<link rel="stylesheet" href="../site.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../" aria-label="Zyvor Nivora home"><img class="logo" src="../favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
+  <nav aria-label="Sections" id="sections"><a href="../#gallery">See it</a><a href="../#features">Features</a><a href="./" aria-current="true">Docs</a><a href="../#install">Install</a></nav>
+  <div class="bar-actions">
+    <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn small" href="https://github.com/zyvorai/zyvor-nivora">GitHub</a>
+    <a class="btn small primary" href="../demo/">Live demo</a>
+  </div>
+</header>
+<div class="docs">
+  <aside class="docs-nav" aria-label="Documentation">
+    <label class="sr" for="docsearch">Search the docs</label>
+    <input id="docsearch" type="search" placeholder="Search docs" autocomplete="off" />
+    <div id="docresults" hidden></div>
+    <h2 class="nav-h">Start</h2><ul><li><a href="install.html">Installing Nivora</a></li><li><a href="widgets.html">Widget and Shortcuts</a></li></ul><h2 class="nav-h">Reference</h2><ul><li><a href="api.html">API</a></li><li><a href="architecture.html">Architecture</a></li><li><a href="fluxvm.html">FluxVM integration</a></li><li><a href="capture.html">Packet capture</a></li><li><a href="networkextension.html">NetworkExtension integration</a></li></ul><h2 class="nav-h">Project</h2><ul><li><a href="testing.html" aria-current="page">Testing</a></li><li><a href="ux-contract.html">UX contract</a></li><li><a href="product-review.html">Nivora product review — 0.2</a></li><li><a href="changelog.html">Changelog</a></li><li><a href="security.html">Security</a></li></ul>
+  </aside>
+  <main id="main" class="prose">
+<h1 id="testing">Testing</h1>
+<p>Run:</p>
+<pre><code class="language-bash">./scripts/test.sh</code></pre>
+<p>Portable coverage in 0.2 includes:</p>
+<ul><li><code>lsof</code>, <code>nettop</code>, route, DNS and interface parsing</li><li><code>networksetup</code> hardware-port enrichment</li><li>ARP and NDP local-neighbor parsing</li><li>listening-service derivation/exposure</li><li>NetworkExtension JSONL latest-report semantics</li><li>live RX/TX delta calculation and app aggregation</li><li>health score, topology and local diagnosis</li><li>persistent behavior-baseline learning</li><li>lease-bounded rules and preview matching</li><li>Time Machine route changes</li><li>SQLite snapshots/events/series</li><li>API auth/CORS/query/rule lifecycle and all intelligence endpoints</li><li>invalid history-query hardening and static-page serving</li><li>web navigation/API contract and <code>web/lib.js</code> unit tests (formatting, parsing, sorting, search, CSV injection, preference sanitising, ring buffer, alerts)</li><li>same-origin loopback vs foreign <code>Origin</code> handling and dashboard module serving</li><li>demo snapshot</li><li>Swift parser pass when <code>swiftc</code> is installed</li><li>plist syntax</li><li>native palette/accent parity with the web tokens and native app file layout</li><li>collector fallback when the App Group rules directory is not writable</li></ul>
+<p>At packaging time the portable suite has <strong>29 Python tests</strong>, plus web/plist/demo/Swift syntax gates.</p>
+<p>The portable verification environment validates shared logic and syntax, <strong>not</strong> macOS framework type-checking, Apple entitlement approval, signed extension activation, real <code>nettop</code> behavior across every macOS release, or NetworkExtension enforcement on hardware.</p>
+<p>The GitHub Actions macOS job generates the Xcode project and performs an unsigned build. A release still requires a Mac/signing team with the NetworkExtension entitlements.</p>
+<h2 id="native-unit-tests">Native unit tests<a class="anchor" href="#native-unit-tests" aria-label="Link to this section">#</a></h2>
+<p><code>native/Tests</code> holds XCTest cases for snapshot decoding and alert rules, compiled against <code>App/Model/Snapshot.swift</code> and <code>Alerts.swift</code> only (no UI, no NetworkExtension):</p>
+<pre><code class="language-bash">cd native &amp;&amp; xcodegen generate &amp;&amp; xcodebuild -project Nivora.xcodeproj -scheme NivoraTests -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO test</code></pre>
+<p>The fixture <code>Tests/Fixtures/demo-snapshot.json</code> comes from <code>python3 agent/nivora.py --demo --once --no-history</code>; a Python test fails if its top-level keys drift from the collector.</p>
+<h2 id="releasing">Releasing<a class="anchor" href="#releasing" aria-label="Link to this section">#</a></h2>
+<ol><li>Bump <code>version</code> in <code>package.json</code>, <code>VERSION</code> in <code>agent/nivora_core.py</code> and <code>MARKETING_VERSION</code> in <code>native/project.yml</code>, regenerate <code>native/Tests/Fixtures/demo-snapshot.json</code> (a contract test checks all four) and move the changelog entries under the new heading.</li><li>Merge, then <code>git tag vX.Y.Z &amp;&amp; git push origin vX.Y.Z</code>.</li><li>The <code>release</code> workflow verifies the tag matches <code>package.json</code>, runs the suite, builds the unsigned app, creates <code>Nivora-X.Y.Z.dmg</code> plus <code>SHA256SUMS.txt</code> and opens a <strong>draft</strong> GitHub release.</li></ol>
+<p>The DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see <code>docs/NETWORKEXTENSION.md</code>, <code>docs/CAPTURE.md</code>).</p>
+<h2 id="developer-shortcuts">Developer shortcuts<a class="anchor" href="#developer-shortcuts" aria-label="Link to this section">#</a></h2>
+<p><code>make help</code> lists them. <code>make check</code> is the fast loop (compile + Python unit tests); <code>make test</code> is the full gate; <code>make test-one T=test_intelligence</code> runs one module; <code>make fixtures</code> regenerates the demo snapshot fixtures after changing snapshot keys; <code>make app</code> builds and launches the native app.</p>
+    <p class="edit"><a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/TESTING.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc" aria-label="On this page"><h2 class="nav-h">On this page</h2><ul><li class="l2"><a href="#native-unit-tests">Native unit tests</a></li><li class="l2"><a href="#releasing">Releasing</a></li><li class="l2"><a href="#developer-shortcuts">Developer shortcuts</a></li></ul></aside>
+</div>
+<footer><p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · <a href="../">Home</a> · <a href="../feed.xml">Feed</a></p></footer>
+<script src="../docs.js"></script>
+</body>
+</html>

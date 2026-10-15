@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#1d1d1f" />
+  <meta name="author" content="Zyvor AI Labs Private Limited" />
+  <title>Zyvor Nivora · See every connection on your Mac</title>
+  <meta name="description" content="Mac-native application and network intelligence: which app talks to what, over which interface. Flows, DNS, routes, VPNs and FluxVM. Local-first and observe-first. Try the live demo." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="canonical" href="https://zyvorai.github.io/zyvor-nivora/" />
+  <link rel="alternate" type="application/atom+xml" title="Nivora releases" href="feed.xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Zyvor Nivora" />
+  <meta property="og:title" content="Zyvor Nivora · See every connection on your Mac" />
+  <meta property="og:description" content="Which app talks to what, over which interface. Local-first, observe-first, macOS-native." />
+  <meta property="og:url" content="https://zyvorai.github.io/zyvor-nivora/" />
+  <meta property="og:image" content="https://zyvorai.github.io/zyvor-nivora/social/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://zyvorai.github.io/zyvor-nivora/social/og.png" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="site.css" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Zyvor Nivora","applicationCategory":"DeveloperApplication","operatingSystem":"macOS","softwareVersion":"0.5.1","downloadUrl":"https://github.com/zyvorai/zyvor-nivora/releases/tag/v0.5.1","description":"Mac-native application and network intelligence: per-app flows, DNS, routes, VPNs and FluxVM.","codeRepository":"https://github.com/zyvorai/zyvor-nivora","license":"https://github.com/zyvorai/zyvor-nivora/blob/main/LICENSE","url":"https://zyvorai.github.io/zyvor-nivora/","publisher":{"@type":"Organization","name":"Zyvor AI Labs Private Limited","url":"https://zyvor.dev"}}
+  </script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <a class="brand" href="./" aria-label="Zyvor Nivora home"><img class="logo" src="favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
+  <nav aria-label="Sections" id="sections">
+    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#verified">Verified</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
+  </nav>
+  <div class="bar-actions">
+    <button id="palette" class="icon" type="button" aria-label="Search the site (press /)" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn small" href="https://github.com/zyvorai/zyvor-nivora">GitHub</a>
+    <a class="btn small primary" href="demo/">Live demo</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <img class="hero-icon" src="favicon.svg" width="112" height="112" alt="Nivora app icon" />
+    <p class="kicker">Zyvor · network intelligence</p>
+    <h1>See every connection <em>on your Mac.</em></h1>
+    <p class="lede"><strong>Which app is talking to what, over which interface.</strong> Per-app flows, DNS, routes, VPNs, listeners and FluxVM workloads in a native SwiftUI app with a dependency-free collector. <strong>Local-first</strong> and <strong>observe-first</strong>: no payloads, no uploads, nothing blocked unless you say so.</p>
+    <p class="cta"><a class="btn primary" href="demo/">Try the live demo</a><a class="btn" href="#install">Download 0.5.1</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora">View source</a></p>
+    <ul class="chips" aria-label="Highlights"><li class="ro">Observe-first</li><li>macOS 14+</li><li>Local-first</li><li>Zero-dependency collector</li><li>v0.5.1</li><li>FluxVM aware</li></ul>
+  </section>
+
+  <section id="new" class="whatsnew"><h2>New in 0.5.1</h2><p class="sub">2026-10-15 · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">full changelog</a> · <a href="feed.xml">feed</a></p><ul class="new-list"><li>Release DMG: the app is ad-hoc signed before packaging so <code>codesign --verify --deep --strict</code> passes (resources are sealed). Still not Developer ID signed or notarised.</li></ul></section>
+
+  <section id="gallery" class="gallery">
+    <h2>Pick a pane</h2>
+    <p class="sub">Every screenshot is the real native app on simulated telemetry. <a href="demo/">Or open the dashboard and click around.</a></p>
+    <div class="controls">
+      <div class="seg" id="modes" role="radiogroup" aria-label="Appearance">
+        <button type="button" role="radio" aria-checked="false" data-value="light">Light</button>
+        <button type="button" role="radio" aria-checked="false" data-value="dark">Dark</button>
+      </div>
+      <div class="seg" id="panes" role="radiogroup" aria-label="Pane">
+        <button type="button" role="radio" aria-checked="true" data-value="overview">Overview</button>
+        <button type="button" role="radio" aria-checked="false" data-value="flows">Flows</button>
+        <button type="button" role="radio" aria-checked="false" data-value="applications">Applications</button>
+        <button type="button" role="radio" aria-checked="false" data-value="health">Health</button>
+        <button type="button" role="radio" aria-checked="false" data-value="capture">Capture</button>
+        <button type="button" role="radio" aria-checked="false" data-value="security">Security</button>
+        <button type="button" role="radio" aria-checked="false" data-value="timeline">Time Machine</button>
+        <button type="button" role="radio" aria-checked="false" data-value="insights">Insights</button>
+        <button type="button" role="radio" aria-checked="false" data-value="alerts">Alerts</button>
+        <button type="button" role="radio" aria-checked="false" data-value="settings">Settings</button>
+      </div>
+    </div>
+    <figure class="shot"><img id="shot" src="ux/native-light-overview.png" width="1800" height="1160" alt="Nivora Overview pane, simulated telemetry" />
+      <figcaption><span id="shot-cap">Native app · light · Overview · simulated telemetry</span> · <a id="shot-demo" href="demo/#overview">Open this pane in the demo</a></figcaption></figure>
+  </section>
+
+  <section id="features">
+    <h2>Questions it answers in one glance</h2>
+    <div class="grid">
+      <div class="card"><div class="ico" aria-hidden="true">◫</div><h3>Which app is using the network?</h3><p>Applications grouped the way you think about them, with live ↓/↑ rates, destinations and an inspector per app and per flow.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⌕</div><h3>Find anything fast</h3><p>One filter grammar (<code>app:Safari port:443 &gt;1mbps !iface:lo0</code>) with chips, saved views, grouping by app, host or interface, and baseline compare.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">♡</div><h3>Is the network healthy?</h3><p>A 0–100 score with explained components: route, DNS, latency, interfaces and safety, plus a local, offline investigator.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⇩</div><h3>Take the evidence with you</h3><p>Export flows, apps and the timeline as CSV, JSON or NDJSON, optionally redacted of private IPs, MACs, SSID and hostname.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">◉</div><h3>Capture, only when you ask</h3><p>Opt-in, headers-only packet capture through a separately approved helper: capped in time and size, downloadable as .pcap.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">▣</div><h3>FluxVM aware</h3><p>Sees your VMs and sandboxes beside host traffic, via FluxVM's local REST API on <code>127.0.0.1:7788</code>.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">✓</div><h3>How much should I trust this app?</h3><p>A 0–100 trust score per app where every point is attributed to a visible check: code signing, new destinations, trackers, cleartext, exposure.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⚑</div><h3>Why is this flow here?</h3><p>Evidence and plain-language reasons for one connection, plus <b>shadow rules</b> that count what a block would match without enforcing anything.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">◷</div><h3>What changed since it worked?</h3><p>Diff any two points in the Time Machine and get an incident narrative: health delta, new destinations, DNS, routes and devices.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">☰</div><h3>Policy as code</h3><p>Keep rules in a file, plan them against the live rule store, apply only when you say so. Dry-run by default; blocks stay leased.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">⌘</div><h3>Ask from your tools</h3><p>A read-only MCP server and a CLI expose summary, flows, explain, diff and path checks. Nothing that changes rules. <a href="docs/api.html#mcp">MCP setup</a>.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">▤</div><h3>Widget and Shortcuts</h3><p>A small and medium widget and “How is my network?” in Shortcuts and Siri. Compile-verified; not yet seen in the widget gallery. <a href="docs/widgets.html">Details</a>.</p></div>
+    </div>
+  </section>
+
+  <section id="terminal"><h2>The CLI, on simulated data</h2><p class="sub">This output was captured when the site was built, from <code>nivoractl</code> against <code>--demo</code>. Nothing here is hand-written.</p><div class="term" id="term"><div class="term-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-tab="health">health</button><button type="button" role="tab" aria-selected="false" data-tab="trust">trust</button><button type="button" role="tab" aria-selected="false" data-tab="explain">explain</button><button type="button" role="tab" aria-selected="false" data-tab="policy">policy</button></div><pre class="term-pane" data-pane="health"><code>$ nivoractl health
+{
+  &quot;score&quot;: 97,
+  &quot;status&quot;: &quot;healthy&quot;,
+  &quot;median_rtt_ms&quot;: 42.0,
+  &quot;components&quot;: [
+    {
+      &quot;name&quot;: &quot;Route&quot;,
+      &quot;score&quot;: 100,
+      &quot;detail&quot;: &quot;Default route present&quot;
+    },
+    {
+      &quot;name&quot;: &quot;DNS&quot;,
+      &quot;score&quot;: 100,
+      &quot;detail&quot;: &quot;2 resolver(s)&quot;
+    },
+    {
+… 16 more line(s)</code></pre><pre class="term-pane" data-pane="trust" hidden><code>$ nivoractl trust
+[
+  {
+    &quot;app&quot;: &quot;Google Chrome&quot;,
+    &quot;score&quot;: 80,
+    &quot;level&quot;: &quot;high&quot;,
+    &quot;flows&quot;: 1,
+    &quot;components&quot;: [
+      {
+        &quot;name&quot;: &quot;Code signing&quot;,
+        &quot;points&quot;: 20,
+        &quot;max&quot;: 40,
+        &quot;detail&quot;: &quot;Signing identity not verified (collector could not read it).&quot;
+      },
+      {
+        &quot;name&quot;: &quot;Destination novelty&quot;,
+        &quot;points&quot;: 25,
+… 290 more line(s)</code></pre><pre class="term-pane" data-pane="explain" hidden><code>$ nivoractl explain f1
+{
+  &quot;flow&quot;: {
+    &quot;id&quot;: &quot;f1&quot;,
+    &quot;process&quot;: &quot;Google Chrome&quot;,
+    &quot;pid&quot;: 510,
+    &quot;bundle_id&quot;: &quot;com.google.Chrome&quot;,
+    &quot;protocol&quot;: &quot;tcp&quot;,
+    &quot;local&quot;: &quot;192.168.1.42:53001&quot;,
+    &quot;remote&quot;: &quot;142.250.183.14:443&quot;,
+    &quot;state&quot;: &quot;ESTABLISHED&quot;,
+    &quot;bytes_in&quot;: 2389036039,
+    &quot;bytes_out&quot;: 114208921,
+    &quot;rx_bps&quot;: 1784519.61,
+    &quot;tx_bps&quot;: 89225.98,
+    &quot;total_bps&quot;: 1873745.59,
+    &quot;interface&quot;: &quot;en0&quot;,
+… 27 more line(s)</code></pre><pre class="term-pane" data-pane="policy" hidden><code>$ nivoractl policy-plan work.json
+{
+  &quot;dry_run&quot;: true,
+  &quot;name&quot;: &quot;work&quot;,
+  &quot;add&quot;: [
+    {
+      &quot;domain&quot;: &quot;example.com&quot;,
+      &quot;action&quot;: &quot;shadow&quot;,
+      &quot;note&quot;: &quot;policy:work&quot;
+    }
+  ],
+  &quot;remove&quot;: [],
+  &quot;unchanged&quot;: []
+}</code></pre></div></section>
+
+  <section id="how">
+    <h2>How it fits together</h2>
+    <p class="sub">A native app and a browser dashboard speak the same local JSON API. The collector is a single stdlib-only Python file.</p>
+    <pre class="diagram" aria-label="Architecture diagram">            Nivora.app (SwiftUI)  /  browser dashboard
+                          │  HTTP JSON · 127.0.0.1 · bearer token
+                      nivora.py   (Python stdlib only)
+          ┌───────────────┼────────────────┐
+   NetworkExtension    nettop · lsof     FluxVM :7788
+   content filter      ifconfig · netstat  VMs · sandboxes
+   (signed, opt-in)    scutil · arp · ndp
+          └───────────────┴──────→ SQLite time machine</pre>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Visibility tier</th><th>Needs</th><th>Gives you</th></tr></thead>
+      <tbody>
+        <tr><td><b>Collector fallback</b></td><td class="yes">Nothing: works today</td><td>Per-app flows and byte counters from <code>nettop</code>/<code>lsof</code>, interfaces, routes, DNS, VPNs, neighbours, listeners</td></tr>
+        <tr><td><b>Content filter</b></td><td class="no">Signed build and Apple's entitlement</td><td>Per-flow app attribution and byte reports straight from the system</td></tr>
+        <tr><td><b>Capture helper</b></td><td class="no">Signed build and your approval</td><td>Headers-only .pcap of one flow, host or app, for a few minutes</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="verified"><h2>What is verified, and what is not</h2><p class="sub">Copied from the repository README at build time, so the site never claims more than the repo does.</p><div class="table-wrap"><table><thead><tr><th>Area</th><th>Status</th></tr></thead><tbody><tr><td><b>Collector, API, dashboard, CLI, exports, filters</b></td><td class="yes">Built and tested in CI (Python, Node)</td></tr><tr><td><b>Native app (SwiftUI) and unit tests</b></td><td class="no">Builds and runs unsigned with Xcode; XCTest suite passes</td></tr><tr><td><b>Content filter (system extension) and capture helper</b></td><td class="no"><b>Compile-verified only.</b> Signing, entitlement approval, activation and root capture are untested; they need a provisioned, signed Mac</td></tr><tr><td><b>Insights pane, Shortcuts/Siri actions, widget</b></td><td class="no">Build and unit tests pass; the widget in the macOS widget gallery and the Shortcuts/Siri phrases are <b>not exercised</b></td></tr><tr><td><b>Release DMG</b></td><td class="no">Ad-hoc sealed, unsigned by a Developer ID, not notarised (Gatekeeper asks for Open Anyway)</td></tr></tbody></table></div></section>
+
+  <section id="privacy">
+    <h2>Private by design</h2>
+    <div class="grid">
+      <div class="card"><h3>Local-first</h3><p>No account, no cloud, no telemetry upload. The API listens on loopback with a random bearer token.</p></div>
+      <div class="card"><h3>Observe-first</h3><p>Rules default to observe. Block rules are one-hour leases and need the signed content filter to take effect.</p></div>
+      <div class="card"><h3>No payloads</h3><p>Flow metadata only. The one exception, packet capture, is off until you start it, headers-only, capped and deleted after 24 hours.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Get Nivora</h2>
+    <p class="sub">Nivora is early. The native app and collector build and run today; the signed content filter and capture helper need an Apple Developer ID and entitlement.</p>
+    <div class="card" role="note" style="margin-bottom:18px">
+      <h3>Release builds are unsigned</h3>
+      <p>The downloadable app is <b>not signed or notarised</b>, so macOS Gatekeeper blocks the first launch with <i>&ldquo;Nivora&rdquo; cannot be opened because the developer cannot be verified</i>. This is expected. You have three options:</p>
+      <ol>
+        <li><b>Build it yourself</b> (below). A locally built app is never quarantined.</li>
+        <li><b>Open Anyway.</b> Try to open the app, then go to <b>System Settings &rarr; Privacy &amp; Security</b>, scroll to Security and click <b>Open Anyway</b>. On macOS 14 you can instead Control-click the app and choose <b>Open</b>.</li>
+        <li><b>Terminal:</b> <code>xattr -dr com.apple.quarantine /Applications/Nivora.app</code>, only after checking the download against <code>SHA256SUMS.txt</code>.</li>
+      </ol>
+      <p>Details and uninstall steps: <a href="docs/install.html">the install guide</a>.</p>
+    </div>
+    <div class="download card"><div><h3>Nivora 0.5.1 for Mac</h3><p>Apple silicon · macOS 14 or later · unsigned, not notarised (see the notice above).</p></div><p><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases/download/v0.5.1/Nivora-0.5.1.dmg">Download Nivora-0.5.1.dmg</a></p><p class="sub">SHA-256</p><pre class="sha"><code id="sha">0e0ccfc302f5f7c7b0dd5726a18d7015fbca95dac4b4b2d4b8ac9b6971860837</code></pre><p class="sub">Verify: <code>echo "0e0ccfc302f5f7c7b0dd5726a18d7015fbca95dac4b4b2d4b8ac9b6971860837  Nivora-0.5.1.dmg" | shasum -a 256 -c</code></p></div>
+    <p class="sub">Or with Homebrew (Apple silicon, same unsigned build):</p>
+    <pre><code>brew install --cask zyvorai/tap/nivora</code></pre>
+    <pre><code># try it with simulated data, no install
+python3 agent/nivora.py --demo
+
+# monitor this Mac (dashboard + API on 127.0.0.1:9857)
+python3 agent/nivora.py
+
+# build the native app (needs Xcode and xcodegen)
+brew install xcodegen
+./scripts/build-native.sh
+open native/build/Build/Products/Release/Nivora.app</code></pre>
+    <p class="cta" style="justify-content:flex-start"><a class="btn primary" href="https://github.com/zyvorai/zyvor-nivora/releases">Releases</a><a class="btn" href="https://github.com/zyvorai/zyvor-nivora#quickstart">Full quickstart</a><a class="btn" href="docs/install.html">Install guide</a><a class="link" href="docs/networkextension.html">Signing and entitlements</a></p>
+  </section>
+
+  <section id="faq">
+    <h2>FAQ</h2>
+    <details><summary>Does Nivora see inside my traffic?</summary><p>No. It records which app talks to which endpoint, how much, and over which interface. Packet capture is a separate, opt-in feature that keeps only packet headers by default.</p></details>
+    <details><summary>Does it block anything?</summary><p>Not by default. Rules start in observe mode. Blocking needs the signed content-filter extension and your explicit rule, and expires after an hour unless made permanent.</p></details>
+    <details><summary>Why does the demo show the same apps every time?</summary><p>The hosted demo runs the real dashboard on simulated telemetry. A web page cannot read your processes, so the banner says so on screen.</p></details>
+    <details><summary>What is tested and what is not?</summary><p>The collector, API, dashboard and native app are built and tested with Python, Node and Xcode (unsigned). Signing, extension activation and the privileged capture helper have not been tested on a provisioned Mac; the docs say so.</p></details>
+    <details><summary>macOS says Nivora can't be opened. Is it broken?</summary><p>No. Release builds are unsigned and not notarised, so Gatekeeper blocks the first launch. Use System Settings &rarr; Privacy &amp; Security &rarr; Open Anyway, or build the app yourself. See the install guide.</p></details>
+    <details><summary>Which macOS versions?</summary><p>macOS 14 or later. The app is SwiftUI with the Netra design language, shared with the browser dashboard.</p></details>
+  </section>
+</main>
+
+<footer>
+  <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="docs/api.html">API</a> · <a href="docs/">Docs</a> · <a href="demo/">Live demo</a> · <a href="feed.xml">Feed</a></p>
+  <p class="build">v0.5.1 · built 2026-10-15 · ebb82c3</p>
+</footer>
+<dialog id="palette-dialog" aria-label="Search the site"><form method="dialog"><input id="palette-input" type="search" placeholder="Jump to a section, doc or demo pane" autocomplete="off" aria-label="Search" /><div id="palette-results" role="listbox"></div></form></dialog>
+<script src="site.js"></script>
+</body>
+</html>

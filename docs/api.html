@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>API · Nivora docs</title>
+<meta name="description" content="All /v1/ requests use Authorization: Bearer $NIVORA_TOKEN when a token is configured. The local server uses constant-time bearer comparison, rejects unapproved browser origins, ser" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="canonical" href="https://zyvorai.github.io/zyvor-nivora/docs/api.html" />
+<meta property="og:title" content="API · Nivora docs" />
+<meta property="og:description" content="All /v1/ requests use Authorization: Bearer $NIVORA_TOKEN when a token is configured. The local server uses constant-time bearer comparison, rejects unapproved browser origins, ser" />
+<meta property="og:image" content="https://zyvorai.github.io/zyvor-nivora/social/og.png" />
+<script src="../theme.js"></script>
+<link rel="stylesheet" href="../site.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../" aria-label="Zyvor Nivora home"><img class="logo" src="../favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
+  <nav aria-label="Sections" id="sections"><a href="../#gallery">See it</a><a href="../#features">Features</a><a href="./" aria-current="true">Docs</a><a href="../#install">Install</a></nav>
+  <div class="bar-actions">
+    <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn small" href="https://github.com/zyvorai/zyvor-nivora">GitHub</a>
+    <a class="btn small primary" href="../demo/">Live demo</a>
+  </div>
+</header>
+<div class="docs">
+  <aside class="docs-nav" aria-label="Documentation">
+    <label class="sr" for="docsearch">Search the docs</label>
+    <input id="docsearch" type="search" placeholder="Search docs" autocomplete="off" />
+    <div id="docresults" hidden></div>
+    <h2 class="nav-h">Start</h2><ul><li><a href="install.html">Installing Nivora</a></li><li><a href="widgets.html">Widget and Shortcuts</a></li></ul><h2 class="nav-h">Reference</h2><ul><li><a href="api.html" aria-current="page">API</a></li><li><a href="architecture.html">Architecture</a></li><li><a href="fluxvm.html">FluxVM integration</a></li><li><a href="capture.html">Packet capture</a></li><li><a href="networkextension.html">NetworkExtension integration</a></li></ul><h2 class="nav-h">Project</h2><ul><li><a href="testing.html">Testing</a></li><li><a href="ux-contract.html">UX contract</a></li><li><a href="product-review.html">Nivora product review — 0.2</a></li><li><a href="changelog.html">Changelog</a></li><li><a href="security.html">Security</a></li></ul>
+  </aside>
+  <main id="main" class="prose">
+<h1 id="api">API</h1>
+<p>All <code>/v1/*</code> requests use <code>Authorization: Bearer $NIVORA_TOKEN</code> when a token is configured. The local server uses constant-time bearer comparison, rejects unapproved browser origins, serves no-store JSON, and adds basic browser hardening headers.</p>
+<h2 id="complete-snapshot">Complete snapshot<a class="anchor" href="#complete-snapshot" aria-label="Link to this section">#</a></h2>
+<p><code>GET /v1/snapshot</code> returns the normalized Mac network state: host, apps, flows, live rates, interfaces, routes, DNS, VPN, Wi-Fi, neighbors, listeners, health, topology, findings, learned behavior, FluxVM context, rules and rule hits.</p>
+<h2 id="focused-reads">Focused reads<a class="anchor" href="#focused-reads" aria-label="Link to this section">#</a></h2>
+<ul><li><code>GET /v1/apps</code></li><li><code>GET /v1/flows[?filter=&lt;query&gt;]</code> — optional server-side filter, see <em>Filter grammar</em></li><li><code>GET /v1/interfaces</code></li><li><code>GET /v1/routes</code></li><li><code>GET /v1/dns</code></li><li><code>GET /v1/vpn</code></li><li><code>GET /v1/fluxvm</code></li><li><code>GET /v1/findings</code></li><li><code>GET /v1/health</code></li><li><code>GET /v1/traffic</code></li><li><code>GET /v1/topology</code></li><li><code>GET /v1/neighbors</code></li><li><code>GET /v1/listeners</code></li><li><code>GET /v1/containers</code> (container runtime traffic summary)</li><li><code>GET /v1/port-conflicts</code> (ports bound by multiple processes)</li><li><code>GET /v1/flows/{id}/explain</code> — evidence for one flow: app, destination, path, traffic share, new-destination status, matching rules and related findings, plus plain-language <code>reasons</code></li><li><code>GET /metrics</code> — Prometheus text exposition (health, flows, rates, findings by severity, listeners, port conflicts, top apps); same token as the API</li><li><code>GET /v1/usage</code> — today's bytes per app and budget status; budgets live in <code>budgets.json</code> beside the history database, <code>{"app name substring": bytes_per_day}</code></li><li><code>GET /v1/projects</code> — traffic grouped by project folder (nearest ancestor of the process working directory holding <code>.git</code>, <code>package.json</code>, etc., inside the home directory); flows carry <code>project</code></li><li><code>GET /v1/diff?from=&amp;to=</code> — what differs between the stored snapshots at two times (ISO 8601; default last 30 min, max 30 days): health delta, flow groups added/removed, app rate movers, listeners, DNS servers, default route, devices, new findings. Needs history enabled</li><li><code>GET /v1/incident?from=&amp;to=</code> — the same window as an ordered narrative (events, route/traffic changes, new findings) with a one-line headline</li><li><code>POST /v1/path-check</code> <code>{"host":"example.com","port":443}</code> — on-demand DNS → TCP → TLS reachability check with timings; the only active probe, runs only when asked, one at a time</li><li><code>GET /v1/trust</code> — per-app trust score (0-100, lowest first) with every component and its reason: code signing (needs the collector to read <code>codesign</code>), destination novelty, tracker hosts, cleartext ports, listening exposure</li><li><code>GET /v1/privacy-report</code> — trackers (bundled list, hostname match), cleartext protocols, DNS-bypasses-VPN, unsigned apps and a 0-100 score. Tracker checks need hostnames in flow data; the report says when they are missing</li><li><code>GET /v1/egress</code> — per sandbox/VM destinations from FluxVM Hubble data, external count first</li><li><code>GET /v1/profiles</code>, <code>POST /v1/profiles {"name":"travel"}</code> — situation profiles (<code>default</code>, <code>coding</code>, <code>presenting</code>, <code>travel</code>): alert thresholds, budget scale and whether informational findings are hidden. They never relax blocking rules or leases</li><li><code>POST /v1/policy {"policy":{"name":"work","rules":[...]},"dry_run":true}</code> — policy-as-code. <code>dry_run</code> defaults to <strong>true</strong> and returns <code>add</code> / <code>remove</code> / <code>unchanged</code>; send <code>"dry_run": false</code> to apply. Managed rules carry <code>note: "policy:&lt;name&gt;"</code>; other rules and other policies are untouched. Blocks are leased unless <code>"permanent": true</code>. <code>GET /v1/policy/export</code> returns the active rules as a policy</li><li><code>GET /v1/fleet</code>, <code>POST /v1/fleet/report</code> — multi-Mac view. A worker started with <code>--fleet-push https://coordinator:9857 --fleet-token TOKEN</code> pushes a compact summary (host, health, rates, counts, top findings) every <code>--fleet-interval</code> seconds. Push-only: the coordinator never connects out and there is no command channel</li><li><code>GET /v1/rule-impact</code> — per rule: matched flows, apps, bytes and rate, and whether it is enforced</li><li><code>GET /v1/behavior</code></li><li><code>GET /v1/diagnose</code></li><li><code>GET /v1/timeline</code></li><li><code>GET /v1/history?limit=120</code></li><li><code>GET /v1/series?limit=120</code> — compact timestamp/RX/TX/health/flow/app history</li><li><code>GET /v1/rules</code></li></ul>
+<h2 id="investigator">Investigator<a class="anchor" href="#investigator" aria-label="Link to this section">#</a></h2>
+<p><code>POST /v1/query</code></p>
+<pre><code class="language-json">{"question":"why is the network slow?"}</code></pre>
+<p>The local deterministic investigator can answer about live upload/download, ports/listeners, health, recent changes, DNS, VPN, new destinations, local neighbors, apps and FluxVM. It returns an answer plus supporting local evidence.</p>
+<h2 id="rules">Rules<a class="anchor" href="#rules" aria-label="Link to this section">#</a></h2>
+<p><code>POST /v1/rules</code></p>
+<pre><code class="language-json">{"action":"block","domain":"example.com"}</code></pre>
+<p>A rule needs at least one of <code>app</code>, <code>domain</code>, <code>ip</code>, or <code>port</code>. <code>action</code> is <code>observe</code>, <code>allow</code>, <code>block</code>, or <code>shadow</code>. A <code>shadow</code> rule counts what it would block (see <code>/v1/rule-impact</code>) and is never enforced, so it needs no lease; use it to preview a block before enabling it.</p>
+<p><strong>Safety:</strong> a block rule without <code>expires_at</code> is automatically leased for 3600 seconds. Supply <code>duration_seconds</code> to choose 60 seconds through 7 days, or <code>permanent: true</code> to intentionally create a non-expiring block.</p>
+<pre><code class="language-json">{"action":"block","app":"com.example.App","duration_seconds":900}</code></pre>
+<p><code>DELETE /v1/rules/{id}</code> removes one rule.</p>
+<p>Collector-only deployments preview matches but do not alter traffic. Signed NetworkExtension deployments can enforce active <code>block</code> rules.</p>
+<h2 id="captures">Captures<a class="anchor" href="#captures" aria-label="Link to this section">#</a></h2>
+<p>See <code>docs/CAPTURE.md</code>: <code>GET/POST /v1/captures</code>, <code>POST /v1/captures/{id}/stop</code>, <code>GET /v1/captures/{id}/pcap</code>, <code>DELETE /v1/captures/{id}</code>. Capture requires <code>confirm: true</code>, is headers-only by default and returns <code>501</code> plus a manual command when the helper is missing.</p>
+<h2 id="export">Export<a class="anchor" href="#export" aria-label="Link to this section">#</a></h2>
+<p><code>GET /v1/export?kind=flows|apps|timeline|snapshot|bundle&amp;format=csv|json|ndjson|zip[&amp;filter=&lt;query&gt;][&amp;redact=1]</code></p>
+<p>Returns an attachment (<code>Content-Disposition</code>). <code>bundle</code>/<code>zip</code> contains <code>README.txt</code>, <code>snapshot.json</code>, <code>flows.csv</code> and <code>timeline.ndjson</code>. CSV cells that start with <code>= + - @</code> are prefixed with <code>'</code> so spreadsheets do not evaluate them. <code>redact=1</code> replaces private IPv4/link-local IPv6 addresses, MACs, SSIDs, DNS names/search domains and this Mac's hostname with per-export salted hash tokens (<code>ip-1a2b3c4d</code>); the same value maps to the same token within one export only. Exports never contain packet payloads. Unknown kind/format returns <code>400</code>.</p>
+<h2 id="filter-grammar">Filter grammar<a class="anchor" href="#filter-grammar" aria-label="Link to this section">#</a></h2>
+<p>One grammar is shared by the collector (<code>parse_filter</code>/<code>match_flow</code> in <code>agent/nivora_core.py</code>), the web UI (<code>parseFilter</code>/<code>matchFilter</code> in <code>web/lib.js</code>) and the native app (<code>FlowFilter</code> in <code>native/App/Model/Filter.swift</code>). Parity is enforced by <code>tests/fixtures/filter-vectors.json</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Meaning</th></tr></thead><tbody><tr><td><code>app:Safari</code></td><td>process name or bundle id contains the value (alias <code>process:</code>)</td></tr><tr><td><code>host:example.com</code></td><td>remote host contains the value</td></tr><tr><td><code>port:443</code>, <code>port:8000-9000</code></td><td>local or remote port equals / is within range</td></tr><tr><td><code>proto:tcp</code></td><td>protocol equals (alias <code>protocol:</code>)</td></tr><tr><td><code>iface:en0</code></td><td>interface equals (alias <code>interface:</code>)</td></tr><tr><td><code>state:established</code>, <code>source:nettop</code></td><td>equals</td></tr><tr><td><code>&gt;1mbps</code>, <code>&lt;500kbps</code></td><td>live total rate in bits/s (<code>bps</code>, <code>kbps</code>, <code>mbps</code>, <code>gbps</code>)</td></tr><tr><td><code>!key:value</code> or <code>-key:value</code></td><td>exclude</td></tr><tr><td><code>"quoted value"</code></td><td>keep spaces: <code>app:"Google Chrome"</code></td></tr><tr><td>anything else</td><td>free text over every field</td></tr></tbody></table></div>
+<p>Different keys combine with AND; repeating a key (<code>app:safari app:ssh</code>) is OR; exclusions always win.</p>
+<h2 id="mcp">MCP<a class="anchor" href="#mcp" aria-label="Link to this section">#</a></h2>
+<p><code>agent/nivora_mcp.py</code> is a read-only MCP server over stdio (JSON-RPC 2.0, stdlib only). Set <code>NIVORA_URL</code> and <code>NIVORA_TOKEN</code>, then register it with your MCP client, for example <code>{"command": "python3", "args": ["agent/nivora_mcp.py"], "env": {"NIVORA_TOKEN": "..."}}</code>. Tools: <code>summary</code>, <code>flows</code>, <code>findings</code>, <code>explain_flow</code>, <code>ask</code>, <code>diff</code>, <code>incident</code>, <code>port_conflicts</code>, <code>rule_impact</code>, <code>path_check</code>. None creates or removes rules.</p>
+    <p class="edit"><a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/API.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc" aria-label="On this page"><h2 class="nav-h">On this page</h2><ul><li class="l2"><a href="#complete-snapshot">Complete snapshot</a></li><li class="l2"><a href="#focused-reads">Focused reads</a></li><li class="l2"><a href="#investigator">Investigator</a></li><li class="l2"><a href="#rules">Rules</a></li><li class="l2"><a href="#captures">Captures</a></li><li class="l2"><a href="#export">Export</a></li><li class="l2"><a href="#filter-grammar">Filter grammar</a></li><li class="l2"><a href="#mcp">MCP</a></li></ul></aside>
+</div>
+<footer><p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · <a href="../">Home</a> · <a href="../feed.xml">Feed</a></p></footer>
+<script src="../docs.js"></script>
+</body>
+</html>

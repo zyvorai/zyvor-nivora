@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>Installing Nivora · Nivora docs</title>
+<meta name="description" content="Nivora release builds are not signed with an Apple Developer ID and are not notarised. macOS Gatekeeper will refuse to open a downloaded copy the first time and show a message such" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="canonical" href="https://zyvorai.github.io/zyvor-nivora/docs/install.html" />
+<meta property="og:title" content="Installing Nivora · Nivora docs" />
+<meta property="og:description" content="Nivora release builds are not signed with an Apple Developer ID and are not notarised. macOS Gatekeeper will refuse to open a downloaded copy the first time and show a message such" />
+<meta property="og:image" content="https://zyvorai.github.io/zyvor-nivora/social/og.png" />
+<script src="../theme.js"></script>
+<link rel="stylesheet" href="../site.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="../" aria-label="Zyvor Nivora home"><img class="logo" src="../favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
+  <nav aria-label="Sections" id="sections"><a href="../#gallery">See it</a><a href="../#features">Features</a><a href="./" aria-current="true">Docs</a><a href="../#install">Install</a></nav>
+  <div class="bar-actions">
+    <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn small" href="https://github.com/zyvorai/zyvor-nivora">GitHub</a>
+    <a class="btn small primary" href="../demo/">Live demo</a>
+  </div>
+</header>
+<div class="docs">
+  <aside class="docs-nav" aria-label="Documentation">
+    <label class="sr" for="docsearch">Search the docs</label>
+    <input id="docsearch" type="search" placeholder="Search docs" autocomplete="off" />
+    <div id="docresults" hidden></div>
+    <h2 class="nav-h">Start</h2><ul><li><a href="install.html" aria-current="page">Installing Nivora</a></li><li><a href="widgets.html">Widget and Shortcuts</a></li></ul><h2 class="nav-h">Reference</h2><ul><li><a href="api.html">API</a></li><li><a href="architecture.html">Architecture</a></li><li><a href="fluxvm.html">FluxVM integration</a></li><li><a href="capture.html">Packet capture</a></li><li><a href="networkextension.html">NetworkExtension integration</a></li></ul><h2 class="nav-h">Project</h2><ul><li><a href="testing.html">Testing</a></li><li><a href="ux-contract.html">UX contract</a></li><li><a href="product-review.html">Nivora product review — 0.2</a></li><li><a href="changelog.html">Changelog</a></li><li><a href="security.html">Security</a></li></ul>
+  </aside>
+  <main id="main" class="prose">
+<h1 id="installing-nivora">Installing Nivora</h1>
+<p>Nivora <strong>release builds are not signed with an Apple Developer ID and are not notarised</strong>. macOS Gatekeeper will refuse to open a downloaded copy the first time and show a message such as:</p>
+<ul><li><em>"Nivora" cannot be opened because the developer cannot be verified.</em></li><li><em>"Nivora" can't be opened because Apple cannot check it for malicious software.</em></li><li><em>"Nivora" is damaged and can't be opened. You should move it to the Trash.</em> (a quarantined, unsigned download)</li></ul>
+<p>This is expected, not a sign of corruption. It happens because signing and notarisation need an Apple Developer ID and, for the content filter, an Apple-approved NetworkExtension entitlement. See <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/README.md#maturity">Maturity</a> for what is and is not verified.</p>
+<h2 id="option-1-build-it-yourself-recommended">Option 1: build it yourself (recommended)<a class="anchor" href="#option-1-build-it-yourself-recommended" aria-label="Link to this section">#</a></h2>
+<p>An app you build on your own Mac is never quarantined, so Gatekeeper does not interrupt it.</p>
+<pre><code class="language-bash">brew install xcodegen                 # once; Xcode must also be installed
+./scripts/build-native.sh
+ditto native/build/Build/Products/Release/Nivora.app /Applications/Nivora.app
+open /Applications/Nivora.app</code></pre>
+<p>Optional: give your local copy an ad-hoc signature so macOS treats the bundle as intact: <code>codesign --force --deep -s - /Applications/Nivora.app</code>.</p>
+<h2 id="option-2-install-the-downloaded-dmg">Option 2: install the downloaded DMG<a class="anchor" href="#option-2-install-the-downloaded-dmg" aria-label="Link to this section">#</a></h2>
+<ol><li>Download <code>Nivora-X.Y.Z.dmg</code> and <code>SHA256SUMS.txt</code> from <a href="https://github.com/zyvorai/zyvor-nivora/releases" rel="noopener">Releases</a>.</li><li>Verify the download: <code>shasum -a 256 -c SHA256SUMS.txt</code> (run it in the folder with both files).</li><li>Open the DMG and drag <strong>Nivora</strong> to <strong>Applications</strong>.</li><li>Open Nivora once. If macOS blocks it, use <strong>one</strong> of the following:</li></ol>
+<p><strong>macOS 15 (Sequoia) and later</strong></p>
+<ol><li>Try to open Nivora, then dismiss the warning.</li><li>Open <strong>System Settings → Privacy &amp; Security</strong>.</li><li>Scroll to <strong>Security</strong>, find <em>"Nivora" was blocked to protect your Mac</em> and click <strong>Open Anyway</strong>.</li><li>Authenticate, then click <strong>Open</strong> in the confirmation. macOS remembers the choice.</li></ol>
+<p><strong>macOS 14 (Sonoma)</strong></p>
+<p>Control-click (right-click) <strong>Nivora</strong> in Applications → <strong>Open</strong> → <strong>Open</strong>. macOS remembers the choice.</p>
+<p><strong>Any version, from Terminal</strong> (removes the quarantine flag from your copy):</p>
+<pre><code class="language-bash">xattr -dr com.apple.quarantine /Applications/Nivora.app
+open /Applications/Nivora.app</code></pre>
+<p>Only do this for a copy whose checksum you verified against the release's <code>SHA256SUMS.txt</code>.</p>
+<h2 id="option-3-no-app-at-all">Option 3: no app at all<a class="anchor" href="#option-3-no-app-at-all" aria-label="Link to this section">#</a></h2>
+<p>The collector and dashboard need only Python 3 and nothing from Apple's signing chain:</p>
+<pre><code class="language-bash">python3 agent/nivora.py            # dashboard + API on 127.0.0.1:9857
+python3 agent/nivora.py --demo     # simulated data</code></pre>
+<h2 id="what-an-unsigned-install-can-and-cannot-do">What an unsigned install can and cannot do<a class="anchor" href="#what-an-unsigned-install-can-and-cannot-do" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>Works</th><th>Needs a signed, provisioned build</th></tr></thead><tbody><tr><td>Per-app flows and byte counters via <code>nettop</code>/<code>lsof</code></td><td>Content-filter system extension (per-flow app attribution from the system)</td></tr><tr><td>Interfaces, DNS, routes, VPNs, neighbours, listeners</td><td>Capture helper (root <code>tcpdump</code>, approved in System Settings)</td></tr><tr><td>Time Machine history, health, exports, filters, menu-bar</td><td>Blocking rules taking effect</td></tr></tbody></table></div>
+<p>Nivora runs in observe-first mode on an unsigned install. Closing its window keeps it in the menu bar; <strong>Quit</strong> is in the menu-bar menu. The welcome sheet appears once on first launch.</p>
+<h2 id="uninstall">Uninstall<a class="anchor" href="#uninstall" aria-label="Link to this section">#</a></h2>
+<pre><code class="language-bash">pkill -x Nivora
+rm -rf /Applications/Nivora.app
+rm -rf ~/.local/share/nivora          # history; optional
+./scripts/uninstall-macos.sh          # only if you installed the launchd agent</code></pre>
+    <p class="edit"><a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc" aria-label="On this page"><h2 class="nav-h">On this page</h2><ul><li class="l2"><a href="#option-1-build-it-yourself-recommended">Option 1: build it yourself (recommended)</a></li><li class="l2"><a href="#option-2-install-the-downloaded-dmg">Option 2: install the downloaded DMG</a></li><li class="l2"><a href="#option-3-no-app-at-all">Option 3: no app at all</a></li><li class="l2"><a href="#what-an-unsigned-install-can-and-cannot-do">What an unsigned install can and cannot do</a></li><li class="l2"><a href="#uninstall">Uninstall</a></li></ul></aside>
+</div>
+<footer><p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · <a href="../">Home</a> · <a href="../feed.xml">Feed</a></p></footer>
+<script src="../docs.js"></script>
+</body>
+</html>

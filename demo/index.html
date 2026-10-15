@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-demo>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="author" content="Zyvor AI Labs Private Limited" />
+  <title>Nivora — Mac network intelligence</title>
+  <meta name="theme-color" content="#1d1d1f" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wallpaper"></div>
+  <main class="window" aria-label="Nivora">
+    <div class="titlebar">
+      <div class="traffic"><span></span><span></span><span></span></div>
+      <div class="title">Nivora</div>
+      <div class="title-actions"><button id="sidebarBtn" class="icon-btn" aria-label="Toggle sidebar" title="Toggle sidebar">▤</button><button id="pauseBtn" class="icon-btn" aria-label="Pause updates" aria-pressed="false" title="Pause (p)">Ⅱ</button><button id="exportBtn" class="icon-btn" aria-label="Export snapshot" title="Export snapshot JSON">⤓</button><button id="paletteBtn" class="icon-btn" aria-label="Command palette" title="Command palette (⌘K)">⌘K</button><button id="themeBtn" class="icon-btn" aria-label="Toggle appearance" title="Appearance">◐</button></div>
+    </div>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><img class="brand-icon" src="favicon.svg" width="30" height="30" alt="" /><div><strong>Nivora</strong><small>Network Intelligence</small></div></div>
+        <div class="status-pill"><span id="liveDot" class="dot"></span><span id="liveLabel" role="status" aria-live="polite">Connecting</span></div>
+        <nav id="nav">
+          <div class="nav-label">Monitor</div>
+          <button data-view="overview" class="active"><span>⌁</span>Overview</button>
+          <button data-view="health"><span>♡</span>Health</button>
+          <button data-view="map"><span>⌘</span>Network Map</button>
+          <button data-view="applications"><span>◫</span>Applications</button>
+          <button data-view="flows"><span>⇄</span>Flows</button>
+          <button data-view="domains"><span>◎</span>Domains</button>
+          <div class="nav-label">Network</div>
+          <button data-view="dns"><span>⌘</span>DNS</button>
+          <button data-view="interfaces"><span>≋</span>Interfaces</button>
+          <button data-view="routes"><span>↗</span>Routes</button>
+          <button data-view="vpn"><span>◇</span>VPN</button>
+          <button data-view="local"><span>⌂</span>Local Network</button>
+          <div class="nav-label">Zyvor</div>
+          <button data-view="fluxvm"><span>▣</span>FluxVM</button>
+          <button data-view="security"><span>◈</span>Security<b id="alertBadge" class="nav-badge" hidden>0</b></button>
+          <button data-view="insights"><span>✧</span>Insights</button>
+          <button data-view="timeline"><span>◷</span>Time Machine</button>
+          <button data-view="capture"><span>◉</span>Capture</button>
+          <button data-view="investigator"><span>✦</span>Investigator</button>
+          <div class="nav-label">System</div>
+          <button data-view="settings"><span>⚙</span>Settings</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="host-card"><small>THIS MAC</small><strong id="hostName">—</strong><span id="hostMeta">—</span></div>
+        </div>
+      </aside>
+      <section class="content">
+        <header class="content-header"><div><p id="eyebrow">Monitor</p><h1 id="viewTitle">Overview</h1><p id="viewSubtitle">What is talking to what, through which network.</p></div><div class="header-actions"><div class="search"><span>⌕</span><input id="search" aria-label="Search" placeholder="Filter…  app:Safari port:443  ( / )" /></div><button id="exportCsvBtn" class="glass-btn" title="Export…">Export</button><button id="refreshBtn" class="glass-btn" title="Refresh (r)">Refresh</button></div></header>
+        <div id="contentBody" class="content-body"></div>
+        <footer class="legal"><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · BUSL-1.1 · <a href="https://zyvor.dev" rel="noopener">zyvor.dev</a></footer>
+      </section>
+    </div>
+  </main>
+
+  <aside id="sheet" class="sheet" aria-hidden="true" aria-label="Application detail"></aside>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <dialog id="paletteDialog" class="palette">
+    <div class="palette-card">
+      <input id="paletteInput" aria-label="Command palette" placeholder="Jump to a view, an app, or ask the investigator…" autocomplete="off" />
+      <div id="paletteList" class="palette-list" role="listbox"></div>
+    </div>
+  </dialog>
+
+  <dialog id="exportDialog" class="palette">
+    <form method="dialog" class="palette-card help" id="exportForm">
+      <h2>Export</h2>
+      <label class="metric-inline"><span>Data</span><select id="exportKind"><option value="flows">Flows</option><option value="apps">Applications</option><option value="timeline">Time Machine events</option><option value="bundle">Bundle (.zip)</option></select></label>
+      <label class="metric-inline"><span>Format</span><select id="exportFormat"><option value="csv">CSV</option><option value="json">JSON</option><option value="ndjson">NDJSON</option></select></label>
+      <label class="metric-inline"><span>Apply current filter</span><input type="checkbox" id="exportFiltered" checked /></label>
+      <label class="metric-inline"><span>Redact private IPs, MACs, SSID, hostname</span><input type="checkbox" id="exportRedact" /></label>
+      <p class="muted">Exports contain connection metadata only; no packet payloads.</p>
+      <div class="header-actions"><button type="button" id="exportCancel" class="glass-btn">Cancel</button><button type="submit" class="primary" id="exportGo">Download</button></div>
+    </form>
+  </dialog>
+  <dialog id="helpDialog" class="palette">
+    <div class="palette-card help">
+      <h2>Keyboard shortcuts</h2>
+      <div class="metric-inline"><span>Command palette</span><span class="mono">⌘K / Ctrl K</span></div>
+      <div class="metric-inline"><span>Focus search</span><span class="mono">/</span></div>
+      <div class="metric-inline"><span>Pause / resume</span><span class="mono">p</span></div>
+      <div class="metric-inline"><span>Refresh</span><span class="mono">r</span></div>
+      <div class="metric-inline"><span>Overview · Health · Map · Apps · Flows</span><span class="mono">g o · g h · g m · g a · g f</span></div>
+      <div class="metric-inline"><span>Filter syntax</span><span class="mono">app: host: port: proto: iface: state: source: &gt;1mbps !neg</span></div>
+      <div class="metric-inline"><span>Close panels</span><span class="mono">Esc</span></div>
+    </div>
+  </dialog>
+
+  <dialog id="connectDialog">
+    <form method="dialog" class="dialog-card">
+      <img class="brand-icon large" src="favicon.svg" width="48" height="48" alt="" />
+      <h2>Connect to Nivora</h2>
+      <p>The collector protects its local API with a bearer token. Paste the token printed by <code>nivora.py</code>. It is kept only in this tab.</p>
+      <label>Token<input id="tokenInput" type="password" autocomplete="off" placeholder="NIVORA_TOKEN" /></label>
+      <menu><button value="cancel" class="glass-btn">Cancel</button><button id="connectBtn" value="default" class="primary">Connect</button></menu>
+    </form>
+  </dialog>
+
+  <script src="demo.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
