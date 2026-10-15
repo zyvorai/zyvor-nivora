@@ -20,5 +20,6 @@ p = pathlib.Path(sys.argv[1]); s = p.read_text()
 s = s.replace('<html lang="en"', '<html lang="en" data-demo', 1) if 'data-demo' not in s else s
 p.write_text(s)
 PY
+python3 "$ROOT/scripts/build-site-data.py" "$OUT"
 touch "$OUT/.nojekyll"
 echo "site built in $OUT"

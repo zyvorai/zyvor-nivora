@@ -86,3 +86,10 @@ footer a{color:inherit}
 @media (max-width:720px){#sections{display:none}.hero{padding-top:44px}}
 .card ol{margin:8px 0 12px;padding-left:22px;color:var(--dim)}
 .card li{margin:6px 0}
+
+.whatsnew{padding-top:20px}.whatsnew h2{text-align:center}.whatsnew .sub{text-align:center;margin:8px auto 0}
+.new-list{max-width:760px;margin:20px auto 0;padding:0;list-style:none;display:grid;gap:10px}
+.new-list li{padding:14px 18px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);color:var(--dim)}
+.new-list code,.download code{font-family:var(--mono);font-size:.9em}
+.download{margin-bottom:18px;display:grid;gap:4px}.download .sha{margin:0;font-size:13px;word-break:break-all;white-space:pre-wrap}
+.build{margin:8px 0 0;font-size:13px}
