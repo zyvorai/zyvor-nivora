@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-10-15
+
 - Fix: the bundled collector no longer outlives the app. It exits when the launching process is gone (`--parent-pid`), and the app picks the next free loopback port if 9857 is held by a stale collector.
 - Trust score per app, privacy report card, verified process identity (path, signing, team ID; "unsigned binary contacting the internet"), situation profiles, policy-as-code (`/v1/policy`, dry-run by default), FluxVM sandbox egress lens, push-only multi-Mac fleet view; `nivoractl` verbs for all of them.
 - Web: Insights view. Native: Insights pane, Shortcuts/Siri actions ("How is my network?", "Block an app for one hour"), and opt-in notifications for new destinations with Observe / Block 1 h (after the fact; connections are not paused).
