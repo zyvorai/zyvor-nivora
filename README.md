@@ -111,10 +111,11 @@ The dashboard, native app, CLI and exports all use one JSON schema regardless of
 | **Overview** | Health, ↓/↑ rate, connections, throughput chart, top apps with sparklines, what changed, what needs attention |
 | **Applications / Flows** | Sortable tables, **filter grammar** with chips and saved views, grouping by app/host/interface, baseline compare, flow inspector, CSV/JSON export |
 | **Health** | Explained 0–100 score and history |
-| **Time Machine** | Day-grouped history of interface, DNS, route, VPN, listener and traffic changes, filterable by kind |
+| **Time Machine** | Day-grouped history of interface, DNS, route, VPN, listener, new-device and traffic changes, filterable by kind; diff any two points in time |
 | **Interfaces / Local Network** | Wi-Fi, Ethernet, VPN and virtual interfaces; ARP/NDP neighbours; listeners and exposure |
 | **FluxVM** | VMs and sandboxes beside host traffic |
-| **Security** | Observe-first findings, leased rules (block rules expire after an hour) |
+| **Security** | Observe-first findings, leased rules (block rules expire after an hour), shadow rules that count what a block would match, policy-as-code (dry-run by default) |
+| **Insights** | Per-app trust score, privacy report card, situation profiles, multi-Mac fleet, sandbox/VM egress, path check and incident narrative |
 | **Capture** | Opt-in, headers-only packet capture through a separately approved helper; pcap download |
 | **Investigator** | Deterministic, offline answers ("Which app uploaded the most?") |
 
