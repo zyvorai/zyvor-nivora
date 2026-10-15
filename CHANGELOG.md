@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Release DMG: the app is ad-hoc signed before packaging so `codesign --verify --deep --strict` passes (resources are sealed). Still not Developer ID signed or notarised.
+
 ## 0.5.0 — 2026-10-15
 
 - Native: WidgetKit "Network" widget (small and medium) fed by `widget.json` in the widget's container, built with `make widgets`; documented in `docs/WIDGETS.md`. Compile- and codesign-verified only.
