@@ -1,6 +1,6 @@
 {
   "version": "0.3.0",
-  "timestamp": "2026-10-15T02:09:23+00:00",
+  "timestamp": "2026-10-15T02:13:46+00:00",
   "host": {
     "name": "zyvor-mac-studio",
     "os": "macOS",
@@ -156,16 +156,16 @@
       "local": "192.168.1.42:53001",
       "remote": "142.250.183.14:443",
       "state": "ESTABLISHED",
-      "bytes_in": 1420538245,
-      "bytes_out": 65784034,
-      "rx_bps": 1219099.32,
-      "tx_bps": 60954.97,
-      "total_bps": 1280054.29,
+      "bytes_in": 2030708742,
+      "bytes_out": 96292560,
+      "rx_bps": 1569699.91,
+      "tx_bps": 78485.0,
+      "total_bps": 1648184.91,
       "interface": "en0",
       "rtt_ms": 31.2,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -177,16 +177,16 @@
       "local": "192.168.1.42:53102",
       "remote": "13.107.6.175:443",
       "state": "ESTABLISHED",
-      "bytes_in": 200006233,
-      "bytes_out": 27190286,
-      "rx_bps": 180129.98,
-      "tx_bps": 25938.72,
-      "total_bps": 206068.7,
+      "bytes_in": 173771814,
+      "bytes_out": 23412531,
+      "rx_bps": 91038.66,
+      "tx_bps": 13109.57,
+      "total_bps": 104148.23,
       "interface": "utun4",
       "rtt_ms": 181.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -198,16 +198,16 @@
       "local": "192.168.1.42:53200",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 216797549,
-      "bytes_out": 407702417,
-      "rx_bps": 265806.35,
-      "tx_bps": 575009.65,
-      "total_bps": 840816.0,
+      "bytes_in": 342273405,
+      "bytes_out": 679139987,
+      "rx_bps": 333094.71,
+      "tx_bps": 720572.23,
+      "total_bps": 1053666.94,
       "interface": "en0",
       "rtt_ms": 36.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -219,16 +219,16 @@
       "local": "10.0.2.15:40544",
       "remote": "github.com:443",
       "state": "ESTABLISHED",
-      "bytes_in": 86279850,
-      "bytes_out": 18580576,
-      "rx_bps": 60110.25,
-      "tx_bps": 14374.19,
-      "total_bps": 74484.44,
+      "bytes_in": 133289584,
+      "bytes_out": 29822038,
+      "rx_bps": 97884.34,
+      "tx_bps": 23407.13,
+      "total_bps": 121291.47,
       "interface": "vmnet8",
       "rtt_ms": 42.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -240,16 +240,16 @@
       "local": "192.168.1.42:53310",
       "remote": "17.253.144.10:443",
       "state": "ESTABLISHED",
-      "bytes_in": 667760136,
-      "bytes_out": 38440506,
-      "rx_bps": 812857.37,
-      "tx_bps": 53343.76,
-      "total_bps": 866201.13,
+      "bytes_in": 399496793,
+      "bytes_out": 20835726,
+      "rx_bps": 229391.4,
+      "tx_bps": 15053.81,
+      "total_bps": 244445.21,
       "interface": "en0",
       "rtt_ms": 24.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -261,16 +261,16 @@
       "local": "192.168.1.42:53311",
       "remote": "17.57.144.52:993",
       "state": "ESTABLISHED",
-      "bytes_in": 34275856,
-      "bytes_out": 6092101,
-      "rx_bps": 44883.04,
-      "tx_bps": 8687.04,
-      "total_bps": 53570.08,
+      "bytes_in": 32803573,
+      "bytes_out": 5807142,
+      "rx_bps": 28814.92,
+      "tx_bps": 5577.08,
+      "total_bps": 34392.0,
       "interface": "en0",
       "rtt_ms": 48.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -282,16 +282,16 @@
       "local": "192.168.1.42:53390",
       "remote": "162.125.1.18:443",
       "state": "ESTABLISHED",
-      "bytes_in": 74041923,
-      "bytes_out": 262129575,
-      "rx_bps": 58673.46,
-      "tx_bps": 181354.32,
-      "total_bps": 240027.78,
+      "bytes_in": 199072503,
+      "bytes_out": 648587747,
+      "rx_bps": 191351.38,
+      "tx_bps": 591449.73,
+      "total_bps": 782801.11,
       "interface": "en0",
       "rtt_ms": 55.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     },
     {
@@ -303,16 +303,16 @@
       "local": "192.168.1.42:5353",
       "remote": "224.0.0.251:5353",
       "state": "",
-      "bytes_in": 499733,
-      "bytes_out": 349795,
-      "rx_bps": 496.73,
-      "tx_bps": 372.54,
-      "total_bps": 869.27,
+      "bytes_in": 1348118,
+      "bytes_out": 986084,
+      "rx_bps": 1365.62,
+      "tx_bps": 1024.21,
+      "total_bps": 2389.83,
       "interface": "en0",
       "rtt_ms": 0.0,
       "source": "demo",
-      "first_seen": "2026-10-15T02:09:23+00:00",
-      "last_seen": "2026-10-15T02:09:23+00:00",
+      "first_seen": "2026-10-15T02:13:46+00:00",
+      "last_seen": "2026-10-15T02:13:46+00:00",
       "container": false
     }
   ],
@@ -363,16 +363,16 @@
         "local": "10.0.2.15:40544",
         "remote": "github.com:443",
         "state": "ESTABLISHED",
-        "bytes_in": 86279850,
-        "bytes_out": 18580576,
-        "rx_bps": 60110.25,
-        "tx_bps": 14374.19,
-        "total_bps": 74484.44,
+        "bytes_in": 133289584,
+        "bytes_out": 29822038,
+        "rx_bps": 97884.34,
+        "tx_bps": 23407.13,
+        "total_bps": 121291.47,
         "interface": "vmnet8",
         "rtt_ms": 42.0,
         "source": "demo",
-        "first_seen": "2026-10-15T02:09:23+00:00",
-        "last_seen": "2026-10-15T02:09:23+00:00",
+        "first_seen": "2026-10-15T02:13:46+00:00",
+        "last_seen": "2026-10-15T02:13:46+00:00",
         "container": false
       }
     ],
@@ -395,10 +395,10 @@
       "pid": 510,
       "bundle_id": "com.google.Chrome",
       "connections": 1,
-      "bytes_in": 1420538245,
-      "bytes_out": 65784034,
-      "rx_bps": 1219099.32,
-      "tx_bps": 60954.97,
+      "bytes_in": 2030708742,
+      "bytes_out": 96292560,
+      "rx_bps": 1569699.91,
+      "tx_bps": 78485.0,
       "domains": [
         "142.250.183.14"
       ],
@@ -406,37 +406,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 1486322279,
-      "total_bps": 1280054.29
-    },
-    {
-      "name": "Safari",
-      "pid": 420,
-      "bundle_id": "com.apple.Safari",
-      "connections": 1,
-      "bytes_in": 667760136,
-      "bytes_out": 38440506,
-      "rx_bps": 812857.37,
-      "tx_bps": 53343.76,
-      "domains": [
-        "17.253.144.10"
-      ],
-      "interfaces": [
-        "en0"
-      ],
-      "internet_connections": 1,
-      "total_bytes": 706200642,
-      "total_bps": 866201.13
+      "total_bytes": 2127001302,
+      "total_bps": 1648184.91
     },
     {
       "name": "Xcode",
       "pid": 711,
       "bundle_id": "com.apple.dt.Xcode",
       "connections": 1,
-      "bytes_in": 216797549,
-      "bytes_out": 407702417,
-      "rx_bps": 265806.35,
-      "tx_bps": 575009.65,
+      "bytes_in": 342273405,
+      "bytes_out": 679139987,
+      "rx_bps": 333094.71,
+      "tx_bps": 720572.23,
       "domains": [
         "github.com"
       ],
@@ -444,18 +425,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 624499966,
-      "total_bps": 840816.0
+      "total_bytes": 1021413392,
+      "total_bps": 1053666.94
     },
     {
       "name": "Dropbox",
       "pid": 690,
       "bundle_id": "com.getdropbox.dropbox",
       "connections": 1,
-      "bytes_in": 74041923,
-      "bytes_out": 262129575,
-      "rx_bps": 58673.46,
-      "tx_bps": 181354.32,
+      "bytes_in": 199072503,
+      "bytes_out": 648587747,
+      "rx_bps": 191351.38,
+      "tx_bps": 591449.73,
       "domains": [
         "162.125.1.18"
       ],
@@ -463,18 +444,37 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 336171498,
-      "total_bps": 240027.78
+      "total_bytes": 847660250,
+      "total_bps": 782801.11
+    },
+    {
+      "name": "Safari",
+      "pid": 420,
+      "bundle_id": "com.apple.Safari",
+      "connections": 1,
+      "bytes_in": 399496793,
+      "bytes_out": 20835726,
+      "rx_bps": 229391.4,
+      "tx_bps": 15053.81,
+      "domains": [
+        "17.253.144.10"
+      ],
+      "interfaces": [
+        "en0"
+      ],
+      "internet_connections": 1,
+      "total_bytes": 420332519,
+      "total_bps": 244445.21
     },
     {
       "name": "Slack",
       "pid": 602,
       "bundle_id": "com.tinyspeck.slackmacgap",
       "connections": 1,
-      "bytes_in": 200006233,
-      "bytes_out": 27190286,
-      "rx_bps": 180129.98,
-      "tx_bps": 25938.72,
+      "bytes_in": 173771814,
+      "bytes_out": 23412531,
+      "rx_bps": 91038.66,
+      "tx_bps": 13109.57,
       "domains": [
         "13.107.6.175"
       ],
@@ -482,18 +482,18 @@
         "utun4"
       ],
       "internet_connections": 1,
-      "total_bytes": 227196519,
-      "total_bps": 206068.7
+      "total_bytes": 197184345,
+      "total_bps": 104148.23
     },
     {
       "name": "fluxvm-vz-runner",
       "pid": 889,
       "bundle_id": "dev.zyvor.fluxvm",
       "connections": 1,
-      "bytes_in": 86279850,
-      "bytes_out": 18580576,
-      "rx_bps": 60110.25,
-      "tx_bps": 14374.19,
+      "bytes_in": 133289584,
+      "bytes_out": 29822038,
+      "rx_bps": 97884.34,
+      "tx_bps": 23407.13,
       "domains": [
         "github.com"
       ],
@@ -501,18 +501,18 @@
         "vmnet8"
       ],
       "internet_connections": 1,
-      "total_bytes": 104860426,
-      "total_bps": 74484.44
+      "total_bytes": 163111622,
+      "total_bps": 121291.47
     },
     {
       "name": "Mail",
       "pid": 455,
       "bundle_id": "com.apple.mail",
       "connections": 1,
-      "bytes_in": 34275856,
-      "bytes_out": 6092101,
-      "rx_bps": 44883.04,
-      "tx_bps": 8687.04,
+      "bytes_in": 32803573,
+      "bytes_out": 5807142,
+      "rx_bps": 28814.92,
+      "tx_bps": 5577.08,
       "domains": [
         "17.57.144.52"
       ],
@@ -520,18 +520,18 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 40367957,
-      "total_bps": 53570.08
+      "total_bytes": 38610715,
+      "total_bps": 34392.0
     },
     {
       "name": "mDNSResponder",
       "pid": 118,
       "bundle_id": "",
       "connections": 1,
-      "bytes_in": 499733,
-      "bytes_out": 349795,
-      "rx_bps": 496.73,
-      "tx_bps": 372.54,
+      "bytes_in": 1348118,
+      "bytes_out": 986084,
+      "rx_bps": 1365.62,
+      "tx_bps": 1024.21,
       "domains": [
         "224.0.0.251"
       ],
@@ -539,14 +539,14 @@
         "en0"
       ],
       "internet_connections": 1,
-      "total_bytes": 849528,
-      "total_bps": 869.27
+      "total_bytes": 2334202,
+      "total_bps": 2389.83
     }
   ],
   "traffic": {
-    "rx_bps": 2642056.5,
-    "tx_bps": 920035.19,
-    "total_bps": 3562091.69,
+    "rx_bps": 2542640.94,
+    "tx_bps": 1448678.76,
+    "total_bps": 3991319.7,
     "active_flows": 8,
     "internet_flows": 8,
     "vpn_flows": 1,
@@ -722,128 +722,128 @@
         "source": "app:f437b770fa7a4018",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 1486322279,
-        "bps": 1280054.29,
+        "bytes": 2127001302,
+        "bps": 1648184.91,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:bfb57b8f124403e8",
         "kind": "reaches",
-        "bytes": 1486322279,
-        "bps": 1280054.29,
+        "bytes": 2127001302,
+        "bps": 1648184.91,
         "flows": 1
       },
       {
         "source": "app:638dc1bc546b9725",
         "target": "if:utun4",
         "kind": "uses",
-        "bytes": 227196519,
-        "bps": 206068.7,
+        "bytes": 197184345,
+        "bps": 104148.23,
         "flows": 1
       },
       {
         "source": "if:utun4",
         "target": "dst:2131f530233c50a6",
         "kind": "reaches",
-        "bytes": 227196519,
-        "bps": 206068.7,
+        "bytes": 197184345,
+        "bps": 104148.23,
         "flows": 1
       },
       {
         "source": "app:c9b0fcb81024d804",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 624499966,
-        "bps": 840816.0,
+        "bytes": 1021413392,
+        "bps": 1053666.94,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 624499966,
-        "bps": 840816.0,
+        "bytes": 1021413392,
+        "bps": 1053666.94,
         "flows": 1
       },
       {
         "source": "app:626e006293c58cfb",
         "target": "if:vmnet8",
         "kind": "uses",
-        "bytes": 104860426,
-        "bps": 74484.44,
+        "bytes": 163111622,
+        "bps": 121291.47,
         "flows": 1
       },
       {
         "source": "if:vmnet8",
         "target": "dst:3aeb002460381c6f",
         "kind": "reaches",
-        "bytes": 104860426,
-        "bps": 74484.44,
+        "bytes": 163111622,
+        "bps": 121291.47,
         "flows": 1
       },
       {
         "source": "app:9988d0d84818faeb",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 706200642,
-        "bps": 866201.13,
+        "bytes": 420332519,
+        "bps": 244445.21,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:3a0c99df59f50901",
         "kind": "reaches",
-        "bytes": 706200642,
-        "bps": 866201.13,
+        "bytes": 420332519,
+        "bps": 244445.21,
         "flows": 1
       },
       {
         "source": "app:6b224393d033f023",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 40367957,
-        "bps": 53570.08,
+        "bytes": 38610715,
+        "bps": 34392.0,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:34fd04f78125cfa7",
         "kind": "reaches",
-        "bytes": 40367957,
-        "bps": 53570.08,
+        "bytes": 38610715,
+        "bps": 34392.0,
         "flows": 1
       },
       {
         "source": "app:4f423af333043688",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 336171498,
-        "bps": 240027.78,
+        "bytes": 847660250,
+        "bps": 782801.11,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:8e1125068885d850",
         "kind": "reaches",
-        "bytes": 336171498,
-        "bps": 240027.78,
+        "bytes": 847660250,
+        "bps": 782801.11,
         "flows": 1
       },
       {
         "source": "app:7682f4f8b37ea610",
         "target": "if:en0",
         "kind": "uses",
-        "bytes": 849528,
-        "bps": 869.27,
+        "bytes": 2334202,
+        "bps": 2389.83,
         "flows": 1
       },
       {
         "source": "if:en0",
         "target": "dst:35b5e20b23f0d24c",
         "kind": "reaches",
-        "bytes": 849528,
-        "bps": 869.27,
+        "bytes": 2334202,
+        "bps": 2389.83,
         "flows": 1
       }
     ]
@@ -854,43 +854,43 @@
   },
   "recent_events": [
     {
-      "ts": "2026-10-14T22:59:23+00:00",
+      "ts": "2026-10-14T23:03:46+00:00",
       "kind": "interface",
       "title": "Interface en0 appeared",
       "detail": "active"
     },
     {
-      "ts": "2026-10-14T23:47:23+00:00",
+      "ts": "2026-10-14T23:51:46+00:00",
       "kind": "dns",
       "title": "DNS resolver changed",
       "detail": "('192.168.1.1',) \u2192 ('1.1.1.1', '2606:4700:4700::1111')"
     },
     {
-      "ts": "2026-10-15T00:32:23+00:00",
+      "ts": "2026-10-15T00:36:46+00:00",
       "kind": "vpn",
       "title": "VPN state changed",
       "detail": "Active: Zyvor WireGuard"
     },
     {
-      "ts": "2026-10-15T01:05:23+00:00",
+      "ts": "2026-10-15T01:09:46+00:00",
       "kind": "listener",
       "title": "New listening service on port 7000",
       "detail": "AirPlayXPCHelper \u00b7 TCP \u00b7 all"
     },
     {
-      "ts": "2026-10-15T01:46:23+00:00",
+      "ts": "2026-10-15T01:50:46+00:00",
       "kind": "traffic",
       "title": "Traffic rate spiked",
       "detail": "0.4 \u2192 3.1 MB/s"
     },
     {
-      "ts": "2026-10-15T02:09:23+00:00",
+      "ts": "2026-10-15T02:13:46+00:00",
       "kind": "startup",
       "title": "Nivora started observing",
       "detail": "Initial network snapshot captured."
     },
     {
-      "ts": "2026-10-15T02:09:23+00:00",
+      "ts": "2026-10-15T02:13:46+00:00",
       "kind": "lan",
       "title": "DNS may bypass the VPN",
       "detail": "A VPN is active but no resolver is bound to a tunnel interface: 1.1.1.1."
@@ -911,6 +911,355 @@
     "notes": [
       "Public resolver in use: 1.1.1.1, 2606:4700:4700::1111"
     ]
+  },
+  "profile": {
+    "name": "default",
+    "label": "Default"
+  },
+  "trust": [
+    {
+      "app": "Google Chrome",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "Slack",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "Xcode",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "fluxvm-vz-runner",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "Safari",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "Mail",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "Dropbox",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    },
+    {
+      "app": "mDNSResponder",
+      "score": 80,
+      "level": "high",
+      "flows": 1,
+      "components": [
+        {
+          "name": "Code signing",
+          "points": 20,
+          "max": 40,
+          "detail": "Signing identity not verified (collector could not read it)."
+        },
+        {
+          "name": "Destination novelty",
+          "points": 25,
+          "max": 25,
+          "detail": "No new destinations since baseline."
+        },
+        {
+          "name": "Trackers",
+          "points": 15,
+          "max": 15,
+          "detail": "No known tracker hosts."
+        },
+        {
+          "name": "Cleartext protocols",
+          "points": 10,
+          "max": 10,
+          "detail": "No cleartext protocol ports."
+        },
+        {
+          "name": "Listening exposure",
+          "points": 10,
+          "max": 10,
+          "detail": "Not listening on all interfaces."
+        }
+      ]
+    }
+  ],
+  "privacy": {
+    "score": 85,
+    "trackers": [],
+    "cleartext": [],
+    "dns_vpn_leak": true,
+    "unsigned_apps": [],
+    "vpn_active": true,
+    "flows": 8,
+    "flows_with_hostnames": 2,
+    "notes": []
+  },
+  "egress": {
+    "connected": true,
+    "workloads": [
+      {
+        "id": "macos-build-07",
+        "kind": "vm",
+        "state": "running",
+        "backend": "vz",
+        "destinations": [
+          {
+            "host": "github.com",
+            "count": 1,
+            "scope": "domain"
+          }
+        ],
+        "external": 0
+      },
+      {
+        "id": "agent-3dd91",
+        "kind": "sandboxe",
+        "state": "running",
+        "backend": null,
+        "destinations": [],
+        "external": 0
+      }
+    ],
+    "host_flows": 1
   },
   "rules": [],
   "rule_hits": [],
@@ -966,7 +1315,7 @@
         "title": "Recent network configuration change",
         "detail": "VPN state changed",
         "event": {
-          "ts": "2026-10-15T00:32:23+00:00",
+          "ts": "2026-10-15T00:36:46+00:00",
           "kind": "vpn",
           "title": "VPN state changed",
           "detail": "Active: Zyvor WireGuard"
@@ -975,43 +1324,43 @@
     ],
     "recent_events": [
       {
-        "ts": "2026-10-14T22:59:23+00:00",
+        "ts": "2026-10-14T23:03:46+00:00",
         "kind": "interface",
         "title": "Interface en0 appeared",
         "detail": "active"
       },
       {
-        "ts": "2026-10-14T23:47:23+00:00",
+        "ts": "2026-10-14T23:51:46+00:00",
         "kind": "dns",
         "title": "DNS resolver changed",
         "detail": "('192.168.1.1',) \u2192 ('1.1.1.1', '2606:4700:4700::1111')"
       },
       {
-        "ts": "2026-10-15T00:32:23+00:00",
+        "ts": "2026-10-15T00:36:46+00:00",
         "kind": "vpn",
         "title": "VPN state changed",
         "detail": "Active: Zyvor WireGuard"
       },
       {
-        "ts": "2026-10-15T01:05:23+00:00",
+        "ts": "2026-10-15T01:09:46+00:00",
         "kind": "listener",
         "title": "New listening service on port 7000",
         "detail": "AirPlayXPCHelper \u00b7 TCP \u00b7 all"
       },
       {
-        "ts": "2026-10-15T01:46:23+00:00",
+        "ts": "2026-10-15T01:50:46+00:00",
         "kind": "traffic",
         "title": "Traffic rate spiked",
         "detail": "0.4 \u2192 3.1 MB/s"
       },
       {
-        "ts": "2026-10-15T02:09:23+00:00",
+        "ts": "2026-10-15T02:13:46+00:00",
         "kind": "startup",
         "title": "Nivora started observing",
         "detail": "Initial network snapshot captured."
       },
       {
-        "ts": "2026-10-15T02:09:23+00:00",
+        "ts": "2026-10-15T02:13:46+00:00",
         "kind": "lan",
         "title": "DNS may bypass the VPN",
         "detail": "A VPN is active but no resolver is bound to a tunnel interface: 1.1.1.1."

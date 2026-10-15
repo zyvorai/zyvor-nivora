@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import platform
 import datetime as dt
 import hmac
 import json
@@ -29,8 +30,15 @@ from explain import explain_flow, rule_impact
 from lan import diff_lan, dns_vpn_leak
 from metrics import render_metrics
 from projects import summarize_projects
+from identity import IdentityResolver, identity_findings
+from trust import trust_scores
+from privacy import privacy_report
+from policy import apply_policy, export_policy, plan_policy
+from profiles import ProfileStore
+from egress import egress_report
+from fleet import FleetStore, push as fleet_push, summarize as fleet_summarize
 from usage import budget_findings, budget_status, load_budgets
-from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
+from nivora_core import classify_remote, endpoint_host, HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
 class State:
@@ -54,6 +62,11 @@ class State:
         self.timeline = demo_events() if args.demo else []
         self.lock = threading.Lock()
         self.pathcheck_lock = threading.Lock()
+        data_dir = os.path.dirname(os.path.expanduser(args.database))
+        self.profiles = ProfileStore(os.path.join(data_dir, "profile.json"))
+        self.identity = IdentityResolver()
+        self.fleet = FleetStore()
+        self._last_push = 0.0
         self.stop = threading.Event()
 
     # ---- packet capture (opt-in, headers-only by default; see agent/capture.py) ----
@@ -151,6 +164,11 @@ class State:
             previous = self.snapshot
             existing_timeline = list(self.timeline)
         current = self.collector.collect(previous)
+        profile = self.profiles.settings()
+        if not self.args.demo and platform.system() == "Darwin":
+            self.identity.annotate(current.get("flows") or [], self.collector.runner.run(["ps", "-axo", "pid=,comm="]))
+            current.setdefault("findings", []).extend(identity_findings(
+                current.get("flows") or [], lambda r: classify_remote(endpoint_host(r)) == "internet"))
         events = timeline_events(current, previous)
         behavior = {"new_destinations": [], "known_destinations": 0}
         if self.history:
@@ -168,7 +186,8 @@ class State:
             lan += self.history.observe_devices(current)
             prev_ts = (previous or {}).get("timestamp")
             usage = self.history.observe_usage(current, self._elapsed(prev_ts, current.get("timestamp")))
-        budgets = budget_status(usage, load_budgets(os.path.join(os.path.dirname(os.path.expanduser(self.args.database)), "budgets.json")))
+        configured = load_budgets(os.path.join(os.path.dirname(os.path.expanduser(self.args.database)), "budgets.json"))
+        budgets = budget_status(usage, {k: max(1, int(v * profile["budget_scale"])) for k, v in configured.items()})
         current["usage"] = {"day": str(current.get("timestamp", ""))[:10], "apps": usage, "budgets": budgets}
         current["projects"] = summarize_projects(current.get("flows") or [])
         current.setdefault("findings", []).extend(lan + budget_findings(budgets))
@@ -179,7 +198,13 @@ class State:
         current["listeners"] = annotate_listeners(current.get("listeners") or [])
         current["port_conflicts"] = find_conflicts(current["listeners"])
         current["dns_diagnosis"] = diagnose_resolvers(current.get("dns") or {})
-        current["findings"] = merge_findings(current.get("findings") or [], detect_anomalies(current))
+        current["findings"] = merge_findings(current.get("findings") or [], detect_anomalies(current, profile["high_bandwidth_bps"]))
+        if profile["hide_info"]:
+            current["findings"] = [f for f in current["findings"] if f.get("severity") != "info"]
+        current["profile"] = {"name": profile["name"], "label": profile["label"]}
+        current["trust"] = trust_scores(current)
+        current["privacy"] = privacy_report(current)
+        current["egress"] = egress_report(current)
         current.setdefault("capabilities", {})["capture"] = self.capture_available()
         current["rules"] = self.rules.list()
         current["rule_hits"] = apply_rule_preview(current.get("flows", []), current["rules"])
@@ -194,7 +219,16 @@ class State:
         if self.history:
             self.history.add_snapshot(current)
             self.history.add_events(events)
+        self._maybe_push(current)
         return current
+
+    def _maybe_push(self, current):
+        url = getattr(self.args, "fleet_push", "")
+        if not url or time.time() - self._last_push < self.args.fleet_interval:
+            return
+        self._last_push = time.time()
+        summary = fleet_summarize(current)
+        threading.Thread(target=fleet_push, args=(url, self.args.fleet_token, summary), daemon=True).start()
 
     def loop(self):
         while not self.stop.is_set():
@@ -355,6 +389,12 @@ class Handler(BaseHTTPRequestHandler):
                 "/v1/listeners": snap.get("listeners", []),
                 "/v1/containers": snap.get("containers", []),
                 "/v1/port-conflicts": snap.get("port_conflicts", []),
+                "/v1/trust": snap.get("trust", []),
+                "/v1/privacy-report": snap.get("privacy", {}),
+                "/v1/egress": snap.get("egress", {}),
+                "/v1/profiles": self.state.profiles.listing(),
+                "/v1/fleet": self.state.fleet.listing(),
+                "/v1/policy/export": export_policy(self.state.rules, "exported"),
                 "/v1/usage": snap.get("usage", {}),
                 "/v1/projects": snap.get("projects", []),
                 "/v1/rule-impact": snap.get("rule_impact", []),
@@ -446,6 +486,24 @@ class Handler(BaseHTTPRequestHandler):
             data = self._read_json()
         except (ValueError, json.JSONDecodeError) as exc:
             return self._json({"error":str(exc)}, 400)
+        if path == "/v1/fleet/report":
+            try:
+                return self._json(self.state.fleet.accept(data))
+            except ValueError as exc:
+                return self._json({"error": str(exc)}, 400)
+        if path == "/v1/profiles":
+            try:
+                return self._json({"active": self.state.profiles.set(str(data.get("name", "")))})
+            except ValueError as exc:
+                return self._json({"error": str(exc)}, 400)
+        if path == "/v1/policy":
+            try:
+                if data.get("dry_run", True):
+                    out = plan_policy(self.state.rules, data.get("policy"))
+                    return self._json({"dry_run": True, **out})
+                return self._json({"dry_run": False, **apply_policy(self.state.rules, data.get("policy"))})
+            except ValueError as exc:
+                return self._json({"error": str(exc)}, 400)
         if path == "/v1/path-check":
             try:
                 host, port = validate_target(data.get("host"), data.get("port"))
@@ -534,6 +592,9 @@ def parser():
     p.add_argument("--fluxvm-token", default=os.getenv("FLUXVM_TOKEN", ""))
     p.add_argument("--web-root", default=str(Path(__file__).resolve().parent.parent / "web"))
     p.add_argument("--quiet", action="store_true")
+    p.add_argument("--fleet-push", default="", help="coordinator base URL to push a compact summary to (push-only)")
+    p.add_argument("--fleet-token", default=os.getenv("NIVORA_FLEET_TOKEN", ""))
+    p.add_argument("--fleet-interval", type=float, default=30.0)
     return p
 
 
