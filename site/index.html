@@ -11,6 +11,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="canonical" href="https://zyvorai.github.io/zyvor-nivora/" />
+  <link rel="alternate" type="application/atom+xml" title="Nivora releases" href="feed.xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Zyvor Nivora" />
   <meta property="og:title" content="Zyvor Nivora · See every connection on your Mac" />
@@ -24,7 +25,7 @@
   <script src="theme.js"></script>
   <link rel="stylesheet" href="site.css" />
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Zyvor Nivora","applicationCategory":"DeveloperApplication","operatingSystem":"macOS","description":"Mac-native application and network intelligence: per-app flows, DNS, routes, VPNs and FluxVM.","codeRepository":"https://github.com/zyvorai/zyvor-nivora","license":"https://github.com/zyvorai/zyvor-nivora/blob/main/LICENSE","url":"https://zyvorai.github.io/zyvor-nivora/","publisher":{"@type":"Organization","name":"Zyvor AI Labs Private Limited","url":"https://zyvor.dev"}}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Zyvor Nivora","applicationCategory":"DeveloperApplication","operatingSystem":"macOS","softwareVersion":"{{VERSION}}","downloadUrl":"https://github.com/zyvorai/zyvor-nivora/releases/tag/v{{VERSION}}","description":"Mac-native application and network intelligence: per-app flows, DNS, routes, VPNs and FluxVM.","codeRepository":"https://github.com/zyvorai/zyvor-nivora","license":"https://github.com/zyvorai/zyvor-nivora/blob/main/LICENSE","url":"https://zyvorai.github.io/zyvor-nivora/","publisher":{"@type":"Organization","name":"Zyvor AI Labs Private Limited","url":"https://zyvor.dev"}}
   </script>
 </head>
 <body>
@@ -51,9 +52,11 @@
     <p class="kicker">Zyvor · network intelligence</p>
     <h1>See every connection <em>on your Mac.</em></h1>
     <p class="lede"><strong>Which app is talking to what, over which interface.</strong> Per-app flows, DNS, routes, VPNs, listeners and FluxVM workloads in a native SwiftUI app with a dependency-free collector. <strong>Local-first</strong> and <strong>observe-first</strong>: no payloads, no uploads, nothing blocked unless you say so.</p>
-    <p class="cta"><a class="btn primary" href="demo/">Try the live demo</a><a class="btn" href="#install">Get Nivora</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora">View source</a></p>
-    <ul class="chips" aria-label="Highlights"><li class="ro">Observe-first</li><li>macOS 14+</li><li>Local-first</li><li>Zero-dependency collector</li><li>FluxVM aware</li></ul>
+    <p class="cta"><a class="btn primary" href="demo/">Try the live demo</a><a class="btn" href="#install">Download {{VERSION}}</a><a class="link" href="https://github.com/zyvorai/zyvor-nivora">View source</a></p>
+    <ul class="chips" aria-label="Highlights"><li class="ro">Observe-first</li><li>macOS 14+</li><li>Local-first</li><li>Zero-dependency collector</li><li>v{{VERSION}}</li><li>FluxVM aware</li></ul>
   </section>
+
+  <!--WHATSNEW-->
 
   <section id="gallery" class="gallery">
     <h2>Pick a pane</h2>
@@ -132,6 +135,7 @@
       </ol>
       <p>Details and uninstall steps: <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/INSTALL.md">docs/INSTALL.md</a>.</p>
     </div>
+    <!--DOWNLOAD-->
     <pre><code># try it with simulated data, no install
 python3 agent/nivora.py --demo
 
@@ -157,7 +161,8 @@ open native/build/Build/Products/Release/Nivora.app</code></pre>
 </main>
 
 <footer>
-  <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/API.md">API</a> · <a href="demo/">Live demo</a></p>
+  <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/API.md">API</a> · <a href="demo/">Live demo</a> · <a href="feed.xml">Feed</a></p>
+  <p class="build">v{{VERSION}} · built {{DATE}} · {{COMMIT}}</p>
 </footer>
 <script src="site.js"></script>
 </body>

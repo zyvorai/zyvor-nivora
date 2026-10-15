@@ -28,8 +28,23 @@ for (const page of pages) {
     problems.push(`${page}: external subresource ${m[1]}`);
   }
 }
-for (const f of ['robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
+for (const f of ['feed.xml', 'robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
   if (!fs.existsSync(path.join(root, f))) problems.push(`missing ${f}`);
+// release-aware content: the page must carry the package.json version and no leftover placeholders
+const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+if (/\{\{[A-Z]+\}\}|<!--(?:DOWNLOAD|WHATSNEW)-->/.test(home)) problems.push('index.html: unreplaced placeholder');
+if (!home.includes(`Nivora ${pkg.version}`) && !home.includes(`v${pkg.version}`)) problems.push(`index.html: version ${pkg.version} not shown`);
+const sha = home.match(/id="sha">([^<]*)</);
+if (sha && !/^[0-9a-f]{64}$/.test(sha[1])) problems.push('index.html: sha256 is not 64 hex characters');
+const feedXml = fs.readFileSync(path.join(root, 'feed.xml'), 'utf8');
+if (!/<feed[^>]+Atom/.test(feedXml) || !feedXml.includes('</feed>') || !/<entry>/.test(feedXml)) problems.push('feed.xml: not a valid Atom feed');
+for (const m of home.matchAll(/<img\b[^>]*>/g)) {
+  if (!/\balt="/.test(m[0]) || !/\bwidth="/.test(m[0]) || !/\bheight="/.test(m[0])) problems.push(`index.html: img without alt/width/height: ${m[0].slice(0, 80)}`);
+}
+for (const m of home.matchAll(/\bhref="#([^"]+)"/g)) {
+  if (!home.includes(`id="${m[1]}"`)) problems.push(`index.html: anchor #${m[1]} has no target`);
+}
 if (!/data-demo/.test(fs.readFileSync(path.join(root, 'demo/index.html'), 'utf8'))) problems.push('demo/index.html is not flagged data-demo');
 if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
 console.log(`site-check: ${pages.length} pages OK`);

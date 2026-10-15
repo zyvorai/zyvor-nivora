@@ -12,6 +12,9 @@ on:
       - "docs/social/**"
       - "docs/brand/**"
       - "scripts/build-site.sh"
+      - "scripts/build-site-data.py"
+      - "CHANGELOG.md"
+      - "package.json"
       - "scripts/site-check.mjs"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -37,6 +40,10 @@ jobs:
         with: {python-version: '3.13'}
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
+      - name: Release checksums (shown only if the release lists this version)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "v$(python3 -c "import json;print(json.load(open('package.json'))['version'])")" -p SHA256SUMS.txt || true
       - run: ./scripts/build-site.sh
       - run: node scripts/site-check.mjs
       - uses: actions/configure-pages@v5
