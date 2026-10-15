@@ -31,6 +31,14 @@ targets:
         buildPhase: resources
       - path: ../agent/capture.py
         buildPhase: resources
+      - path: ../agent/containers.py
+        buildPhase: resources
+      - path: ../agent/ports.py
+        buildPhase: resources
+      - path: ../agent/anomalies.py
+        buildPhase: resources
+      - path: ../agent/dns_diag.py
+        buildPhase: resources
       - path: ../web
         type: folder
         buildPhase: resources

@@ -21,6 +21,8 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 - `GET /v1/topology`
 - `GET /v1/neighbors`
 - `GET /v1/listeners`
+- `GET /v1/containers` (container runtime traffic summary)
+- `GET /v1/port-conflicts` (ports bound by multiple processes)
 - `GET /v1/behavior`
 - `GET /v1/diagnose`
 - `GET /v1/timeline`

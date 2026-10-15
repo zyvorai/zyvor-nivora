@@ -18,6 +18,10 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from capture import CaptureClient, CaptureError, manual_command, synthetic_pcap, validate_request, validate_session_id, MAX_SECONDS, MAX_MB, MAX_SNAPLEN
+from containers import enrich_flows_with_containers, summarize_containers
+from ports import annotate_listeners, find_conflicts
+from anomalies import detect_anomalies, merge_findings
+from dns_diag import diagnose_resolvers
 from nivora_core import HistoryStore, MacCollector, RuleStore, answer_query, apply_rule_preview, compute_health, demo_events, diagnose_network, filter_flows, timeline_events, Redactor, build_bundle, export_rows, render_export
 
 
@@ -140,6 +144,12 @@ class State:
                     "detail": event["detail"], "app": event.get("app"), "remote": event.get("remote")
                 })
         current["behavior"] = behavior
+        enrich_flows_with_containers(current.get("flows") or [])
+        current["containers"] = summarize_containers(current.get("flows") or [])
+        current["listeners"] = annotate_listeners(current.get("listeners") or [])
+        current["port_conflicts"] = find_conflicts(current["listeners"])
+        current["dns_diagnosis"] = diagnose_resolvers(current.get("dns") or {})
+        current["findings"] = merge_findings(current.get("findings") or [], detect_anomalies(current))
         current.setdefault("capabilities", {})["capture"] = self.capture_available()
         current["rules"] = self.rules.list()
         current["rule_hits"] = apply_rule_preview(current.get("flows", []), current["rules"])
@@ -272,6 +282,8 @@ class Handler(BaseHTTPRequestHandler):
                 "/v1/topology": snap.get("topology", {}),
                 "/v1/neighbors": snap.get("neighbors", []),
                 "/v1/listeners": snap.get("listeners", []),
+                "/v1/containers": snap.get("containers", []),
+                "/v1/port-conflicts": snap.get("port_conflicts", []),
                 "/v1/behavior": snap.get("behavior", {}),
                 "/v1/diagnose": snap.get("diagnosis") or diagnose_network(snap),
                 "/v1/rules": self.state.rules.list(),
