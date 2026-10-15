@@ -57,6 +57,13 @@
   };
 
   // ---- in-memory state ----
+  const PROFILES = [
+    { name: 'default', label: 'Default', about: 'Standard thresholds.' },
+    { name: 'coding', label: 'Coding', about: 'Builds, pulls and container traffic are expected; only very high rates are flagged.' },
+    { name: 'presenting', label: 'Presenting', about: 'Hides informational findings.' },
+    { name: 'travel', label: 'Travel / hotspot', about: 'Lower rate threshold and half the daily budgets.' },
+  ];
+  let demoProfile = 'default';
   const rules = [];
   const captures = new Map();
   const hexId = () => [...crypto.getRandomValues(new Uint8Array(8))].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -127,7 +134,7 @@
     if (path === '/v1/query' && method === 'POST') return json({ answer: answer(String(body.question || ''), aggregate(flowsAt(Date.now() / 1000))) });
     if (path === '/v1/rules') {
       if (method === 'POST') {
-        const action = ['observe', 'allow', 'block'].includes(body.action) ? body.action : 'observe';
+        const action = ['observe', 'allow', 'block', 'shadow'].includes(body.action) ? body.action : 'observe';
         const rule = { id: hexId(), action, app: body.app || null, domain: body.domain || null, ip: body.ip || null, port: body.port || null,
           expires_at: action === 'block' ? new Date(Date.now() + 3600e3).toISOString() : null, created_at: new Date().toISOString() };
         rules.push(rule); return json(rule, 201);
@@ -168,6 +175,71 @@
       if (fmt === 'ndjson') return new Response(rows.map(r => JSON.stringify(r)).join('\n') + '\n', { headers: hdr('application/x-ndjson') });
       const cols = COLS[kind] || COLS.flows;
       return new Response([cols.join(','), ...rows.map(r => cols.map(c => csvCell(Array.isArray(r[c]) ? r[c].join('; ') : r[c])).join(','))].join('\n') + '\n', { headers: hdr('text/csv') });
+    }
+
+    // ---- additions since 0.5: all simulated, none of it reads or probes anything ----
+    const xm = path.match(/^\/v1\/flows\/([^/]+)\/explain$/);
+    if (xm) {
+      const flows = flowsAt(Date.now() / 1000), f = flows.find(x => x.id === decodeURIComponent(xm[1]));
+      if (!f) return err('no such flow', 404);
+      const host = f.remote.replace(/:\d+$/, ''), port = Number(f.remote.split(':').pop()) || 0;
+      const total = flows.reduce((n, x) => n + x.total_bps, 0) || 1, share = Math.round(1000 * f.total_bps / total) / 10;
+      const reasons = [`${f.process} (pid ${f.pid}) opened a ${f.protocol} connection to ${host}:${port}.`,
+        `It leaves via ${f.interface}${f.interface.startsWith('utun') ? ', a tunnel interface.' : '.'}`];
+      if (share >= 1) reasons.push(`It accounts for ${share}% of current traffic.`);
+      const hit = rules.filter(r => (r.app && f.process.toLowerCase().includes(String(r.app).toLowerCase())) || (r.domain && host.endsWith(r.domain)) || (r.ip && r.ip === host));
+      hit.forEach(r => reasons.push(`Rule ${r.id} (${r.action}) matches this flow.`));
+      return json({ simulated: true, flow: f, app: f.process, destination: { host, port }, path: { interface: f.interface, vpn_active: f.interface.startsWith('utun') ? ['Zyvor WireGuard'] : [] },
+        traffic_share_percent: share, new_destination: false, rules: hit.map(r => ({ rule_id: r.id, action: r.action, flow_id: f.id })), findings: [], reasons });
+    }
+    if (path === '/v1/profiles') {
+      if (method === 'POST') {
+        if (!PROFILES.some(p => p.name === body.name)) return err('unknown profile');
+        demoProfile = body.name; return json({ active: demoProfile });
+      }
+      return json({ active: demoProfile, profiles: PROFILES });
+    }
+    if (path === '/v1/fleet') {
+      return json([
+        { host: 'zyvor-mac-studio', simulated: true, health: { score: 97, status: 'healthy' }, traffic: { rx_bps: 2.1e6, tx_bps: 4e5 }, counts: { apps: 8, flows: 8, findings: 1, listeners: 6 }, age_seconds: 4, stale: false },
+        { host: 'build-mini-02', simulated: true, health: { score: 84, status: 'good' }, traffic: { rx_bps: 9e5, tx_bps: 3.2e6 }, counts: { apps: 5, flows: 11, findings: 2, listeners: 9 }, age_seconds: 9, stale: false },
+      ]);
+    }
+    if (path === '/v1/path-check' && method === 'POST') {
+      const host = String(body.host || '').trim().toLowerCase();
+      if (!/^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/.test(host)) return err('host must be a hostname or IP address');
+      const port = Number(body.port) || 443;
+      if (!(port >= 1 && port <= 65535)) return err('port must be 1..65535');
+      const stages = [{ stage: 'dns', ok: true, ms: 14.2, addresses: ['203.0.113.10'] }, { stage: 'tcp', ok: true, ms: 21.7, address: '203.0.113.10' },
+        { stage: 'tls', ok: true, ms: 38.4, version: 'TLSv1.3', days_left: 61 }];
+      return json({ simulated: true, host, port, ok: true, stages, summary: 'Simulated result (no connection was made): dns 14.2 ms, tcp 21.7 ms, tls 38.4 ms.' });
+    }
+    if (path === '/v1/diff' || path === '/v1/incident') {
+      const t = Date.now() / 1000, a = aggregate(flowsAt(t - 1800)), b = aggregate(flowsAt(t));
+      const was = new Map(a.map(x => [x.name, x.total_bps]));
+      const movers = b.map(x => ({ app: x.name, before_bps: Math.round(was.get(x.name) || 0), after_bps: Math.round(x.total_bps), delta_bps: Math.round(x.total_bps - (was.get(x.name) || 0)) }))
+        .sort((m, n) => Math.abs(n.delta_bps) - Math.abs(m.delta_bps)).slice(0, 5);
+      const diff = { simulated: true, from: new Date((t - 1800) * 1000).toISOString(), to: new Date(t * 1000).toISOString(),
+        health: { before: 96, after: 97, delta: 1 }, flows_added: [{ app: 'Dropbox', remote: '162.125.1.18' }], flows_removed: [], app_movers: movers,
+        listeners_added: [], listeners_removed: [], dns: { added: [], removed: [] }, default_route_changed: false, devices_added: [], devices_removed: [], findings_new: [] };
+      if (path === '/v1/diff') return json(diff);
+      return json({ simulated: true, window: { from: diff.from, to: diff.to }, headline: 'Simulated: health stayed at 97; 1 flow group appeared, 0 ended, 2 events recorded.',
+        steps: [{ ts: diff.from, kind: 'vpn', text: 'VPN state changed: Active: Zyvor WireGuard' }, { ts: diff.to, kind: 'traffic', text: `${movers[0].app} moved ${(movers[0].delta_bps / 1048576).toFixed(2)} MB/s over the window.` }], diff });
+    }
+    if (path === '/v1/policy' && method === 'POST') {
+      const pol = body.policy || {};
+      if (!pol.name || !Array.isArray(pol.rules)) return err('policy needs a name and rules');
+      return json({ simulated: true, dry_run: true, name: pol.name, add: pol.rules.map(r => ({ ...r, note: `policy:${pol.name}` })), remove: [], unchanged: [] });
+    }
+    if (path === '/v1/rule-impact') {
+      const flows = flowsAt(Date.now() / 1000);
+      return json(rules.map(r => {
+        const m = flows.filter(f => (!r.app || f.process.toLowerCase().includes(String(r.app).toLowerCase())) && (!r.domain || f.remote.includes(r.domain)) && (!r.ip || f.remote.startsWith(r.ip)));
+        return { rule_id: r.id, action: r.action, enforced: false, would_block: ['block', 'shadow'].includes(r.action), flows: m.length, apps: [...new Set(m.map(f => f.process))], bytes: m.reduce((n, f) => n + f.bytes_in + f.bytes_out, 0), bps: m.reduce((n, f) => n + f.total_bps, 0) };
+      }));
+    }
+    for (const key of ['trust', 'privacy', 'egress']) {
+      if (path === '/v1/' + (key === 'privacy' ? 'privacy-report' : key)) return json((await snapshot())[key] ?? (key === 'trust' ? [] : {}));
     }
     return err('not found', 404);
   }

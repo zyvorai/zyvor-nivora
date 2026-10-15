@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Site: terminal tabs with real `nivoractl` output captured at build time, a verified-vs-not table copied from the README, a command palette (`/` or ⌘K) over sections, docs and demo panes, and a Homebrew install line.
+
+- Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).
+
+- Site: the static demo now simulates flow explain, profiles, fleet, path check, diff/incident, policy dry-run and rule impact; gallery adds Insights, Alerts and Settings with arrow-key navigation and a link into the matching demo pane; new feature cards.
+
 
 ## 0.5.1 — 2026-10-15
 

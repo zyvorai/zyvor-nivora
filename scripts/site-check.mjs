@@ -5,7 +5,10 @@ import path from 'node:path';
 
 const root = path.resolve(process.argv[2] || new URL('../_site', import.meta.url).pathname);
 const problems = [];
-const pages = ['index.html', '404.html', 'demo/index.html'];
+const pages = ['index.html', '404.html', 'demo/index.html', 'docs/index.html'];
+for (const f of fs.existsSync(path.join(root, 'docs')) ? fs.readdirSync(path.join(root, 'docs')) : []) {
+  if (f.endsWith('.html') && f !== 'index.html') pages.push('docs/' + f);
+}
 for (const page of pages) {
   const file = path.join(root, page);
   if (!fs.existsSync(file)) { problems.push(`missing ${page}`); continue; }
@@ -28,13 +31,14 @@ for (const page of pages) {
     problems.push(`${page}: external subresource ${m[1]}`);
   }
 }
-for (const f of ['feed.xml', 'robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
+for (const f of ['docs.js', 'docs/search.json', 'feed.xml', 'robots.txt', 'sitemap.xml', '.nojekyll', 'favicon.svg', 'social/og.png', 'demo/demo-snapshot.json', 'demo/demo.js'])
   if (!fs.existsSync(path.join(root, f))) problems.push(`missing ${f}`);
 // release-aware content: the page must carry the package.json version and no leftover placeholders
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 if (/\{\{[A-Z]+\}\}|<!--(?:DOWNLOAD|WHATSNEW)-->/.test(home)) problems.push('index.html: unreplaced placeholder');
 if (!home.includes(`Nivora ${pkg.version}`) && !home.includes(`v${pkg.version}`)) problems.push(`index.html: version ${pkg.version} not shown`);
+for (const id of ['terminal', 'verified', 'gallery', 'install']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing section #${id}`);
 const sha = home.match(/id="sha">([^<]*)</);
 if (sha && !/^[0-9a-f]{64}$/.test(sha[1])) problems.push('index.html: sha256 is not 64 hex characters');
 const feedXml = fs.readFileSync(path.join(root, 'feed.xml'), 'utf8');
