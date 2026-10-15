@@ -25,7 +25,7 @@ from typing import Any, Iterable
 
 from projects import attribute_projects, parse_lsof_cwd
 
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 
 
 def utc_now() -> str:
