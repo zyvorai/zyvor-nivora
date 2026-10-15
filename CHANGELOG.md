@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.5.1 — 2026-10-15
+
 - Release DMG: the app is ad-hoc signed before packaging so `codesign --verify --deep --strict` passes (resources are sealed). Still not Developer ID signed or notarised.
 
 ## 0.5.0 — 2026-10-15
