@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var store: NivoraStore
+    @AppStorage("nivora.promptNewDestinations") private var promptNewDestinations = false
     var body: some View {
         Form {
             Section("Appearance") {
@@ -16,6 +17,8 @@ struct SettingsView: View {
                 Stepper(value: $store.thresholdMbps, in: 0...10_000, step: 5) {
                     Text(store.thresholdMbps == 0 ? "Per-app throughput alert: off" : "Per-app throughput alert: \(Int(store.thresholdMbps)) Mbit/s")
                 }
+                Toggle("Notify when an app reaches a new destination", isOn: $promptNewDestinations)
+                Text("Notifications offer Observe or a one-hour block after the fact; connections are not paused.").font(.caption).foregroundStyle(Palette.textSecondary)
                 Text("Alerts observe and explain; they never block traffic.").font(.caption).foregroundStyle(Palette.textSecondary)
             }
             Section("Data") {

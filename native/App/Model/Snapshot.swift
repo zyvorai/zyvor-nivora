@@ -25,6 +25,7 @@ struct NivoraSnapshot: Decodable {
     struct Finding: Decodable, Identifiable {
         var id: String { "\(kind)-\(title)-\(detail)" }
         let severity: String; let kind: String; let title: String; let detail: String
+        let app: String?; let remote: String?
     }
     struct VPN: Decodable, Identifiable { var id: String { service_id }; let name: String; let service_id: String; let status: String; let active: Bool }
     struct DNS: Decodable { let servers: [String] }
@@ -52,6 +53,24 @@ struct NivoraSnapshot: Decodable {
         var id: String { "\(ts)-\(kind)-\(title)" }
         let ts: String; let kind: String; let title: String; let detail: String?
     }
+    struct TrustItem: Decodable, Identifiable {
+        struct Component: Decodable, Identifiable { var id: String { name }; let name: String; let points: Int; let max: Int; let detail: String }
+        var id: String { app }
+        let app: String; let score: Int; let level: String; let flows: Int; let components: [Component]
+    }
+    struct Privacy: Decodable {
+        struct Tracker: Decodable, Identifiable { var id: String { "\(app)-\(host)" }; let app: String; let host: String; let category: String }
+        struct Cleartext: Decodable, Identifiable { var id: String { "\(app)-\(host)-\(port)" }; let app: String; let host: String; let port: Int; let `protocol`: String }
+        let score: Int; let trackers: [Tracker]; let cleartext: [Cleartext]
+        let dns_vpn_leak: Bool; let unsigned_apps: [String]; let notes: [String]
+    }
+    struct Egress: Decodable {
+        struct Destination: Decodable, Identifiable { var id: String { host }; let host: String; let count: Int; let scope: String }
+        struct Workload: Decodable, Identifiable { var id: String { self.ident }; let ident: String; let kind: String; let external: Int; let destinations: [Destination]
+            enum CodingKeys: String, CodingKey { case ident = "id", kind, external, destinations } }
+        let connected: Bool; let workloads: [Workload]; let note: String?
+    }
+    struct Profile: Decodable { let name: String; let label: String }
     struct Rule: Decodable, Identifiable { let id: String; let action: String; let app: String?; let domain: String?; let ip: String?; let port: Int?; let expires_at: String? }
 
     let timestamp: String
@@ -73,6 +92,10 @@ struct NivoraSnapshot: Decodable {
     let fluxvm: FluxVM?
     let rules: [Rule]?
     let recent_events: [Event]?
+    let trust: [TrustItem]?
+    let privacy: Privacy?
+    let egress: Egress?
+    let profile: Profile?
 }
 
 struct QueryResponse: Decodable { let answer: String }

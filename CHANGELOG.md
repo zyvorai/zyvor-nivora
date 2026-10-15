@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Trust score per app, privacy report card, verified process identity (path, signing, team ID; "unsigned binary contacting the internet"), situation profiles, policy-as-code (`/v1/policy`, dry-run by default), FluxVM sandbox egress lens, push-only multi-Mac fleet view; `nivoractl` verbs for all of them.
+- Web: Insights view. Native: Insights pane, Shortcuts/Siri actions ("How is my network?", "Block an app for one hour"), and opt-in notifications for new destinations with Observe / Block 1 h (after the fact; connections are not paused).
 - Time-travel diff and incident narrative: `/v1/diff`, `/v1/incident`, `nivoractl diff|incident`; on-demand path check (`/v1/path-check`, `nivoractl path-check`); read-only MCP server `agent/nivora_mcp.py`.
 - LAN change detection: new device on the network (learned by MAC after a baseline), IP→MAC change, gateway MAC change (critical), Wi-Fi network change, and "DNS may bypass the VPN"; findings and Time Machine events.
 - Daily per-app usage with optional budgets (`budgets.json`), `/v1/usage`; project attribution (`project` on flows, `/v1/projects`); Prometheus `/metrics`.

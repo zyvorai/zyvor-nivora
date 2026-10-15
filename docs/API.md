@@ -30,6 +30,12 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 - `GET /v1/diff?from=&to=` — what differs between the stored snapshots at two times (ISO 8601; default last 30 min, max 30 days): health delta, flow groups added/removed, app rate movers, listeners, DNS servers, default route, devices, new findings. Needs history enabled
 - `GET /v1/incident?from=&to=` — the same window as an ordered narrative (events, route/traffic changes, new findings) with a one-line headline
 - `POST /v1/path-check` `{"host":"example.com","port":443}` — on-demand DNS → TCP → TLS reachability check with timings; the only active probe, runs only when asked, one at a time
+- `GET /v1/trust` — per-app trust score (0-100, lowest first) with every component and its reason: code signing (needs the collector to read `codesign`), destination novelty, tracker hosts, cleartext ports, listening exposure
+- `GET /v1/privacy-report` — trackers (bundled list, hostname match), cleartext protocols, DNS-bypasses-VPN, unsigned apps and a 0-100 score. Tracker checks need hostnames in flow data; the report says when they are missing
+- `GET /v1/egress` — per sandbox/VM destinations from FluxVM Hubble data, external count first
+- `GET /v1/profiles`, `POST /v1/profiles {"name":"travel"}` — situation profiles (`default`, `coding`, `presenting`, `travel`): alert thresholds, budget scale and whether informational findings are hidden. They never relax blocking rules or leases
+- `POST /v1/policy {"policy":{"name":"work","rules":[...]},"dry_run":true}` — policy-as-code. `dry_run` defaults to **true** and returns `add` / `remove` / `unchanged`; send `"dry_run": false` to apply. Managed rules carry `note: "policy:<name>"`; other rules and other policies are untouched. Blocks are leased unless `"permanent": true`. `GET /v1/policy/export` returns the active rules as a policy
+- `GET /v1/fleet`, `POST /v1/fleet/report` — multi-Mac view. A worker started with `--fleet-push https://coordinator:9857 --fleet-token TOKEN` pushes a compact summary (host, health, rates, counts, top findings) every `--fleet-interval` seconds. Push-only: the coordinator never connects out and there is no command channel
 - `GET /v1/rule-impact` — per rule: matched flows, apps, bytes and rate, and whether it is enforced
 - `GET /v1/behavior`
 - `GET /v1/diagnose`
