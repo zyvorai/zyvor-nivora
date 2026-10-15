@@ -36,7 +36,9 @@ def main():
     for c in ["status","apps","interfaces","routes","dns","vpn","fluxvm","findings","timeline","rules","health","traffic","topology","neighbors","listeners","behavior","diagnose","series"]: sub.add_parser(c)
     sub.add_parser("flows").add_argument("--filter", default="", help='e.g. app:Safari port:443 proto:tcp >1mbps')
     a=sub.add_parser("ask");a.add_argument("question",nargs="+")
-    a=sub.add_parser("rule-add");a.add_argument("--action",choices=["observe","allow","block"],default="observe");a.add_argument("--app");a.add_argument("--domain");a.add_argument("--ip");a.add_argument("--port",type=int);a.add_argument("--expires-at");a.add_argument("--duration",type=int,help="block lease seconds (default 3600)");a.add_argument("--permanent",action="store_true")
+    a=sub.add_parser("rule-add");a.add_argument("--action",choices=["observe","allow","block","shadow"],default="observe");a.add_argument("--app");a.add_argument("--domain");a.add_argument("--ip");a.add_argument("--port",type=int);a.add_argument("--expires-at");a.add_argument("--duration",type=int,help="block lease seconds (default 3600)");a.add_argument("--permanent",action="store_true")
+    a=sub.add_parser("explain");a.add_argument("flow_id")
+    sub.add_parser("rule-impact")
     a=sub.add_parser("rule-delete");a.add_argument("id")
     args=p.parse_args()
     try:
@@ -48,6 +50,8 @@ def main():
             rows=request(args.url,"/v1/flows"+("?"+urllib.parse.urlencode({"filter":args.filter}) if args.filter else ""),args.token); table(rows,[("process","APP"),("protocol","PROTO"),("remote","REMOTE"),("interface","IFACE"),("state","STATE")]); return
         path={"interfaces":"/v1/interfaces","routes":"/v1/routes","dns":"/v1/dns","vpn":"/v1/vpn","fluxvm":"/v1/fluxvm","findings":"/v1/findings","timeline":"/v1/timeline","rules":"/v1/rules","health":"/v1/health","traffic":"/v1/traffic","topology":"/v1/topology","neighbors":"/v1/neighbors","listeners":"/v1/listeners","behavior":"/v1/behavior","diagnose":"/v1/diagnose","series":"/v1/series"}.get(args.cmd)
         if path: print(json.dumps(request(args.url,path,args.token),indent=2)); return
+        if args.cmd=="explain": print(json.dumps(request(args.url,"/v1/flows/"+urllib.parse.quote(args.flow_id,safe="")+"/explain",args.token),indent=2)); return
+        if args.cmd=="rule-impact": print(json.dumps(request(args.url,"/v1/rule-impact",args.token),indent=2)); return
         if args.cmd=="ask": print(json.dumps(request(args.url,"/v1/query",args.token,"POST",{"question":" ".join(args.question)}),indent=2)); return
         if args.cmd=="rule-add":
             body={k:getattr(args,k) for k in ["action","app","domain","ip","port","expires_at"] if getattr(args,k,None) is not None}; body.update({"duration_seconds":args.duration} if args.duration else {}); body.update({"permanent":True} if args.permanent else {})

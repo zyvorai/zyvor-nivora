@@ -23,6 +23,8 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 - `GET /v1/listeners`
 - `GET /v1/containers` (container runtime traffic summary)
 - `GET /v1/port-conflicts` (ports bound by multiple processes)
+- `GET /v1/flows/{id}/explain` — evidence for one flow: app, destination, path, traffic share, new-destination status, matching rules and related findings, plus plain-language `reasons`
+- `GET /v1/rule-impact` — per rule: matched flows, apps, bytes and rate, and whether it is enforced
 - `GET /v1/behavior`
 - `GET /v1/diagnose`
 - `GET /v1/timeline`
@@ -48,7 +50,7 @@ The local deterministic investigator can answer about live upload/download, port
 {"action":"block","domain":"example.com"}
 ```
 
-A rule needs at least one of `app`, `domain`, `ip`, or `port`. `action` is `observe`, `allow`, or `block`.
+A rule needs at least one of `app`, `domain`, `ip`, or `port`. `action` is `observe`, `allow`, `block`, or `shadow`. A `shadow` rule counts what it would block (see `/v1/rule-impact`) and is never enforced, so it needs no lease; use it to preview a block before enabling it.
 
 **Safety:** a block rule without `expires_at` is automatically leased for 3600 seconds. Supply `duration_seconds` to choose 60 seconds through 7 days, or `permanent: true` to intentionally create a non-expiring block.
 

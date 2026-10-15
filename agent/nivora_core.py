@@ -1142,8 +1142,8 @@ class RuleStore:
         allowed = {"app", "domain", "ip", "port", "action", "expires_at", "note", "permanent", "duration_seconds"}
         clean = {k: rule.get(k) for k in allowed if rule.get(k) not in (None, "")}
         action = clean.get("action", "observe")
-        if action not in {"observe", "block", "allow"}:
-            raise ValueError("action must be observe, block or allow")
+        if action not in {"observe", "block", "allow", "shadow"}:
+            raise ValueError("action must be observe, block, allow or shadow")
         predicates = [clean.get(k) for k in ("app", "domain", "ip", "port")]
         if not any(x not in (None, "") for x in predicates):
             raise ValueError("a rule needs app, domain, ip or port")
@@ -1200,7 +1200,8 @@ def apply_rule_preview(flows: list[dict[str, Any]], rules: list[dict[str, Any]])
             host = endpoint_host(flow.get("remote", ""))
             port = endpoint_port(flow.get("remote", ""))
             match = True
-            if rule.get("app") and rule["app"].lower() not in app.lower():
+            names = f"{flow.get('bundle_id') or ''} {flow.get('process') or ''}".lower()
+            if rule.get("app") and rule["app"].lower() not in names:
                 match = False
             if rule.get("domain") and not (host == rule["domain"] or host.endswith("." + rule["domain"])):
                 match = False

@@ -39,6 +39,8 @@ targets:
         buildPhase: resources
       - path: ../agent/dns_diag.py
         buildPhase: resources
+      - path: ../agent/explain.py
+        buildPhase: resources
       - path: ../web
         type: folder
         buildPhase: resources

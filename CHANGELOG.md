@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Why this flow?: `GET /v1/flows/{id}/explain` and `nivoractl explain <id>` collect the evidence for one flow. Shadow rules (`action: shadow`) and `/v1/rule-impact` show what a block would match before it is enabled.
 - Dev: `make help`, `check`, `test-one`, `fixtures`, `app`, `stop`, `clean` shortcuts (documented in `docs/TESTING.md`).
 
 - Developer intelligence: container runtime awareness (`containers`), port ownership/conflicts (`port_conflicts`, flagged on listeners), rate-based anomaly findings, and DNS resolver diagnosis (`dns_diagnosis`); `/v1/containers` and `/v1/port-conflicts`. Collector stays stdlib-only and observe-only.
