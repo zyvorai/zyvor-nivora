@@ -64,4 +64,66 @@
     Object.keys(links).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
   }
   syncTheme();
+
+  // terminal tabs (captured CLI output; without JS the first pane is shown)
+  var term = document.getElementById('term');
+  if (term) {
+    term.querySelectorAll('[role=tab]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        term.querySelectorAll('[role=tab]').forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+        term.querySelectorAll('.term-pane').forEach(function (p) { p.hidden = p.dataset.pane !== t.dataset.tab; });
+      });
+    });
+  }
+
+  // command palette: sections, docs (docs/search.json) and demo panes
+  var dlg = document.getElementById('palette-dialog'), pin = document.getElementById('palette-input'), pres = document.getElementById('palette-results');
+  var items = null, sel = 0, shown = [];
+  function base() {
+    var out = [];
+    [['See it', '#gallery'], ['Features', '#features'], ['What\u2019s new', '#new'], ['Install and download', '#install'], ['Verified vs not', '#verified'], ['Privacy', '#privacy'], ['FAQ', '#faq']]
+      .forEach(function (x) { out.push({ label: x[0], hint: 'Section', url: x[1] }); });
+    document.querySelectorAll('#features .card h3, #privacy .card h3').forEach(function (h) {
+      out.push({ label: h.textContent, hint: 'Feature', url: '#' + h.closest('section').id });
+    });
+    ['overview', 'flows', 'applications', 'health', 'security', 'insights', 'timeline', 'capture', 'investigator', 'settings']
+      .forEach(function (p) { out.push({ label: 'Demo: ' + p, hint: 'Live demo', url: 'demo/#' + p }); });
+    return out;
+  }
+  function loadItems(cb) {
+    if (items) return cb();
+    items = base();
+    fetch('docs/search.json').then(function (r) { return r.json(); }).then(function (j) {
+      j.forEach(function (e) { items.push({ label: e.heading || e.title, hint: 'Docs · ' + e.title, url: 'docs/' + e.url }); });
+    }).catch(function () {}).then(cb);
+  }
+  function esc(t) { return t.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function draw() {
+    var q = pin.value.trim().toLowerCase(), words = q ? q.split(/\s+/) : [];
+    shown = items.filter(function (it) { var h = (it.label + ' ' + it.hint).toLowerCase(); return words.every(function (w) { return h.indexOf(w) >= 0; }); }).slice(0, 10);
+    sel = 0;
+    pres.innerHTML = shown.map(function (it, i) {
+      return '<a role="option" href="' + esc(it.url) + '" aria-selected="' + (i === 0) + '"><b>' + esc(it.label) + '</b><span>' + esc(it.hint) + '</span></a>';
+    }).join('') || '<p class="muted">No matches.</p>';
+  }
+  function mark() { Array.prototype.forEach.call(pres.children, function (a, i) { a.setAttribute('aria-selected', String(i === sel)); }); }
+  function open() {
+    if (!dlg || !dlg.showModal) return;
+    loadItems(function () { pin.value = ''; draw(); if (!dlg.open) dlg.showModal(); pin.focus(); });
+  }
+  if (dlg) {
+    document.getElementById('palette').addEventListener('click', open);
+    document.addEventListener('keydown', function (e) {
+      var typing = /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '');
+      if (((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing)) { e.preventDefault(); open(); }
+    });
+    pin.addEventListener('input', draw);
+    pin.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, shown.length - 1); mark(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); mark(); }
+      else if (e.key === 'Enter' && shown[sel]) { e.preventDefault(); dlg.close(); window.location.href = shown[sel].url; }
+    });
+    pres.addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  }
 })();

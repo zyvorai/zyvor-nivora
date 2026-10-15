@@ -145,7 +145,8 @@ See [SECURITY.md](SECURITY.md).
 | Collector, API, dashboard, CLI, exports, filters | Built and tested in CI (Python, Node) |
 | Native app (SwiftUI) and unit tests | Builds and runs unsigned with Xcode; XCTest suite passes |
 | Content filter (system extension) and capture helper | **Compile-verified only.** Signing, entitlement approval, activation and root capture are untested; they need a provisioned, signed Mac |
-| Release DMG | Unsigned, not notarised |
+| Insights pane, Shortcuts/Siri actions, widget | Build and unit tests pass; the widget in the macOS widget gallery and the Shortcuts/Siri phrases are **not exercised** |
+| Release DMG | Ad-hoc sealed, unsigned by a Developer ID, not notarised (Gatekeeper asks for Open Anyway) |
 
 ## Documentation
 

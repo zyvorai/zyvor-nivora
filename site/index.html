@@ -34,9 +34,10 @@
 <header class="bar">
   <a class="brand" href="./" aria-label="Zyvor Nivora home"><img class="logo" src="favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
   <nav aria-label="Sections" id="sections">
-    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
+    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#verified">Verified</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
   </nav>
   <div class="bar-actions">
+    <button id="palette" class="icon" type="button" aria-label="Search the site (press /)" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
     <button id="theme" class="icon" type="button" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -101,6 +102,8 @@
     </div>
   </section>
 
+  <!--TERMINAL-->
+
   <section id="how">
     <h2>How it fits together</h2>
     <p class="sub">A native app and a browser dashboard speak the same local JSON API. The collector is a single stdlib-only Python file.</p>
@@ -121,6 +124,8 @@
       </tbody>
     </table></div>
   </section>
+
+  <!--MATURITY-->
 
   <section id="privacy">
     <h2>Private by design</h2>
@@ -145,6 +150,8 @@
       <p>Details and uninstall steps: <a href="docs/install.html">the install guide</a>.</p>
     </div>
     <!--DOWNLOAD-->
+    <p class="sub">Or with Homebrew (Apple silicon, same unsigned build):</p>
+    <pre><code>brew install --cask zyvorai/tap/nivora</code></pre>
     <pre><code># try it with simulated data, no install
 python3 agent/nivora.py --demo
 
@@ -173,6 +180,7 @@ open native/build/Build/Products/Release/Nivora.app</code></pre>
   <p><b>Zyvor Nivora</b> · © 2026 Zyvor AI Labs Private Limited · <a href="https://zyvor.dev">zyvor.dev</a> · BUSL-1.1 · <a href="https://github.com/zyvorai/zyvor-nivora">GitHub</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/CHANGELOG.md">Changelog</a> · <a href="docs/api.html">API</a> · <a href="docs/">Docs</a> · <a href="demo/">Live demo</a> · <a href="feed.xml">Feed</a></p>
   <p class="build">v{{VERSION}} · built {{DATE}} · {{COMMIT}}</p>
 </footer>
+<dialog id="palette-dialog" aria-label="Search the site"><form method="dialog"><input id="palette-input" type="search" placeholder="Jump to a section, doc or demo pane" autocomplete="off" aria-label="Search" /><div id="palette-results" role="listbox"></div></form></dialog>
 <script src="site.js"></script>
 </body>
 </html>

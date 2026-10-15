@@ -38,6 +38,7 @@ const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.ur
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 if (/\{\{[A-Z]+\}\}|<!--(?:DOWNLOAD|WHATSNEW)-->/.test(home)) problems.push('index.html: unreplaced placeholder');
 if (!home.includes(`Nivora ${pkg.version}`) && !home.includes(`v${pkg.version}`)) problems.push(`index.html: version ${pkg.version} not shown`);
+for (const id of ['terminal', 'verified', 'gallery', 'install']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing section #${id}`);
 const sha = home.match(/id="sha">([^<]*)</);
 if (sha && !/^[0-9a-f]{64}$/.test(sha[1])) problems.push('index.html: sha256 is not 64 hex characters');
 const feedXml = fs.readFileSync(path.join(root, 'feed.xml'), 'utf8');
