@@ -4,7 +4,24 @@ import Foundation
 /// Runs the bundled stdlib-only Python collector on loopback with a random in-memory token.
 final class CollectorProcess {
     private var process: Process?
-    let port = 9857
+    /// 9857 when free, else the next free loopback port (a stale collector must not block a new launch).
+    let port: Int = {
+        for candidate in 9857..<9957 where CollectorProcess.isFree(candidate) { return candidate }
+        return 9857
+    }()
+
+    private static func isFree(_ port: Int) -> Bool {
+        let fd = socket(AF_INET, SOCK_STREAM, 0)
+        guard fd >= 0 else { return false }
+        defer { close(fd) }
+        var addr = sockaddr_in()
+        addr.sin_family = sa_family_t(AF_INET)
+        addr.sin_port = in_port_t(port).bigEndian
+        addr.sin_addr.s_addr = inet_addr("127.0.0.1")
+        return withUnsafePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { bind(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0 }
+        }
+    }
     let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
 
     func start(demo: Bool = false) throws {
@@ -19,7 +36,7 @@ final class CollectorProcess {
         guard let python else { throw NSError(domain: "Nivora", code: 3, userInfo: [NSLocalizedDescriptionKey: "Python 3 was not found"])}
         let p = Process()
         p.executableURL = URL(fileURLWithPath: python)
-        var args = [script.path, "--bind", "127.0.0.1", "--port", String(port), "--token", token, "--web-root", web.path, "--quiet"]
+        var args = [script.path, "--bind", "127.0.0.1", "--port", String(port), "--token", token, "--web-root", web.path, "--quiet", "--parent-pid", String(ProcessInfo.processInfo.processIdentifier)]
         if demo { args.append("--demo") }
         p.arguments = args
         var env = ProcessInfo.processInfo.environment
