@@ -151,9 +151,12 @@ final class NivoraStore: ObservableObject {
     /// The running store, for App Intents (they execute inside the app process).
     static weak var current: NivoraStore?
 
+    private var startedAt = Date()
+
     func start() {
         NivoraStore.current = self
         guard loop == nil else { return }
+        startedAt = Date()
         do { try collector.start(demo: demo) } catch { status = .failed(error.localizedDescription) }
         loop = Task { [weak self] in
             while !Task.isCancelled {
@@ -204,7 +207,11 @@ final class NivoraStore: ObservableObject {
             if history.count > maxSamples { history.removeFirst(history.count - maxSamples) }
             status = .live
         } catch {
-            if snapshot == nil { status = .failed(error.localizedDescription) }
+            switch CollectorStartup.outcome(hasSnapshot: snapshot != nil, sinceStart: Date().timeIntervalSince(startedAt), message: error.localizedDescription) {
+            case .keep: break
+            case .starting: status = .starting
+            case .failed(let message): status = .failed(message)
+            }
         }
     }
 
