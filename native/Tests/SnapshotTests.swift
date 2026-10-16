@@ -26,6 +26,33 @@ final class SnapshotTests: XCTestCase {
         XCTAssertNil(s.rules)
     }
 
+    /// FluxVM's real API answers /v1/vms with {"items": [...]} and `status`; the app once failed to decode that,
+    /// which showed "Collector unavailable" on every Mac that runs FluxVM.
+    func testFluxVMEnvelopeAsSentByARealFluxVMDecodes() throws {
+        var obj = try JSONSerialization.jsonObject(with: fixture()) as! [String: Any]
+        var fluxvm = obj["fluxvm"] as? [String: Any] ?? ["connected": true]
+        fluxvm["vms"] = ["items": [["id": "vm-1", "name": "warm", "backend": "vz", "status": "stopped", "pid": NSNull(), "expires_at": NSNull()]]]
+        fluxvm["sandboxes"] = ["items": [["id": "sb-1", "state": "running"]]]
+        obj["fluxvm"] = fluxvm
+        let s = try JSONDecoder().decode(NivoraSnapshot.self, from: JSONSerialization.data(withJSONObject: obj))
+        XCTAssertEqual(s.fluxvm?.vms?.first?.ident, "vm-1")
+        XCTAssertEqual(s.fluxvm?.vms?.first?.state, "stopped")      // `status` is accepted where `state` is expected
+        XCTAssertEqual(s.fluxvm?.sandboxes?.first?.state, "running")
+    }
+
+    func testAnUnexpectedFluxVMShapeNeverBlanksTheWholeSnapshot() throws {
+        for junk: Any in ["garbage", 7, ["items": "nope"], [1, "x"], NSNull()] {
+            var obj = try JSONSerialization.jsonObject(with: fixture()) as! [String: Any]
+            var fluxvm = obj["fluxvm"] as? [String: Any] ?? ["connected": true]
+            fluxvm["vms"] = junk
+            fluxvm["sandboxes"] = junk
+            obj["fluxvm"] = fluxvm
+            let s = try JSONDecoder().decode(NivoraSnapshot.self, from: JSONSerialization.data(withJSONObject: obj))
+            XCTAssertFalse(s.apps.isEmpty, "the rest of the snapshot must survive \(junk)")
+            XCTAssertNil(s.fluxvm?.vms)
+        }
+    }
+
     func testFormatters() {
         XCTAssertFalse(byteString(0).lowercased().contains("zero"))
         XCTAssertFalse(rateString(0).lowercased().contains("zero"))
