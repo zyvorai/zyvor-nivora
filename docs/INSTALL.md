@@ -1,5 +1,16 @@
 # Installing Nivora
 
+**Paid builds (business use, ₹299 incl. GST).** After payment you receive an email with a GST invoice and a download link
+(valid 7 days, 5 downloads). Verify the download against the `.sha256` shown on the payment page or sent on request.
+
+- **Signed and notarized build** (`Nivora-X.Y.Z.dmg`): open the DMG and drag **Nivora** to **Applications**. macOS opens it
+  without a warning. It does not include the content filter or the capture helper.
+- **Developer build** (`Nivora-X.Y.Z-developer.dmg`): unsigned, so the sections below apply. It includes the content-filter
+  and capture-helper code; to activate them you must sign the app yourself with your own Developer ID and a provisioning
+  profile that carries the NetworkExtension entitlement. Those parts are compile-verified only.
+
+The rest of this page covers the **free** builds (personal, non-business use), which are not signed or notarised.
+
 Nivora **release builds are not signed with an Apple Developer ID and are not notarised**. macOS Gatekeeper
 will refuse to open a downloaded copy the first time and show a message such as:
 

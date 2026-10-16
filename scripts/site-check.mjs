@@ -38,6 +38,12 @@ const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.ur
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 if (/\{\{[A-Z]+\}\}|<!--(?:DOWNLOAD|WHATSNEW)-->/.test(home)) problems.push('index.html: unreplaced placeholder');
 if (!home.includes(`Nivora ${pkg.version}`) && !home.includes(`v${pkg.version}`)) problems.push(`index.html: version ${pkg.version} not shown`);
+if (/__NIVORA_[A-Z_]+__/.test(home)) problems.push('index.html: a Nivora payment link placeholder is still in the page');
+for (const which of ['signed', 'developer']) {
+  const buy = home.match(new RegExp(`<a[^>]*\\bid="buy-${which}"[^>]*\\bhref="([^"]*)"`));
+  if (!buy || !/^https:\/\/[^ ]+$/.test(buy[1])) problems.push(`index.html: buy-${which} link missing or not https`);
+}
+if (!/about US\$2\.99/.test(home) || !/299/.test(home)) problems.push('index.html: the price (₹299, about US$2.99) is not shown');
 for (const id of ['terminal', 'verified', 'gallery', 'install']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing section #${id}`);
 const sha = home.match(/id="sha">([^<]*)</);
 if (sha && !/^[0-9a-f]{64}$/.test(sha[1])) problems.push('index.html: sha256 is not 64 hex characters');
