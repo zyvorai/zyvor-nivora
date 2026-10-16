@@ -14,7 +14,18 @@ final class NivoraFilterManager: ObservableObject {
 
     private var activation: ActivationRequest?
 
+    /// The filter extension exists only in builds that bundle it; the standard signed build does not
+    /// (it needs Apple's NetworkExtension entitlement and provisioning), and neither does it call the
+    /// NetworkExtension APIs there.
+    static var isBundled: Bool {
+        let path = Bundle.main.bundleURL
+            .appendingPathComponent("Contents/Library/SystemExtensions/\(extensionID).systemextension").path
+        return FileManager.default.fileExists(atPath: path)
+    }
+    static let notBundledStatus = "Content filter is not included in this build; Nivora uses the collector"
+
     func load() async {
+        guard Self.isBundled else { status = Self.notBundledStatus; enabled = false; return }
         do {
             let manager = NEFilterManager.shared()
             try await withCheckedThrowingContinuation { (c: CheckedContinuation<Void, Error>) in
@@ -26,6 +37,7 @@ final class NivoraFilterManager: ObservableObject {
     }
 
     func setEnabled(_ value: Bool) async {
+        guard Self.isBundled else { status = Self.notBundledStatus; enabled = false; return }
         do {
             if value { try await activateExtension() }
             try await configure(enabled: value)

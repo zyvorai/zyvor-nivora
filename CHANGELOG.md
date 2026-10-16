@@ -9,6 +9,13 @@
 - Site: the static demo now simulates flow explain, profiles, fleet, path check, diff/incident, policy dry-run and rule impact; gallery adds Insights, Alerts and Settings with arrow-key navigation and a link into the matching demo pane; new feature cards.
 
 
+## 0.5.2 — 2026-10-16
+
+- **Fix: "Collector unavailable" on every Mac that runs FluxVM.** FluxVM answers `/v1/vms` with `{"items": [...]}` and `status`; the collector forwarded that object, the native app expects an array, so decoding the whole snapshot failed and the app showed an error for a collector that was running fine. The collector now normalises `vms` and `sandboxes` to lists with `state` (`fluxvm_workloads`), the egress code accepts the envelope too, and the native decoder is tolerant: an unexpected shape in this optional section can no longer blank the app. Regression tests cover the collector, egress and the Swift decoder with real-shaped data.
+- Fix: the app no longer flashes "Collector unavailable" while the bundled collector starts (about 3 s). A failed poll within the first 20 s with no data keeps "Starting Nivora…"; once data has been shown a failed poll never replaces it.
+- Native: when the content-filter extension is not in the bundle the app says so ("Content filter is not included in this build") instead of showing a raw system error.
+- New: `scripts/package-signed.sh` builds a Developer ID signed, hardened-runtime, notarized and stapled DMG. It omits the content-filter extension and the capture helper (a plain Developer ID signature cannot carry their restricted NetworkExtension entitlements) and refuses to sign if restricted entitlements are present. `package-dmg.sh` gains `SUFFIX`/`OUT_DIR` and writes a relative checksum file. The GitHub release DMG from CI is unchanged: ad-hoc signed, not notarized.
+
 ## 0.5.1 — 2026-10-15
 
 - Release DMG: the app is ad-hoc signed before packaging so `codesign --verify --deep --strict` passes (resources are sealed). Still not Developer ID signed or notarised.

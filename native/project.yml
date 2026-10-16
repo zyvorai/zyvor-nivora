@@ -10,7 +10,7 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
     CURRENT_PROJECT_VERSION: 1
-    MARKETING_VERSION: 0.5.1
+    MARKETING_VERSION: 0.5.2
 
 targets:
   Nivora:
@@ -160,6 +160,7 @@ targets:
       - path: App/Model/Alerts.swift
       - path: App/Model/Filter.swift
       - path: App/Model/Welcome.swift
+      - path: App/Model/StartupStatus.swift
       - path: Shared/WidgetData.swift
       - path: CaptureHelper/Protocol.swift
       - path: CaptureHelper/Validator.swift

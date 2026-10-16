@@ -126,6 +126,33 @@ class ModelTests(unittest.TestCase):
             self.assertTrue(any(x["remote"] == "new.example" for x in second["new_destinations"]))
 
 
+    def test_fluxvm_envelope_and_status_are_normalised(self):
+        """FluxVM answers with {"items": [...]} and `status`; the snapshot must carry plain lists with `state`
+        (a dict here once made the native app report "Collector unavailable" on every Mac running FluxVM)."""
+        from nivora_core import fluxvm_workloads
+        class Probe(FluxVMProbe):
+            def _get(self, path):
+                return {
+                    "/healthz": {"ok": True},
+                    "/v1/vms": {"items": [{"id": "vm-1", "name": "warm", "backend": "vz", "status": "stopped", "pid": None}]},
+                    "/v1/sandboxes": {"items": [{"id": "sb-1", "state": "running"}]},
+                }.get(path)
+        data = Probe().collect()
+        self.assertIsInstance(data["vms"], list)
+        self.assertEqual(data["vms"][0]["id"], "vm-1")
+        self.assertEqual(data["vms"][0]["state"], "stopped")
+        self.assertEqual(data["sandboxes"], [{"id": "sb-1", "state": "running"}])
+        # bare lists stay as they are, an existing `state` is never overwritten, garbage becomes an empty list
+        self.assertEqual(fluxvm_workloads([{"id": "a", "state": "running", "status": "x"}]), [{"id": "a", "state": "running", "status": "x"}])
+        for junk in (None, "oops", 7, {"items": "nope"}, {"other": []}, [1, "x", None]):
+            self.assertEqual(fluxvm_workloads(junk), [], junk)
+
+    def test_egress_workloads_accept_the_items_envelope(self):
+        from egress import _workloads
+        found = _workloads({"vms": {"items": [{"id": "vm-1", "state": "running", "backend": "vz"}]}, "sandboxes": []})
+        self.assertEqual([w["id"] for w in found], ["vm-1"])
+        self.assertEqual(found[0]["kind"], "vm")
+
     def test_fluxvm_probe_fast_absent_and_rich_present(self):
         class Probe(FluxVMProbe):
             def __init__(self, replies):

@@ -146,7 +146,8 @@ See [SECURITY.md](SECURITY.md).
 | Native app (SwiftUI) and unit tests | Builds and runs unsigned with Xcode; XCTest suite passes |
 | Content filter (system extension) and capture helper | **Compile-verified only.** Signing, entitlement approval, activation and root capture are untested; they need a provisioned, signed Mac |
 | Insights pane, Shortcuts/Siri actions, widget | Build and unit tests pass; the widget in the macOS widget gallery and the Shortcuts/Siri phrases are **not exercised** |
-| Release DMG | Ad-hoc sealed, unsigned by a Developer ID, not notarised (Gatekeeper asks for Open Anyway) |
+| Release DMG from GitHub (free) | Ad-hoc sealed, unsigned by a Developer ID, not notarised (Gatekeeper asks for Open Anyway) |
+| Signed and notarized build (`scripts/package-signed.sh`) | Verified on macOS 27.2, Apple silicon: Apple notarization accepted, stapled, Gatekeeper accepts the DMG and the app (also with a download quarantine flag), the app launches and its bundled collector serves data the app decodes (checked against a real FluxVM). It deliberately leaves out the content filter and capture helper. Not exercised: other macOS versions, Intel (the app is arm64 only) |
 
 ## Documentation
 

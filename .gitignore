@@ -12,3 +12,7 @@ native/build/
 *.sha256
 _site/
 SHA256SUMS.txt
+
+# local packaging output (signed and developer DMGs)
+release-signed/
+release-developer/
