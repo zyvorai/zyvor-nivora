@@ -160,6 +160,7 @@ targets:
       - path: App/Model/Alerts.swift
       - path: App/Model/Filter.swift
       - path: App/Model/Welcome.swift
+      - path: App/Model/StartupStatus.swift
       - path: Shared/WidgetData.swift
       - path: CaptureHelper/Protocol.swift
       - path: CaptureHelper/Validator.swift
