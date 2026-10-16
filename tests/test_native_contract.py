@@ -176,9 +176,17 @@ class NativeContractTests(unittest.TestCase):
         self.assertIn("Zyvor Nivora", site)
         for rel in ("site/site.css", "site/site.js", "site/theme.js", "site/404.html", "site/robots.txt", "site/sitemap.xml"):
             self.assertTrue((ROOT / rel).is_file(), rel)
-        # honest claims: unsigned builds, no notarisation claim
-        self.assertNotIn("notarized", site.lower())
+        # honest claims: the only affirmative notarisation claim is the signed (paid) build's card, which
+        # scripts/package-signed.sh really notarizes; every other mention (free builds, developer build) is a negation.
         self.assertIn("unsigned", site.lower())
+        cards = site.split('<div class="card">')
+        signed_card = [c for c in cards if 'id="buy-signed"' in c]
+        self.assertEqual(len(signed_card), 1, "exactly one card sells the signed build")
+        rest = site.replace(signed_card[0], "").lower()
+        for m in re.finditer(r"notari[sz]", rest):
+            before = rest[max(0, m.start() - 60):m.start()]
+            self.assertTrue("not " in before or "cannot" in before or "n't" in before,
+                            f"affirmative notarisation claim outside the signed build card: ...{before}{rest[m.start():m.start()+14]}")
 
     def test_readme_images_exist_and_legal_matches_vytrix(self):
         readme = (ROOT / "README.md").read_text()
