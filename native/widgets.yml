@@ -11,7 +11,7 @@ settings:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     CURRENT_PROJECT_VERSION: 1
-    MARKETING_VERSION: 0.5.1
+    MARKETING_VERSION: 0.5.2
 targets:
   Nivora:
     type: application

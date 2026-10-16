@@ -51,7 +51,15 @@ The fixture `Tests/Fixtures/demo-snapshot.json` comes from `python3 agent/nivora
 2. Merge, then `git tag vX.Y.Z && git push origin vX.Y.Z`.
 3. The `release` workflow verifies the tag matches `package.json`, runs the suite, builds the unsigned app, creates `Nivora-X.Y.Z.dmg` plus `SHA256SUMS.txt` and opens a **draft** GitHub release.
 
-The DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see `docs/NETWORKEXTENSION.md`, `docs/CAPTURE.md`).
+The CI DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see `docs/NETWORKEXTENSION.md`, `docs/CAPTURE.md`).
+
+### Signed and notarized build (maintainers, on a Mac with the Developer ID certificate)
+
+```bash
+DEVELOPER_ID_APP="Developer ID Application: NAME (TEAMID)" NOTARY_PROFILE=<notarytool keychain profile> ./scripts/package-signed.sh
+```
+
+It writes `release-signed/Nivora-X.Y.Z.dmg` (+ `.sha256`, git-ignored), notarizes, staples and runs `spctl`. The standard build omits the content filter and capture helper. Check by hand before shipping: `codesign --verify --deep --strict`, `spctl -a -t exec -vv` on the app inside the mounted DMG, no restricted entitlements (`codesign -d --entitlements -`), then open the app on a real desktop and confirm Overview shows data. Do not feed it fixtures only: run the bundled collector against a Mac that has FluxVM running and decode that output with `native/App/Model/Snapshot.swift`, because demo data uses a different FluxVM shape than the real API (that gap hid the 0.5.2 "Collector unavailable" bug).
 
 
 ## Developer shortcuts

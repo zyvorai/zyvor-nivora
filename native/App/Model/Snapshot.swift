@@ -44,10 +44,36 @@ struct NivoraSnapshot: Decodable {
     }
     struct Behavior: Decodable { let known_destinations: Int? }
     struct FluxVM: Decodable {
-        struct Workload: Decodable, Identifiable { var id: String { ident ?? UUID().uuidString }; let ident: String?; let state: String?; let backend: String?
-            enum CodingKeys: String, CodingKey { case ident = "id", state, backend } }
+        struct Workload: Decodable, Identifiable {
+            var id: String { ident ?? UUID().uuidString }; let ident: String?; let state: String?; let backend: String?
+            enum CodingKeys: String, CodingKey { case ident = "id", state, status, backend }
+            init(from decoder: Decoder) throws {
+                let c = try decoder.container(keyedBy: CodingKeys.self)
+                ident = try? c.decode(String.self, forKey: .ident)
+                // FluxVM names it `status`; the collector copies it to `state`, but accept either.
+                state = (try? c.decode(String.self, forKey: .state)) ?? (try? c.decode(String.self, forKey: .status))
+                backend = try? c.decode(String.self, forKey: .backend)
+            }
+        }
+        private struct Envelope: Decodable { let items: [Workload]? }
+        private enum Keys: String, CodingKey { case connected, base_url, vms, sandboxes }
         let connected: Bool; let base_url: String?
         let vms: [Workload]?; let sandboxes: [Workload]?
+
+        /// Tolerant on purpose: a shape this app does not expect in the optional FluxVM section must never make the
+        /// whole snapshot undecodable (that shows "Collector unavailable" for a collector that is running fine).
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: Keys.self)
+            connected = (try? c.decode(Bool.self, forKey: .connected)) ?? false
+            base_url = try? c.decode(String.self, forKey: .base_url)
+            vms = Self.workloads(c, .vms)
+            sandboxes = Self.workloads(c, .sandboxes)
+        }
+
+        private static func workloads(_ c: KeyedDecodingContainer<Keys>, _ key: Keys) -> [Workload]? {
+            if let list = try? c.decode([Workload].self, forKey: key) { return list }
+            return (try? c.decode(Envelope.self, forKey: key))?.items
+        }
     }
     struct Event: Decodable, Identifiable {
         var id: String { "\(ts)-\(kind)-\(title)" }

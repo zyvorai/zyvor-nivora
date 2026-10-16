@@ -17,7 +17,10 @@ def _hubble(fluxvm: dict[str, Any]) -> list[dict[str, Any]]:
 def _workloads(fluxvm: dict[str, Any]) -> list[dict[str, Any]]:
     out = []
     for kind in ("vms", "sandboxes"):
-        for w in fluxvm.get(kind) or []:
+        src = fluxvm.get(kind) or []
+        if isinstance(src, dict):
+            src = src.get("items") or []
+        for w in src:
             if isinstance(w, dict) and w.get("id"):
                 out.append({"id": str(w["id"]), "kind": kind[:-1], "state": w.get("state"), "backend": w.get("backend")})
     ends = fluxvm.get("network_endpoints") or []

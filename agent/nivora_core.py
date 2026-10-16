@@ -25,7 +25,7 @@ from typing import Any, Iterable
 
 from projects import attribute_projects, parse_lsof_cwd
 
-VERSION = "0.5.1"
+VERSION = "0.5.2"
 
 
 def utc_now() -> str:
@@ -991,7 +991,7 @@ class FluxVMProbe:
             "connected": connected,
             "base_url": self.base_url,
             "health": health,
-            "vms": vms if isinstance(vms, (list, dict)) else [],
+            "vms": fluxvm_workloads(vms),
             "sandboxes": [],
             "network_health": {},
             "network_endpoints": [],
@@ -1010,7 +1010,7 @@ class FluxVMProbe:
         observe = self._get("/v1/network/observe")
         telemetry = self._get("/v1/network/telemetry")  # forward-compatible richer contract
         empty.update({
-            "sandboxes": sandboxes if isinstance(sandboxes, (list, dict)) else [],
+            "sandboxes": fluxvm_workloads(sandboxes),
             "network_health": network_health if isinstance(network_health, (list, dict)) else {},
             "network_endpoints": network_endpoints if isinstance(network_endpoints, (list, dict)) else [],
             "hubble_flows": hubble_flows if isinstance(hubble_flows, (list, dict)) else [],
@@ -1018,6 +1018,23 @@ class FluxVMProbe:
             "network_telemetry": telemetry if isinstance(telemetry, (list, dict)) else [],
         })
         return empty
+
+
+def fluxvm_workloads(value: Any) -> list[dict[str, Any]]:
+    """FluxVM answers /v1/vms and /v1/sandboxes with a bare list or an {"items": [...]} envelope; its items carry
+    `status` where Nivora's model says `state`. Always hand the dashboard and the native app a list of dicts that
+    has `state`, so one shape difference can never make the whole snapshot undecodable."""
+    if isinstance(value, dict):
+        value = value.get("items")
+    out: list[dict[str, Any]] = []
+    for w in value if isinstance(value, list) else []:
+        if not isinstance(w, dict):
+            continue
+        w = dict(w)
+        if w.get("state") is None and w.get("status") is not None:
+            w["state"] = w["status"]
+        out.append(w)
+    return out
 
 
 class HistoryStore:
