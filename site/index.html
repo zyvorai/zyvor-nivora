@@ -138,9 +138,24 @@
 
   <section id="install">
     <h2>Get Nivora</h2>
-    <p class="sub">Nivora is early. The native app and collector build and run today; the signed content filter and capture helper need an Apple Developer ID and entitlement.</p>
+    <p class="sub">Nivora is early. <b>Free for personal, non-business use.</b> If you use it in a business, buy a licence: <b>₹299 including GST (about US$2.99)</b>, one-time, for the build you choose. Foreign cards pay the same rupee amount, converted by your bank.</p>
+    <div class="grid" id="buy" style="margin-bottom:18px">
+      <div class="card">
+        <h3>Signed &amp; notarized</h3>
+        <p>Signed with our Apple Developer ID and notarized, so it opens without a Gatekeeper warning. It uses the built-in collector; it does <b>not</b> include the content filter or the capture helper, which need Apple entitlements we do not have.</p>
+        <p><b>₹299</b> incl. GST · business-use licence</p>
+        <p class="cta" style="justify-content:flex-start"><a class="btn primary" id="buy-signed" href="https://rzp.io/rzp/ZlsmLxuC">Buy the signed app</a></p>
+      </div>
+      <div class="card">
+        <h3>Developer build</h3>
+        <p>Includes the content-filter and capture-helper code. It is <b>not signed or notarized</b>: Apple restricts the entitlements those need, so it cannot be notarized here, and macOS will not activate them unless you sign it yourself with your own Developer ID and provisioning profile. Those parts are compile-verified only, not tested end to end.</p>
+        <p><b>₹299</b> incl. GST · business-use licence</p>
+        <p class="cta" style="justify-content:flex-start"><a class="btn" id="buy-developer" href="https://rzp.io/rzp/6Qi1kpHv">Buy the developer build</a></p>
+      </div>
+    </div>
+    <p class="sub">A purchase licenses business and commercial use of that version and later ones on machines you own or operate. It does not cover redistribution or resale. Several companies or a larger rollout: <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a>. <a href="https://github.com/zyvorai/zyvor-nivora/blob/main/docs/COMMERCIAL-LICENSE.md">Licence terms</a>. After payment you get a GST invoice and a download link by email.</p>
     <div class="card" role="note" style="margin-bottom:18px">
-      <h3>Release builds are unsigned</h3>
+      <h3>The free builds are unsigned (personal, non-business use)</h3>
       <p>The downloadable app is <b>not signed or notarised</b>, so macOS Gatekeeper blocks the first launch with <i>&ldquo;Nivora&rdquo; cannot be opened because the developer cannot be verified</i>. This is expected. You have three options:</p>
       <ol>
         <li><b>Build it yourself</b> (below). A locally built app is never quarantined.</li>
