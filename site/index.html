@@ -34,7 +34,7 @@
 <header class="bar">
   <a class="brand" href="./" aria-label="Zyvor Nivora home"><img class="logo" src="favicon.svg" width="30" height="30" alt="" /><span>Nivora</span></a>
   <nav aria-label="Sections" id="sections">
-    <a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#verified">Verified</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
+    <a href="#tour">Tour</a><a href="#highlights">Highlights</a><a href="#gallery">See it</a><a href="#features">Features</a><a href="#how">How it fits</a><a href="#verified">Verified</a><a href="#privacy">Privacy</a><a href="#install">Install</a><a href="docs/">Docs</a><a href="#faq">FAQ</a>
   </nav>
   <div class="bar-actions">
     <button id="palette" class="icon" type="button" aria-label="Search the site (press /)" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
@@ -57,7 +57,102 @@
     <ul class="chips" aria-label="Highlights"><li class="ro">Observe-first</li><li>macOS 14+</li><li>Local-first</li><li>Zero-dependency collector</li><li>v{{VERSION}}</li><li>FluxVM aware</li></ul>
   </section>
 
+  <section class="shotband" aria-label="Product shot">
+    <figure class="hero-shot rv"><img class="only-light" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" decoding="async" /><img class="only-dark" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" decoding="async" /><figcaption>Native app, Flows pane. Demo capture on simulated telemetry (host zyvor-mac-studio), not a real Mac.</figcaption></figure>
+  </section>
+
   <!--WHATSNEW-->
+
+  <section id="tour" class="tour">
+    <h2>Take the tour</h2>
+    <p class="sub">Six panes of the native app, scrolled through. Every image is a demo capture on simulated telemetry.</p>
+    <div class="tour-grid" id="tour-grid">
+      <div class="stage" id="tour-stage" aria-hidden="true">
+        <div class="stage-frame">
+          <img class="only-light stage-img" src="ux/native-light-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, light appearance" decoding="async" data-step="0" /><img class="only-dark stage-img" src="ux/native-dark-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, dark appearance" decoding="async" data-step="0" />
+          <img class="only-light stage-img" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" loading="lazy" decoding="async" data-step="1" /><img class="only-dark stage-img" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" data-step="1" />
+          <img class="only-light stage-img" src="ux/native-light-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, light appearance" loading="lazy" decoding="async" data-step="2" /><img class="only-dark stage-img" src="ux/native-dark-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" data-step="2" />
+          <img class="only-light stage-img" src="ux/native-light-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, light appearance" loading="lazy" decoding="async" data-step="3" /><img class="only-dark stage-img" src="ux/native-dark-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" data-step="3" />
+          <img class="only-light stage-img" src="ux/native-light-insights.png" width="1800" height="1159" alt="Nivora Insights pane, simulated telemetry, light appearance" loading="lazy" decoding="async" data-step="4" /><img class="only-dark stage-img" src="ux/native-dark-insights.png" width="1800" height="1159" alt="Nivora Insights pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" data-step="4" />
+          <img class="only-light stage-img" src="ux/native-light-alerts.png" width="1800" height="1159" alt="Nivora Alerts pane, simulated telemetry, light appearance" loading="lazy" decoding="async" data-step="5" /><img class="only-dark stage-img" src="ux/native-dark-alerts.png" width="1800" height="1159" alt="Nivora Alerts pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" data-step="5" />
+        </div>
+        <p class="stage-cap">Demo: simulated telemetry</p>
+      </div>
+      <ol class="steps" id="tour-steps">
+        <li class="step" data-step="0" tabindex="0" aria-current="step">
+          <h3>Every app, one row</h3><p>Traffic grouped by application with live download and upload rates, totals and destinations.</p><p><a class="link" href="docs/changelog.html">Proof: Changelog</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+        <li class="step" data-step="1" tabindex="0">
+          <h3>Every connection, in the open</h3><p>Per-flow protocol, remote endpoint, state, interface and round-trip time, filtered with one grammar.</p><p><a class="link" href="docs/api.html#filter-grammar">Proof: Filter grammar</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+        <li class="step" data-step="2" tabindex="0">
+          <h3>A score that shows its work</h3><p>0 to 100 across route, DNS, latency, interfaces and safety, each component explained.</p><p><a class="link" href="docs/changelog.html">Proof: Changelog</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+        <li class="step" data-step="3" tabindex="0">
+          <h3>Rewind the network</h3><p>A local history of DNS, VPN, listener, interface and traffic-spike events.</p><p><a class="link" href="docs/changelog.html">Proof: Changelog</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+        <li class="step" data-step="4" tabindex="0">
+          <h3>Trust, attributed</h3><p>A per-app trust score where every point maps to a visible check.</p><p><a class="link" href="docs/changelog.html">Proof: Changelog</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-insights.png" width="1800" height="1159" alt="Nivora Insights pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-insights.png" width="1800" height="1159" alt="Nivora Insights pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+        <li class="step" data-step="5" tabindex="0">
+          <h3>Alerts that only explain</h3><p>Exposed services, DNS that may bypass the VPN, mixed tunnel traffic. Alerts never block.</p><p><a class="link" href="docs/changelog.html">Proof: Changelog</a></p>
+          <div class="step-shot"><img class="only-light" src="ux/native-light-alerts.png" width="1800" height="1159" alt="Nivora Alerts pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-alerts.png" width="1800" height="1159" alt="Nivora Alerts pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /></div>
+        </li>
+      </ol>
+    </div>
+    <p class="fine">The Security and Capture panes (content filter, headers-only packet capture) are in the developer build only. They are compile-verified, not tested end to end, and are not part of this tour or of the signed build.</p>
+  </section>
+  <section id="highlights" class="bands">
+    <h2 class="sr">Highlights</h2>
+    <article id="b-apps" class="band rv">
+      <p class="kicker">Applications</p>
+      <h3>See who is talking.</h3>
+      <p class="line">Traffic grouped the way you think about it: by app, with live rates and destinations.</p>
+      <p><a class="link" href="docs/changelog.html">Proof: Changelog &rarr;</a></p>
+      <figure class="band-shot"><img class="only-light" src="ux/native-light-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-applications.png" width="1800" height="1159" alt="Nivora Applications pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Applications pane. Demo capture, simulated telemetry.</figcaption></figure>
+    </article>
+    <article id="b-flows" class="band rv">
+      <p class="kicker">Flows</p>
+      <h3>Every connection, with its interface.</h3>
+      <p class="line">Protocol, remote, state, interface and RTT per flow, plus a share menu and grouping.</p>
+      <p><a class="link" href="docs/api.html#filter-grammar">Proof: Filter grammar &rarr;</a></p>
+      <figure class="band-shot"><img class="only-light" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Flows pane. Demo capture, simulated telemetry.</figcaption></figure>
+    </article>
+    <article id="b-health" class="band rv">
+      <p class="kicker">Health</p>
+      <h3>98 out of 100, and why.</h3>
+      <p class="line">A score built from route, DNS, latency, interfaces and safety. Nothing is a black box.</p>
+      <p><a class="link" href="docs/changelog.html">Proof: Changelog &rarr;</a></p>
+      <figure class="band-shot"><img class="only-light" src="ux/native-light-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-security.png" width="1800" height="1159" alt="Nivora Health pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Health pane. Demo capture, simulated telemetry.</figcaption></figure>
+    </article>
+    <article id="b-tm" class="band rv">
+      <p class="kicker">Time Machine</p>
+      <h3>What changed, and when.</h3>
+      <p class="line">Events stored locally in SQLite: DNS resolver changes, VPN state, new listeners, spikes.</p>
+      <p><a class="link" href="docs/changelog.html">Proof: Changelog &rarr;</a></p>
+      <figure class="band-shot"><img class="only-light" src="ux/native-light-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-timeline.png" width="1800" height="1159" alt="Nivora Time Machine pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Time Machine pane. Demo capture, simulated telemetry.</figcaption></figure>
+    </article>
+    <article id="b-exports" class="band rv">
+      <p class="kicker">Exports</p>
+      <h3>Take the evidence with you.</h3>
+      <p class="line">CSV, JSON or NDJSON, optionally redacted of private IPs, MACs, SSID and hostname. Never packet payloads.</p>
+      <p><a class="link" href="docs/api.html#export">Proof: Export API &rarr;</a></p>
+      <figure class="band-shot crop-top"><img class="only-light" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Crop of the Flows toolbar: the share (export) menu, grouping and filter chips.</figcaption></figure>
+    </article>
+    <article id="b-fluxvm" class="band rv">
+      <p class="kicker">FluxVM</p>
+      <h3>VMs beside host traffic.</h3>
+      <p class="line">When FluxVM is running, Nivora reads its local API on 127.0.0.1:7788 and shows its VMs and sandboxes. The demo shows the runner process and its vmnet8 interface.</p>
+      <p><a class="link" href="docs/fluxvm.html">Proof: FluxVM integration &rarr;</a></p>
+      <figure class="band-shot crop-fluxvm"><img class="only-light" src="ux/native-light-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, light appearance" loading="lazy" decoding="async" /><img class="only-dark" src="ux/native-dark-flows.png" width="1800" height="1159" alt="Nivora Flows pane, simulated telemetry, dark appearance" loading="lazy" decoding="async" /><figcaption>Crop of the Flows pane: FluxVM in the sidebar and the fluxvm-vz-runner flow. There is no dedicated FluxVM capture yet.</figcaption></figure>
+    </article>
+  </section>
+
 
   <section id="gallery" class="gallery">
     <h2>Pick a pane</h2>

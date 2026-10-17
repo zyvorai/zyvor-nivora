@@ -45,6 +45,20 @@ for (const which of ['signed', 'developer']) {
 }
 if (!/about US\$2\.99/.test(home) || !/299/.test(home)) problems.push('index.html: the price (₹299, about US$2.99) is not shown');
 for (const id of ['terminal', 'verified', 'gallery', 'install']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing section #${id}`);
+// feature marketing: tour, bands, hero shot, theme-paired images that exist, honest labels
+for (const id of ['tour', 'tour-steps', 'tour-stage', 'highlights', 'b-apps', 'b-flows', 'b-health', 'b-tm', 'b-exports', 'b-fluxvm']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing #${id}`);
+if (!/<nav[^>]*id="sections"[\s\S]*?href="#tour"[\s\S]*?href="#highlights"[\s\S]*?<\/nav>/.test(home)) problems.push('index.html: #sections nav lacks #tour/#highlights');
+if (!/<ol class="steps"[\s\S]*?<\/ol>/.test(home) || (home.match(/class="step"[^>]*tabindex="0"/g) || []).length < 4) problems.push('index.html: tour steps missing or not focusable');
+for (const m of home.matchAll(/<img\b[^>]*\bsrc="(ux\/native-(?:light|dark)-[a-z]+\.png)"/g)) {
+  if (!fs.existsSync(path.join(root, m[1]))) problems.push(`index.html: image missing ${m[1]}`);
+}
+if ((home.match(/class="only-light/g) || []).length !== (home.match(/class="only-dark/g) || []).length) problems.push('index.html: light/dark image pairs are unbalanced');
+if (!/simulated telemetry/i.test(home) || !/developer build only[\s\S]{0,120}compile-verified/i.test(home)) problems.push('index.html: demo / developer-build labels missing');
+// note: ux/native-*-security.png is really the Health capture (files are mislabelled); the Capture pane (-capture.png) must not be marketed
+const marketing = home.slice(home.indexOf('class="shotband"'), home.indexOf('id="gallery"'));
+if (/native-(?:light|dark)-capture\.png/.test(marketing)) problems.push('index.html: the developer-build Capture pane is shown in the marketing sections');
+if (!/\.js \.rv/.test(fs.readFileSync(path.join(root, 'site.css'), 'utf8'))) problems.push('site.css: reveal must be gated by html.js');
+if (!fs.readFileSync(path.join(root, 'theme.js'), 'utf8').includes("classList.add('js')")) problems.push('theme.js: does not set html.js');
 const sha = home.match(/id="sha">([^<]*)</);
 if (sha && !/^[0-9a-f]{64}$/.test(sha[1])) problems.push('index.html: sha256 is not 64 hex characters');
 const feedXml = fs.readFileSync(path.join(root, 'feed.xml'), 'utf8');
