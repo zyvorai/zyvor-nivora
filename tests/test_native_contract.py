@@ -227,7 +227,7 @@ class NativeContractTests(unittest.TestCase):
         self.assertEqual(missing, [])
         text = (ROOT / "LICENSE").read_text()
         for needle in ("Business Source License 1.1", "Licensor: Zyvor AI Labs Private Limited",
-                       "Additional Use Grant: None", "Change License: Apache License 2.0"):
+                       "Additional Use Grant: You may use the Licensed Work for personal, non-business use.", "Change License: Apache License 2.0"):
             self.assertIn(needle, text)
 
 if __name__ == "__main__":
