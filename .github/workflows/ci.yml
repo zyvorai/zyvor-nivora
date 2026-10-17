@@ -1,27 +1,23 @@
 name: verify
+# Self-hosted Mac runner (label mini). This repo is public, so pull requests from forks are skipped:
+# they must not run code on that machine.
 on:
   push:
   pull_request:
 
 jobs:
   portable:
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, mini]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
-      - uses: actions/setup-node@v4
-        with: {node-version: '22'}
       - run: ./scripts/test.sh
 
   macos-native:
-    runs-on: macos-15
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, mini]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
-      - uses: actions/setup-node@v4
-        with: {node-version: '22'}
       - run: ./scripts/test.sh
       - run: brew install xcodegen
       - run: ./scripts/build-native.sh
