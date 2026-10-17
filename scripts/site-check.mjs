@@ -57,6 +57,9 @@ if (!/simulated telemetry/i.test(home) || !/developer build only[\s\S]{0,120}com
 // note: ux/native-*-security.png is really the Health capture (files are mislabelled); the Capture pane (-capture.png) must not be marketed
 const marketing = home.slice(home.indexOf('class="shotband"'), home.indexOf('id="gallery"'));
 if (/native-(?:light|dark)-capture\.png/.test(marketing)) problems.push('index.html: the developer-build Capture pane is shown in the marketing sections');
+// the picker is labelled by what each capture shows (-security is Health, -health is Interfaces, -capture is Local Network)
+const paneLabels = Object.fromEntries([...home.matchAll(/<button[^>]*data-value="([a-z]+)">([^<]+)<\/button>/g)].map((m) => [m[1], m[2]]));
+if (/Security|Capture/.test(Object.values(paneLabels).join(' ')) || paneLabels.security !== 'Health' || paneLabels.health !== 'Interfaces' || paneLabels.capture !== 'Local Network') problems.push('index.html: gallery pane labels do not match the capture contents');
 if (!/\.js \.rv/.test(fs.readFileSync(path.join(root, 'site.css'), 'utf8'))) problems.push('site.css: reveal must be gated by html.js');
 if (!fs.readFileSync(path.join(root, 'theme.js'), 'utf8').includes("classList.add('js')")) problems.push('theme.js: does not set html.js');
 const sha = home.match(/id="sha">([^<]*)</);

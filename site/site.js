@@ -18,8 +18,10 @@
 
   // gallery: appearance x pane -> one of the real screenshots in ux/
   var pick = { mode: root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light', pane: 'overview' };
-  var NAMES = { overview: 'Overview', flows: 'Flows', applications: 'Applications', health: 'Health', capture: 'Capture', security: 'Security', timeline: 'Time Machine', insights: 'Insights', alerts: 'Alerts', settings: 'Settings' };
-  var DEMO = { alerts: 'security', timeline: 'timeline' };
+  // The capture files predate the panes they show: -overview is Applications, -security is Health,
+  // -health is Interfaces and -capture is Local Network. The developer-build Security and Capture panes are not offered.
+  var NAMES = { overview: 'Applications', flows: 'Flows', applications: 'Applications', security: 'Health', health: 'Interfaces', capture: 'Local Network', timeline: 'Time Machine', insights: 'Insights', alerts: 'Alerts', settings: 'Settings' };
+  var DEMO = { overview: 'applications', security: 'health', health: 'interfaces', capture: 'local', alerts: 'security', timeline: 'timeline' };
   var img = document.getElementById('shot'), cap = document.getElementById('shot-cap'), demoLink = document.getElementById('shot-demo');
   function drawShot() {
     if (!img) return;
