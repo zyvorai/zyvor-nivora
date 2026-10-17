@@ -163,7 +163,7 @@ class OrphanTests(unittest.TestCase):
         agent = Path(__file__).resolve().parents[1] / "agent" / "nivora.py"
         with tempfile.TemporaryDirectory() as d:
             cmd = (f"{sys.executable} -B {agent} --demo --port 0 --interval 0.3 --quiet --parent-pid $$ "
-                   f"--token t --database {d}/h.sqlite --rules {d}/r.json >/dev/null 2>&1 & echo $!")
+                   f"--token t --database {d}/h.sqlite --rules {d}/r.json >{d}/collector.log 2>&1 & echo $!")
             out = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, timeout=10).stdout.strip()
             pid = int(out)
             deadline = time.time() + 10
@@ -174,9 +174,14 @@ class OrphanTests(unittest.TestCase):
                     os.kill(pid, 0)
                 except ProcessLookupError:
                     alive = False
-            if alive:
+            ps = ""
+            if alive:  # state (zombie? reparented?) is the first thing to know when this fails
+                ps = subprocess.run(["ps", "-o", "pid,ppid,stat,etime,command", "-p", str(pid)],
+                                    capture_output=True, text=True).stdout
                 os.kill(pid, 15)
-            self.assertFalse(alive, "collector kept running after its launcher exited")
+            log = Path(d, "collector.log")
+            self.assertFalse(alive, "collector kept running after its launcher exited; ps:\n" + ps + "output:\n"
+                             + (log.read_text(errors="replace")[-2000:] if log.exists() else "(no log)"))
 
 
 if __name__ == "__main__":
