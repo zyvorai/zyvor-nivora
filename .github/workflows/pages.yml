@@ -42,10 +42,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
-      - uses: actions/setup-node@v4
-        with: {node-version: '22'}
+      # Self-hosted Mac: use its own python3 and node. actions/setup-python tries to create
+      # /Users/runner (a GitHub-hosted path) and fails here.
       - name: Release checksums (shown only if the release lists this version)
         env:
           GH_TOKEN: ${{ github.token }}
