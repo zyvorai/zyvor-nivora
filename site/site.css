@@ -138,3 +138,53 @@ footer a{color:inherit}
 #palette-results a{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--text)}
 #palette-results a span{color:var(--dim);font-size:13px}
 #palette-results a[aria-selected="true"],#palette-results a:hover{background:var(--bg2)}
+
+/* feature marketing: theme-paired images, reveal, product shot, bands, sticky tour */
+.only-dark{display:none!important}[data-theme="dark"] .only-dark{display:block!important}[data-theme="dark"] .only-light{display:none!important}
+.bar{padding-left:max(20px,calc((100% - 1240px)/2));padding-right:max(20px,calc((100% - 1240px)/2))}
+#sections a{padding:0 9px}
+@media (max-width:480px){.bar{gap:10px}.bar-actions .btn:not(.primary){display:none}}
+.fine{max-width:72ch;margin:26px auto 0;color:var(--dim);font-size:14px;text-align:center}
+/* captures already carry the macOS window: radius and shadow only, no extra frame */
+.hero-shot img,.band-shot img,.stage-frame img,.step-shot img{width:100%;height:auto;border-radius:14px;box-shadow:var(--shadow);background:var(--bg2)}
+.shotband{padding:10px 0 20px}
+.hero-shot{margin:0;text-align:center}
+.hero-shot img{display:block}
+.hero-shot figcaption,.band-shot figcaption,.stage-cap{margin-top:12px;color:var(--dim);font-size:14px}
+@media (prefers-reduced-motion:no-preference){
+  .js .rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .js .rv.in{opacity:1;transform:none}
+}
+@media print{.js .rv{opacity:1;transform:none}}
+
+.bands{padding:20px 0}
+.band{padding:72px 0 24px;text-align:center}
+.band .kicker{margin-bottom:6px}
+.band h3{margin:0 auto;max-width:18ch;font-size:clamp(32px,5.4vw,56px);line-height:1.05;letter-spacing:-.035em}
+.band .line{max-width:56ch;margin:14px auto 6px;color:var(--dim);font-size:19px}
+.band-shot{margin:28px 0 0}
+/* crops of one capture, so a band can focus on a region without a new asset */
+.band-shot.crop-top img,.band-shot.crop-fluxvm img{aspect-ratio:1800/380;object-fit:cover;object-position:top}
+.band-shot.crop-fluxvm img{aspect-ratio:1800/660}
+
+.tour{padding-top:60px}.tour h2,.tour>.sub{text-align:center}.tour>.sub{margin:8px auto 0}
+.tour-grid{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);gap:32px;margin-top:34px;align-items:start}
+.stage{display:none;position:sticky;top:88px}
+.steps{list-style:none;margin:0;padding:0}
+.step{padding:22px;border-radius:18px;border:1px solid transparent;outline:none;margin-bottom:16px}
+.step h3{font-size:24px;letter-spacing:-.02em;margin:0 0 6px}.step p{margin:0 0 8px;color:var(--dim)}
+.step-shot{margin-top:14px}.step-shot img{display:block}
+@media (min-width:760px){
+  .js .stage{display:block}
+  .js .step{min-height:62vh;display:flex;flex-direction:column;justify-content:center;opacity:.5;transition:opacity .3s,background .3s}
+  .js .step[aria-current="step"]{opacity:1;background:var(--bg2);border-color:var(--line)}
+  .js .step:focus-visible{box-shadow:var(--focus);opacity:1}
+  .js .step-shot{display:none}
+  .stage-frame{position:relative;aspect-ratio:1800/1159}
+  .stage-frame img{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}
+  .stage-frame img.on{opacity:1}
+  .stage-cap{text-align:center}
+}
+html:not(.js) .tour-grid{grid-template-columns:minmax(0,760px);justify-content:center}
+@media (max-width:759px){.tour-grid{grid-template-columns:1fr;gap:0}.step{margin-bottom:28px}}
+@media (min-width:760px) and (prefers-reduced-motion:reduce){.js .step{opacity:1}}

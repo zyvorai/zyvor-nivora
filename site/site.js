@@ -65,6 +65,44 @@
   }
   syncTheme();
 
+  // scroll reveal: theme.js sets html.js, CSS hides .rv only then (and never under reduced motion)
+  var rv = document.querySelectorAll('.rv');
+  if ('IntersectionObserver' in window) {
+    var rio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    rv.forEach(function (el) { rio.observe(el); });
+  } else {
+    rv.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // sticky tour: the step in the middle of the viewport swaps the pinned stage image
+  var steps = Array.prototype.slice.call(document.querySelectorAll('#tour-steps .step'));
+  var stageImgs = document.querySelectorAll('#tour-stage .stage-img');
+  function showStep(i) {
+    steps.forEach(function (s, j) { if (j === i) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current'); });
+    stageImgs.forEach(function (im) { im.classList.toggle('on', Number(im.dataset.step) === i); });
+  }
+  if (steps.length && 'IntersectionObserver' in window) {
+    var sio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) showStep(Number(e.target.dataset.step)); });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach(function (s) { sio.observe(s); });
+    steps.forEach(function (s) { s.addEventListener('focus', function () { showStep(Number(s.dataset.step)); }); });
+    // preload the next step's image for the current theme so the swap never flashes
+    steps.forEach(function (s, i) {
+      s.addEventListener('mouseenter', function () { warm(i + 1); });
+      s.addEventListener('focus', function () { warm(i + 1); });
+    });
+    var warmed = {};
+    var warm = function (i) {
+      if (warmed[i]) return;
+      warmed[i] = 1;
+      stageImgs.forEach(function (im) { if (Number(im.dataset.step) === i) im.loading = 'eager'; });
+    };
+    warm(1);
+  }
+
   // terminal tabs (captured CLI output; without JS the first pane is shown)
   var term = document.getElementById('term');
   if (term) {
@@ -81,7 +119,7 @@
   var items = null, sel = 0, shown = [];
   function base() {
     var out = [];
-    [['See it', '#gallery'], ['Features', '#features'], ['What\u2019s new', '#new'], ['Install and download', '#install'], ['Verified vs not', '#verified'], ['Privacy', '#privacy'], ['FAQ', '#faq']]
+    [['Take the tour', '#tour'], ['Highlights', '#highlights'], ['See it', '#gallery'], ['Features', '#features'], ['What\u2019s new', '#new'], ['Install and download', '#install'], ['Verified vs not', '#verified'], ['Privacy', '#privacy'], ['FAQ', '#faq']]
       .forEach(function (x) { out.push({ label: x[0], hint: 'Section', url: x[1] }); });
     document.querySelectorAll('#features .card h3, #privacy .card h3').forEach(function (h) {
       out.push({ label: h.textContent, hint: 'Feature', url: '#' + h.closest('section').id });
