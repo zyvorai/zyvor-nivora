@@ -20,7 +20,7 @@ body{position:relative;margin:0;background:var(--bg);color:var(--text);font:16px
 body::before{content:"";position:absolute;inset:0 0 auto 0;height:720px;z-index:-1;pointer-events:none;
   background:radial-gradient(700px 360px at 24% 0,var(--glow),transparent 70%),radial-gradient(640px 320px at 78% 8%,var(--glow2),transparent 70%)}
 [hidden]{display:none!important}
-a{color:var(--link)}code,pre{font-family:var(--mono)}
+a{color:var(--link)}code,pre{font-family:var(--mono)}.card code{overflow-wrap:anywhere}
 :focus-visible{outline:none;box-shadow:var(--focus);border-radius:8px}
 .skip{position:absolute;left:12px;top:-60px;z-index:50;background:var(--bg2);padding:10px 16px;border-radius:99px}.skip:focus{top:12px}
 
