@@ -41,8 +41,11 @@ def check_target(host: str, port: int = 443, timeout: float = 3.0, tls: bool | N
 
     t0 = time.monotonic()
     try:
-        with ThreadPoolExecutor(max_workers=1) as ex:
+        ex = ThreadPoolExecutor(max_workers=1)
+        try:
             infos = ex.submit(socket.getaddrinfo, host, port, 0, socket.SOCK_STREAM).result(timeout=timeout)
+        finally:
+            ex.shutdown(wait=False)  # do not block on a resolver that is still running
         addrs = list(dict.fromkeys(i[4][0] for i in infos))
         stages.append({"stage": "dns", "ok": True, "ms": _ms(t0), "addresses": addrs[:6]})
     except (OSError, FutureTimeout) as exc:
@@ -64,14 +67,15 @@ def check_target(host: str, port: int = 443, timeout: float = 3.0, tls: bool | N
         t0 = time.monotonic()
         try:
             ctx = ssl.create_default_context()
-            with ctx.wrap_socket(sock, server_hostname=None if _is_ip(host) else host) as tls_sock:
+            with ctx.wrap_socket(sock, server_hostname=host) as tls_sock:
                 cert = tls_sock.getpeercert() or {}
                 stage = {"stage": "tls", "ok": True, "ms": _ms(t0), "version": tls_sock.version()}
                 if cert.get("notAfter"):
                     stage["not_after"] = cert["notAfter"]
                     stage["days_left"] = int((ssl.cert_time_to_seconds(cert["notAfter"]) - time.time()) // 86400)
                 stages.append(stage)
-        except (OSError, ssl.SSLError) as exc:
+        except (OSError, ssl.SSLError, ValueError) as exc:
+            sock.close()
             stages.append({"stage": "tls", "ok": False, "ms": _ms(t0), "error": str(exc)})
             result["summary"] = "TCP works but the TLS handshake failed: certificate, interception or protocol problem."
             return result

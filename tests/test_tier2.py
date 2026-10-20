@@ -85,6 +85,26 @@ class PathCheckTests(unittest.TestCase):
         self.assertFalse(bad["ok"])
         self.assertEqual(bad["stages"][-1]["stage"], "tcp")
 
+    def test_tls_to_ip_target_reports_failure_instead_of_raising(self):
+        srv = socket.socket()
+        srv.bind(("127.0.0.1", 0))
+        srv.listen(1)
+        threading.Thread(target=lambda: srv.accept()[0].close(), daemon=True).start()
+        res = check_target("127.0.0.1", srv.getsockname()[1], timeout=2, tls=True)
+        srv.close()
+        self.assertFalse(res["ok"])
+        self.assertEqual([s["stage"] for s in res["stages"]], ["dns", "tcp", "tls"])
+        self.assertFalse(res["stages"][-1]["ok"])
+
+    def test_dns_timeout_is_enforced(self):
+        import time
+        from unittest import mock
+        with mock.patch("pathcheck.socket.getaddrinfo", lambda *a, **k: time.sleep(1.5)):
+            t0 = time.monotonic()
+            res = check_target("slow.example", 80, timeout=0.2, tls=False)
+        self.assertLess(time.monotonic() - t0, 1.0)
+        self.assertEqual(res["stages"][0]["error"], "timed out")
+
 
 class McpTests(unittest.TestCase):
     def test_protocol(self):
