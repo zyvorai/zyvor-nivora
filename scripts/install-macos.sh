@@ -14,8 +14,8 @@ security add-generic-password -U -s dev.zyvor.nivora -a "$USER" -w "$TOKEN" >/de
 cat > "$APPDIR/run-collector.sh" <<EOF
 #!/bin/bash
 set -euo pipefail
-TOKEN=\"\$(security find-generic-password -s dev.zyvor.nivora -a \"\$USER\" -w)\"
-exec /usr/bin/env python3 \"$APPDIR/agent/nivora.py\" --port \"$PORT\" --token \"\$TOKEN\" --web-root \"$APPDIR/web\"
+TOKEN="\$(security find-generic-password -s dev.zyvor.nivora -a "\$USER" -w)"
+exec /usr/bin/env python3 "$APPDIR/agent/nivora.py" --port "$PORT" --token "\$TOKEN" --web-root "$APPDIR/web"
 EOF
 chmod 700 "$APPDIR/run-collector.sh"
 cat > "$PLIST" <<EOF
