@@ -1,6 +1,6 @@
 # Installing Nivora
 
-**Paid builds (business use, ₹299 incl. GST).** After payment you receive an email with a GST invoice and a download link
+**Paid builds (business use, ₹999 incl. GST).** After payment you receive an email with a GST invoice and a download link
 (valid 7 days, 5 downloads). Verify the download against the `.sha256` shown on the payment page or sent on request.
 
 - **Signed and notarized build** (`Nivora-X.Y.Z.dmg`): open the DMG and drag **Nivora** to **Applications**. macOS opens it

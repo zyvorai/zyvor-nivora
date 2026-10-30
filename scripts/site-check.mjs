@@ -43,7 +43,7 @@ for (const which of ['signed', 'developer']) {
   const buy = home.match(new RegExp(`<a[^>]*\\bid="buy-${which}"[^>]*\\bhref="([^"]*)"`));
   if (!buy || !/^https:\/\/[^ ]+$/.test(buy[1])) problems.push(`index.html: buy-${which} link missing or not https`);
 }
-if (!/about US\$2\.99/.test(home) || !/299/.test(home)) problems.push('index.html: the price (₹299, about US$2.99) is not shown');
+if (!/about US\$12/.test(home) || !/999/.test(home)) problems.push('index.html: the price (₹999, about US$12) is not shown');
 for (const id of ['terminal', 'verified', 'gallery', 'install']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing section #${id}`);
 // feature marketing: tour, bands, hero shot, theme-paired images that exist, honest labels
 for (const id of ['tour', 'tour-steps', 'tour-stage', 'highlights', 'b-apps', 'b-flows', 'b-health', 'b-tm', 'b-exports', 'b-fluxvm']) if (!home.includes(`id="${id}"`)) problems.push(`index.html: missing #${id}`);
