@@ -2,11 +2,12 @@
 """Local privacy report card from the current snapshot. Hostname-based checks need hostnames in flow data."""
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from nivora_core import endpoint_host, endpoint_port
 
-# Small bundled list; suffix match on the destination hostname. Extend `extra` via budgets-style local files later.
+# Small bundled list; suffix match on the destination hostname. Users can add more with a local file (see load_extra_trackers).
 TRACKERS = {
     "doubleclick.net": "advertising", "googlesyndication.com": "advertising", "adnxs.com": "advertising",
     "criteo.com": "advertising", "taboola.com": "advertising", "outbrain.com": "advertising",
@@ -15,12 +16,29 @@ TRACKERS = {
     "hotjar.com": "analytics", "app-measurement.com": "analytics", "branch.io": "attribution",
     "appsflyer.com": "attribution", "adjust.com": "attribution", "connect.facebook.net": "social",
 }
+EXTRA: dict[str, str] = {}
 CLEARTEXT = {21: "FTP", 23: "Telnet", 80: "HTTP", 110: "POP3", 143: "IMAP"}
+
+
+def load_extra_trackers(path: str) -> int:
+    """Load `domain [category]` lines (`#` comments) from a local file; replaces any earlier extras."""
+    found: dict[str, str] = {}
+    try:
+        text = open(os.path.expanduser(path), encoding="utf-8").read()
+    except OSError:
+        text = ""
+    for line in text.splitlines():
+        parts = line.split("#", 1)[0].split()
+        if parts:
+            found[parts[0].lower().strip(".")] = parts[1] if len(parts) > 1 else "custom"
+    EXTRA.clear()
+    EXTRA.update(found)
+    return len(found)
 
 
 def tracker_category(host: str) -> str:
     host = (host or "").lower().rstrip(".")
-    for suffix, cat in TRACKERS.items():
+    for suffix, cat in {**TRACKERS, **EXTRA}.items():
         if host == suffix or host.endswith("." + suffix):
             return cat
     return ""

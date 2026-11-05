@@ -32,7 +32,9 @@ from metrics import render_metrics
 from projects import summarize_projects
 from identity import IdentityResolver, identity_findings
 from trust import trust_scores
-from privacy import privacy_report
+from geo import GeoTable
+from notify import Notifier
+from privacy import load_extra_trackers, privacy_report
 from policy import apply_policy, export_policy, plan_policy
 from profiles import ProfileStore
 from egress import egress_report
@@ -56,7 +58,9 @@ class State:
         self.args = args
         self.collector = MacCollector(fluxvm_url=args.fluxvm_url, fluxvm_token=args.fluxvm_token, demo=args.demo)
         # Simulated telemetry must never be written to the user's real history/behaviour baseline.
-        self.history = None if (args.no_history or args.demo) else HistoryStore(args.database)
+        self.history = None if (args.no_history or args.demo) else HistoryStore(args.database, {
+            "snapshot_days": getattr(args, "retain_snapshot_days", 0), "events": getattr(args, "retain_events", 0),
+            "behavior_days": getattr(args, "retain_behavior_days", 0), "usage_days": getattr(args, "retain_usage_days", 0)})
         try:
             self.rules = RuleStore(args.rules)
         except OSError:
@@ -66,6 +70,12 @@ class State:
             self.rules = RuleStore(fallback)
             args.rules = fallback
         self.capture = CaptureClient()
+        data_dir0 = os.path.dirname(os.path.expanduser(args.database))
+        self.notifier = Notifier(getattr(args, "alert_webhook", ""), getattr(args, "alert_syslog", False),
+                                 getattr(args, "alert_min_severity", "warning"), getattr(args, "alert_cooldown", 3600.0)) \
+            if not args.demo else Notifier()
+        load_extra_trackers(getattr(args, "trackers", "") or os.path.join(data_dir0, "trackers.txt"))
+        self.geo = GeoTable.load(getattr(args, "geo", "") or os.path.join(data_dir0, "geo.csv"))
         self.demo_captures = {}
         self._capture_ok = (0.0, False)
         self.snapshot = None
@@ -204,6 +214,7 @@ class State:
         for f in lan:
             events.append({"ts": current["timestamp"], "kind": "lan", "title": f["title"], "detail": f["detail"]})
         enrich_flows_with_containers(current.get("flows") or [])
+        self.geo.annotate(current.get("flows") or [])
         current["containers"] = summarize_containers(current.get("flows") or [])
         current["listeners"] = annotate_listeners(current.get("listeners") or [])
         current["port_conflicts"] = find_conflicts(current["listeners"])
@@ -211,6 +222,7 @@ class State:
         current["findings"] = merge_findings(current.get("findings") or [], detect_anomalies(current, profile["high_bandwidth_bps"]))
         if profile["hide_info"]:
             current["findings"] = [f for f in current["findings"] if f.get("severity") != "info"]
+        self.notifier.consider(current["findings"], current.get("timestamp", ""))
         current["profile"] = {"name": profile["name"], "label": profile["label"]}
         current["trust"] = trust_scores(current)
         current["privacy"] = privacy_report(current)
@@ -608,6 +620,16 @@ def parser():
     p.add_argument("--fluxvm-url", default=os.getenv("FLUXVM_SERVER", "http://127.0.0.1:7788"))
     p.add_argument("--fluxvm-token", default=os.getenv("FLUXVM_TOKEN", ""))
     p.add_argument("--web-root", default=str(Path(__file__).resolve().parent.parent / "web"))
+    p.add_argument("--retain-snapshot-days", type=int, default=30, help="days of snapshots kept in history")
+    p.add_argument("--retain-events", type=int, default=5000, help="timeline events kept")
+    p.add_argument("--retain-behavior-days", type=int, default=90, help="days a destination stays in the behaviour baseline")
+    p.add_argument("--retain-usage-days", type=int, default=60, help="days of per-app daily usage kept")
+    p.add_argument("--alert-webhook", default=os.getenv("NIVORA_ALERT_WEBHOOK", ""), help="POST new findings as JSON to this http(s) URL (off by default)")
+    p.add_argument("--alert-syslog", action="store_true", help="write new findings to syslog (off by default)")
+    p.add_argument("--alert-min-severity", default="warning", choices=["info", "warning", "critical"])
+    p.add_argument("--alert-cooldown", type=float, default=3600.0, help="seconds before the same finding alerts again")
+    p.add_argument("--trackers", default="", help="extra tracker domains file (default: trackers.txt beside the database)")
+    p.add_argument("--geo", default="", help="CIDR,country,asn,org CSV (default: geo.csv beside the database)")
     p.add_argument("--quiet", action="store_true")
     p.add_argument("--parent-pid", type=int, default=0, help="exit when this process (the launcher) is gone")
     p.add_argument("--fleet-push", default="", help="coordinator base URL to push a compact summary to (push-only)")
