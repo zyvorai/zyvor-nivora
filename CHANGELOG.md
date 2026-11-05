@@ -4,6 +4,8 @@
 
 - Paid builds: free for personal, non-business use; ₹299 incl. GST (about US$2.99) buys business use, in two builds: the signed and notarized app, and the unsigned developer build that includes the content-filter and capture-helper code (those parts stay compile-verified only). Site, README and INSTALL describe both; `docs/COMMERCIAL-LICENSE.md` is the licence draft. `site-check` fails while a payment-link placeholder remains.
 
+- Release/CI: CycloneDX SBOM, build-provenance attestation and a version-synced cask (`nivora.rb`) attached to each release draft; Dependabot for Actions; CodeQL for Python; cask corrected to 0.5.1; a test that fails when native panes and web views drift apart without being listed.
+
 - Site: terminal tabs with real `nivoractl` output captured at build time, a verified-vs-not table copied from the README, a command palette (`/` or ⌘K) over sections, docs and demo panes, and a Homebrew install line.
 
 - Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).

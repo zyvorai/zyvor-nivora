@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   dmg:
@@ -28,16 +30,28 @@ jobs:
       - run: ./scripts/package-dmg.sh
       - name: Checksums
         run: shasum -a 256 Nivora-*.dmg > SHA256SUMS.txt
+      - name: SBOM and cask for this release
+        run: |
+          python3 scripts/build-sbom.py "Nivora-${GITHUB_REF_NAME#v}.sbom.cdx.json"
+          python3 scripts/update-cask.py SHA256SUMS.txt
+          cp packaging/homebrew/nivora.rb nivora.rb
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            Nivora-*.dmg
+            SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: nivora-dmg
           path: |
             Nivora-*.dmg
             SHA256SUMS.txt
+            Nivora-*.sbom.cdx.json
+            nivora.rb
       - name: Draft release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" Nivora-*.dmg SHA256SUMS.txt \
+          gh release create "$GITHUB_REF_NAME" Nivora-*.dmg SHA256SUMS.txt Nivora-*.sbom.cdx.json nivora.rb \
             --draft --title "Nivora ${GITHUB_REF_NAME#v}" \
             --notes "Unsigned build. Gatekeeper will warn; the NetworkExtension filter and capture helper need a signed, provisioned build. See docs/NETWORKEXTENSION.md and docs/CAPTURE.md."
