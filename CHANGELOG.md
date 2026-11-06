@@ -8,6 +8,8 @@
 
 - Collector: opt-in alert delivery (`--alert-webhook`, `--alert-syslog`, severity threshold, cooldown, dedupe), configurable history retention (`--retain-*`, same defaults), user tracker list (`trackers.txt`), optional local country/ASN labels (`geo.csv`, `geo` on flows). `notify.py` and `geo.py` are bundled in the app and the launchd installer. Documented in `docs/API.md`.
 
+- CLI/MCP: `nivoractl` is table-driven and gains `--json`, `--watch`, `version [--check]` (opt-in GitHub check) and `completion zsh|bash|fish`; `make man` generates `nivoractl(1)` from the argparse definition. The MCP server adds read-only tools for trust, privacy, egress, usage, listeners, FluxVM, profiles and timeline, `nivora://` resources, `incident_review` and `network_checkup` prompts, reports the real version, and its config snippets are in `docs/API.md`.
+
 - Site: terminal tabs with real `nivoractl` output captured at build time, a verified-vs-not table copied from the README, a command palette (`/` or ⌘K) over sections, docs and demo panes, and a Homebrew install line.
 
 - Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).
