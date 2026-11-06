@@ -115,4 +115,13 @@ Different keys combine with AND; repeating a key (`app:safari app:ssh`) is OR; e
 
 ## MCP
 
-`agent/nivora_mcp.py` is a read-only MCP server over stdio (JSON-RPC 2.0, stdlib only). Set `NIVORA_URL` and `NIVORA_TOKEN`, then register it with your MCP client, for example `{"command": "python3", "args": ["agent/nivora_mcp.py"], "env": {"NIVORA_TOKEN": "..."}}`. Tools: `summary`, `flows`, `findings`, `explain_flow`, `ask`, `diff`, `incident`, `port_conflicts`, `rule_impact`, `path_check`. None creates or removes rules.
+`agent/nivora_mcp.py` is a read-only MCP server over stdio (JSON-RPC 2.0, stdlib only). Set `NIVORA_URL` and `NIVORA_TOKEN`, then register it with your MCP client. Claude Code: `claude mcp add nivora --env NIVORA_TOKEN=... -- python3 /path/to/agent/nivora_mcp.py`. Claude Desktop (`claude_desktop_config.json`): `{"mcpServers": {"nivora": {"command": "python3", "args": ["/path/to/agent/nivora_mcp.py"], "env": {"NIVORA_TOKEN": "..."}}}}`.
+
+- **Tools:** `summary`, `flows`, `findings`, `explain_flow`, `ask`, `diff`, `incident`, `port_conflicts`, `rule_impact`, `path_check`, `trust`, `privacy`, `egress`, `usage`, `listeners`, `fluxvm`, `profiles`, `timeline`. None creates or removes rules or changes state.
+- **Resources:** `nivora://snapshot` (summary) and `nivora://findings`.
+- **Prompts:** `incident_review` (optional `from`/`to`) and `network_checkup`.
+- The server reports the collector's version.
+
+## CLI
+
+`nivoractl` prints JSON (a table for `apps` and `flows`). `--json` gives compact JSON everywhere, `--watch SECONDS` repeats a command, `nivoractl version [--check]` shows versions (`--check` is the only call that leaves this Mac: it asks GitHub for the latest release), and `nivoractl completion zsh|bash|fish` prints a completion script, for example `nivoractl completion zsh > ~/.zfunc/_nivoractl`. `make man` writes `native/build/nivoractl.1`.

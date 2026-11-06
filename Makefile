@@ -3,7 +3,7 @@ PORT ?= 7799
 TOKEN ?=
 APP := native/build/Build/Products/Release/Nivora.app
 
-.PHONY: help check test test-one demo run native widgets app fixtures stop clean
+.PHONY: help check test test-one demo run native widgets app fixtures man stop clean
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -24,6 +24,9 @@ demo: ## Collector + dashboard on simulated data (PORT=, TOKEN=)
 
 run: ## Real collector, no history written (PORT=, TOKEN=)
 	python3 -B agent/nivora.py --no-history --port $(PORT) $(if $(TOKEN),--token $(TOKEN))
+
+man: ## Generate native/build/nivoractl.1 from the CLI definition
+	python3 scripts/build-man.py native/build/nivoractl.1
 
 native: ## Build the unsigned native app
 	./scripts/build-native.sh

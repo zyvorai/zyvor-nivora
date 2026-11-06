@@ -15,6 +15,11 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
+try:
+    from nivora_core import VERSION
+except ImportError:  # copied somewhere without its siblings
+    VERSION = "unknown"
+
 PROTOCOL = "2024-11-05"
 URL = os.getenv("NIVORA_URL", "http://127.0.0.1:9857").rstrip("/")
 TOKEN = os.getenv("NIVORA_TOKEN", "")
@@ -63,8 +68,34 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Any]] = {
                  lambda a: _api("/v1/incident" + _qs(**{"from": a.get("from"), "to": a.get("to")}))),
     "port_conflicts": ("Ports bound by more than one process.", _schema(), lambda a: _api("/v1/port-conflicts")),
     "rule_impact": ("What each rule (including shadow rules) matches right now.", _schema(), lambda a: _api("/v1/rule-impact")),
+    "trust": ("Explainable 0-100 trust score per app.", _schema(), lambda a: _api("/v1/trust")),
+    "privacy": ("Privacy report card: trackers, cleartext, DNS-over-VPN leak, unsigned apps.", _schema(), lambda a: _api("/v1/privacy-report")),
+    "egress": ("Per-sandbox/VM destinations seen through FluxVM.", _schema(), lambda a: _api("/v1/egress")),
+    "usage": ("Today's per-app usage against any budgets.", _schema(), lambda a: _api("/v1/usage")),
+    "listeners": ("Listening sockets with owning process.", _schema(), lambda a: _api("/v1/listeners")),
+    "fluxvm": ("FluxVM workloads, endpoints and Hubble flows.", _schema(), lambda a: _api("/v1/fluxvm")),
+    "profiles": ("Situation profiles and which one is active (read only).", _schema(), lambda a: _api("/v1/profiles")),
+    "timeline": ("Time Machine events: interface, DNS, route, VPN, listener and LAN changes.", _schema(), lambda a: _api("/v1/timeline")),
     "path_check": ("DNS, TCP and TLS reachability check for one host/port.", _schema({"host": STR, "port": {"type": "integer"}}, ["host"]),
                    lambda a: _api("/v1/path-check", {"host": a.get("host"), "port": a.get("port")})),
+}
+
+
+RESOURCES = {
+    "nivora://snapshot": ("Current summary", "Health, traffic, counts, top apps and findings.", _summary),
+    "nivora://findings": ("Current findings", "Findings with severity.", lambda: _api("/v1/findings")),
+}
+PROMPTS = {
+    "incident_review": ("Review what changed on this Mac's network in a time window.",
+                        [{"name": "from", "description": "ISO 8601 start (default: 30 minutes ago)", "required": False},
+                         {"name": "to", "description": "ISO 8601 end (default: now)", "required": False}],
+                        lambda a: "Use the nivora `incident` tool" + (f" with from={a['from']!r}" if a.get("from") else "")
+                        + (f" and to={a['to']!r}" if a.get("to") else "")
+                        + ", then `diff` for detail. Explain what changed, the most likely cause and what to check next. "
+                          "Use only the data the tools return; say when something cannot be determined."),
+    "network_checkup": ("A short health, trust and privacy check-up.", [],
+                        lambda a: "Call the nivora `summary`, `trust` and `privacy` tools. Report the health score, any critical or warning "
+                                  "findings, the lowest-trust apps and privacy issues, in a few bullets, most important first."),
 }
 
 
@@ -80,11 +111,31 @@ def handle(msg: dict[str, Any]) -> dict[str, Any] | None:
         return {"jsonrpc": "2.0", "id": mid, "error": {"code": code, "message": text}}
 
     if method == "initialize":
-        return ok({"protocolVersion": PROTOCOL, "capabilities": {"tools": {}}, "serverInfo": {"name": "nivora", "version": "0.1.0"}})
+        return ok({"protocolVersion": PROTOCOL, "capabilities": {"tools": {}, "resources": {}, "prompts": {}}, "serverInfo": {"name": "nivora", "version": VERSION}})
     if method == "ping":
         return ok({})
     if method == "tools/list":
         return ok({"tools": [{"name": n, "description": d, "inputSchema": s} for n, (d, s, _) in TOOLS.items()]})
+    if method == "resources/list":
+        return ok({"resources": [{"uri": u, "name": n, "description": d, "mimeType": "application/json"} for u, (n, d, _) in RESOURCES.items()]})
+    if method == "resources/read":
+        uri = (msg.get("params") or {}).get("uri")
+        res = RESOURCES.get(uri)
+        if not res:
+            return err(-32602, f"unknown resource {uri!r}")
+        try:
+            return ok({"contents": [{"uri": uri, "mimeType": "application/json", "text": json.dumps(res[2](), indent=2)}]})
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            return err(-32603, f"Nivora API unavailable: {e}")
+    if method == "prompts/list":
+        return ok({"prompts": [{"name": n, "description": d, "arguments": a} for n, (d, a, _) in PROMPTS.items()]})
+    if method == "prompts/get":
+        params = msg.get("params") or {}
+        prompt = PROMPTS.get(params.get("name"))
+        if not prompt:
+            return err(-32602, f"unknown prompt {params.get('name')!r}")
+        text = prompt[2](params.get("arguments") or {})
+        return ok({"description": prompt[0], "messages": [{"role": "user", "content": {"type": "text", "text": text}}]})
     if method == "tools/call":
         params = msg.get("params") or {}
         tool = TOOLS.get(params.get("name"))
