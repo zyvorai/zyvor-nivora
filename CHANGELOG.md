@@ -6,6 +6,8 @@
 
 - Release/CI: CycloneDX SBOM, build-provenance attestation and a version-synced cask (`nivora.rb`) attached to each release draft; Dependabot for Actions; CodeQL for Python; cask corrected to 0.5.1; `scripts/notarize-mini.sh` (Developer ID sign, notarize, staple and verify the DMG on the Mac mini; `--dry-run` and `--gui` modes, never touches the API key); the Pages workflow runs on `ubuntu-latest` unless the repo variable `PAGES_RUNNER` selects the self-hosted mini; a test that fails when native panes and web views drift apart without being listed.
 
+- Collector: opt-in alert delivery (`--alert-webhook`, `--alert-syslog`, severity threshold, cooldown, dedupe), configurable history retention (`--retain-*`, same defaults), user tracker list (`trackers.txt`), optional local country/ASN labels (`geo.csv`, `geo` on flows). `notify.py` and `geo.py` are bundled in the app and the launchd installer. Documented in `docs/API.md`.
+
 - Site: terminal tabs with real `nivoractl` output captured at build time, a verified-vs-not table copied from the README, a command palette (`/` or ⌘K) over sections, docs and demo panes, and a Homebrew install line.
 
 - Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).

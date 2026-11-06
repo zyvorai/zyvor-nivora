@@ -1038,7 +1038,10 @@ def fluxvm_workloads(value: Any) -> list[dict[str, Any]]:
 
 
 class HistoryStore:
-    def __init__(self, path: str):
+    DEFAULT_RETENTION = {"snapshot_days": 30, "events": 5000, "behavior_days": 90, "usage_days": 60}
+
+    def __init__(self, path: str, retention: dict[str, int] | None = None):
+        self.retention = {k: max(1, int((retention or {}).get(k) or v)) for k, v in self.DEFAULT_RETENTION.items()}
         self.path = os.path.expanduser(path)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.lock = threading.Lock()
@@ -1065,7 +1068,7 @@ class HistoryStore:
 
     def add_snapshot(self, snapshot: dict[str, Any]) -> None:
         payload = json.dumps(snapshot, separators=(",", ":"))
-        cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)).isoformat(timespec="seconds")
+        cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=self.retention["snapshot_days"])).isoformat(timespec="seconds")
         with self.lock, self._connect() as db:
             db.execute("INSERT OR REPLACE INTO snapshots(ts,payload) VALUES(?,?)", (snapshot["timestamp"], payload))
             db.execute("DELETE FROM snapshots WHERE ts < ?", (cutoff,))
@@ -1075,7 +1078,7 @@ class HistoryStore:
             return
         with self.lock, self._connect() as db:
             db.executemany("INSERT INTO events(ts,payload) VALUES(?,?)", [(e["ts"], json.dumps(e, separators=(",", ":"))) for e in events])
-            db.execute("DELETE FROM events WHERE id NOT IN (SELECT id FROM events ORDER BY id DESC LIMIT 5000)")
+            db.execute("DELETE FROM events WHERE id NOT IN (SELECT id FROM events ORDER BY id DESC LIMIT ?)", (self.retention["events"],))
 
     def history(self, limit: int = 120) -> list[dict[str, Any]]:
         limit = max(1, min(limit, 2000))
@@ -1132,7 +1135,7 @@ class HistoryStore:
                         new.append({"ts": ts, "kind": "behavior", "title": f"New destination for {app}", "detail": f"{remote}:{port}" if port else remote, "app": app, "remote": remote, "port": port})
                 else:
                     db.execute("UPDATE behavior SET last_seen=?, hits=hits+1 WHERE app=? AND remote=? AND port=?", (ts, app, remote, port))
-            cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=90)).isoformat(timespec="seconds")
+            cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=self.retention["behavior_days"])).isoformat(timespec="seconds")
             db.execute("DELETE FROM behavior WHERE last_seen < ?", (cutoff,))
             total = db.execute("SELECT COUNT(*) FROM behavior").fetchone()[0]
         return {"new_destinations": new, "known_destinations": total}
@@ -1172,7 +1175,7 @@ class HistoryStore:
             for app, b in add.items():
                 if b >= 1:
                     db.execute("INSERT INTO usage(day,app,bytes) VALUES(?,?,?) ON CONFLICT(day,app) DO UPDATE SET bytes=bytes+?", (day, app, int(b), int(b)))
-            db.execute("DELETE FROM usage WHERE day < date(?, '-60 day')", (day,))
+            db.execute("DELETE FROM usage WHERE day < date(?, ?)", (day, f"-{self.retention['usage_days']} day"))
             rows = db.execute("SELECT app, bytes FROM usage WHERE day=?", (day,)).fetchall()
         return {app: b for app, b in rows}
 

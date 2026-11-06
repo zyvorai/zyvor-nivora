@@ -54,6 +54,15 @@ All `/v1/*` requests use `Authorization: Bearer $NIVORA_TOKEN` when a token is c
 
 The local deterministic investigator can answer about live upload/download, ports/listeners, health, recent changes, DNS, VPN, new destinations, local neighbors, apps and FluxVM. It returns an answer plus supporting local evidence.
 
+## Alerts, retention and local data files
+
+All off or at the previous defaults unless set (observe-first).
+
+- `--alert-webhook URL` (or `NIVORA_ALERT_WEBHOOK`) POSTs each new finding as JSON `{"source":"nivora","timestamp":...,"finding":{severity,kind,title,detail,app,remote}}`; `--alert-syslog` writes it to syslog. `--alert-min-severity` (default `warning`) and `--alert-cooldown` (default 3600 s) limit noise; a finding that goes away alerts again if it returns. Never active with `--demo`.
+- `--retain-snapshot-days` (30), `--retain-events` (5000), `--retain-behavior-days` (90), `--retain-usage-days` (60).
+- `trackers.txt` beside the database (or `--trackers`): `domain [category]` per line, added to the bundled tracker list.
+- `geo.csv` beside the database (or `--geo`): `cidr,country,asn,org`; matching internet flows get a `geo` object (longest prefix wins). No network lookups.
+
 ## Rules
 
 `POST /v1/rules`
