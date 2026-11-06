@@ -48,7 +48,8 @@ class NotarizeAndPagesTests(unittest.TestCase):
         self.assertIn("Developer ID Application: ZYVORAI LABS PRIVATE LIMITED (NX667LTDQ2)", out)
         self.assertIn("Macora-Notary", out)
         self.assertIn(f"Nivora-{ver}.dmg", out)
-        for needed in ("--options runtime", "notarytool submit", "stapler staple", "spctl --assess"):
+        for needed in ("--options runtime", "notarytool submit", "stapler staple", "spctl --assess",
+                       "rm -rf Nivora.app/Contents/Library/SystemExtensions"):
             self.assertIn(needed, out)
         script = out[out.index("#!/usr/bin/env bash"):]
         subprocess.run(["bash", "-n"], input=script, text=True, check=True)

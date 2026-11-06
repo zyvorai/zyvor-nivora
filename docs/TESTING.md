@@ -29,7 +29,9 @@ Portable coverage in 0.2 includes:
 - native palette/accent parity with the web tokens and native app file layout
 - collector fallback when the App Group rules directory is not writable
 
-At packaging time the portable suite has **29 Python tests**, plus web/plist/demo/Swift syntax gates.
+Later additions: alert delivery, retention, tracker and geo files (`test_collector_intel.py`); CLI output, `--json`, version check, completions, man page and the MCP tools, resources and prompts (`test_cli_mcp.py`); SBOM, cask, notarize-script dry run and Pages runner (`test_release_tools.py`); native/web pane parity (`test_pane_parity.py`).
+
+The portable suite now has **138 Python tests**, plus web/plist/demo/Swift syntax gates and `bash -n scripts/notarize-mini.sh`.
 
 The portable verification environment validates shared logic and syntax, **not** macOS framework type-checking, Apple entitlement approval, signed extension activation, real `nettop` behavior across every macOS release, or NetworkExtension enforcement on hardware.
 
@@ -37,7 +39,7 @@ The GitHub Actions macOS job generates the Xcode project and performs an unsigne
 
 ## Native unit tests
 
-`native/Tests` holds XCTest cases for snapshot decoding and alert rules, compiled against `App/Model/Snapshot.swift` and `Alerts.swift` only (no UI, no NetworkExtension):
+`native/Tests` holds XCTest cases (37 at the time of writing) for snapshot decoding, alert rules, filters, exports, widgets and the Explore helpers (Domains, Network Map layout, palette ranking), compiled against the `App/Model` files listed in `native/project.yml` only (no UI, no NetworkExtension):
 
 ```bash
 cd native && xcodegen generate && xcodebuild -project Nivora.xcodeproj -scheme NivoraTests -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO test
@@ -53,7 +55,11 @@ The fixture `Tests/Fixtures/demo-snapshot.json` comes from `python3 agent/nivora
 
 The CI DMG is unsigned and not notarised; shipping the NetworkExtension and capture helper needs Apple signing and entitlement approval (see `docs/NETWORKEXTENSION.md`, `docs/CAPTURE.md`).
 
+CI's macOS job runs on a hosted runner that is much slower than a laptop; timing tests use generous deadlines for that reason.
+
 ### Signed and notarized build (maintainers, on a Mac with the Developer ID certificate)
+
+`scripts/notarize-mini.sh` runs the same build on the Mac mini over ssh (see `docs/RELEASING.md`).
 
 ```bash
 DEVELOPER_ID_APP="Developer ID Application: NAME (TEAMID)" NOTARY_PROFILE=<notarytool keychain profile> ./scripts/package-signed.sh

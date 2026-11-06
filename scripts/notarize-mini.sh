@@ -4,14 +4,14 @@
 #
 #   ./scripts/build-native.sh && ./scripts/notarize-mini.sh [--dry-run] [--gui] [path/to/Nivora.app]
 #
-# What it does: copies the built (unsigned) app to the mini, signs nested code then the app with the
-# Developer ID Application identity and the hardened runtime, builds and signs the DMG, submits it with
+# What it does: copies the built (unsigned) app to the mini, removes the pieces a Developer ID signature cannot carry
+# (like scripts/package-signed.sh), signs the app with the Developer ID Application identity and the hardened runtime, builds and signs the DMG, submits it with
 # `notarytool --keychain-profile Macora-Notary --wait`, staples, checks with spctl, and copies the DMG and
 # its .sha256 back to the repo root. The App Store Connect API key (.p8) stays on the mini; it is never copied.
 #
-# Scope: the app is signed WITHOUT the restricted NetworkExtension/system-extension entitlements, because
-# those need a provisioning profile from Apple. The result is a notarized app that opens without a Gatekeeper
-# warning; the content filter and capture helper still need a provisioned build (docs/NETWORKEXTENSION.md).
+# Scope: the notarized app leaves out the content filter and capture helper (they need a provisioning profile
+# from Apple; docs/NETWORKEXTENSION.md). scripts/package-signed.sh is the same build run locally with env vars;
+# this script is the ssh-to-the-mini flavour of it.
 #
 # --gui  run the remote steps from the mini's logged-in GUI session (Terminal) instead of plain ssh. Use it if
 #        codesign fails over ssh with a keychain error; click "Always Allow" once on the mini.
@@ -45,12 +45,13 @@ cd "\$HOME/$WORK"
 APP_ID="$APP_ID"; PROFILE="$PROFILE"; VER="$VER"
 sign() { codesign --force --timestamp --options runtime --sign "\$APP_ID" "\$@"; }
 
-# Sign nested code first, deepest paths first; avoid --deep (it applies one set of options to everything).
-while IFS= read -r p; do sign "\$p"; done < <(
-  { find Nivora.app/Contents \( -name '*.systemextension' -o -name '*.appex' -o -name '*.xpc' -o -name '*.framework' -o -name '*.dylib' \) -print
-    find Nivora.app/Contents/Library/LaunchServices -type f -perm -u+x -print 2>/dev/null
-    find Nivora.app/Contents/MacOS -type f -perm -u+x ! -name Nivora -print 2>/dev/null
-  } | awk '{ print length(\$0) "\t" \$0 }' | sort -rn | cut -f2-)
+# Leave out what a plain Developer ID signature cannot carry (same as scripts/package-signed.sh): the content-filter
+# system extension, the capture helper and its launchd plist need the NetworkExtension entitlement and a
+# provisioning profile; with only a Developer ID signature macOS would refuse to launch the app.
+rm -rf Nivora.app/Contents/Library/SystemExtensions Nivora.app/Contents/Library/LaunchServices Nivora.app/Contents/Library/LaunchDaemons
+rmdir Nivora.app/Contents/Library 2>/dev/null || true
+[[ ! -e Nivora.app/Contents/Library ]] || { echo "unexpected content left in Contents/Library" >&2; exit 1; }
+# No entitlements file: this build needs none, and a restricted one would stop it launching.
 sign Nivora.app
 codesign --verify --deep --strict --verbose=2 Nivora.app
 

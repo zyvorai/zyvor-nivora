@@ -43,9 +43,16 @@ Rates are deltas between stable flow IDs over the real sample interval. Counter 
 - **Behavior** — SQLite-learned app/destination/port tuples. The initial sample seeds the baseline; later first-seen destinations become events/findings.
 - **Exposure** — listeners classified as loopback, local-address or all-interface binds.
 
+- **Alerts** — `notify.py` delivers new findings above a severity threshold to a webhook and/or syslog, once per cooldown. Disabled unless configured and never active with `--demo`.
+- **Geo and trackers** — `geo.py` labels internet flows from a local CIDR→country/ASN table; `privacy.py` merges a user tracker list. Both are local files; there are no lookups.
+
+## Native panes
+
+`App/Model/Pane.swift` defines the panes; `App/Model/Explore.swift` holds the SwiftUI-free helpers (Domains grouping, Network Map layout, command-palette ranking) that the unit tests compile directly. `tests/test_pane_parity.py` fails if the native panes and the web views drift apart.
+
 ## Storage
 
-`HistoryStore` uses SQLite WAL mode, local permissions `0600`, 30-day snapshot retention, a bounded 5,000-event journal and a 90-day behavior table. `/v1/series` reads compact throughput/health history from the same database.
+`HistoryStore` uses SQLite WAL mode, local permissions `0600`, retention that defaults to 30 days of snapshots, a bounded 5,000-event journal, a 90-day behavior table and 60 days of usage (all adjustable with `--retain-*`). `/v1/series` reads compact throughput/health history from the same database.
 
 ## Safety
 

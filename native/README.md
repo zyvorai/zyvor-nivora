@@ -16,9 +16,9 @@ The SwiftUI app follows Zyvor Vytrix's native layout, coloured with the Netra pa
 
 ```text
 App/NivoraApp.swift           window + menu-bar scenes, --demo / --appearance / --section launch flags
-App/Model/                    NivoraStore (polling, history, rules), Snapshot, Preferences, Alerts, CollectorProcess
+App/Model/                    NivoraStore (polling, history, rules), Pane, Explore (pure helpers), Snapshot, Preferences, Alerts, CollectorProcess
 App/Views/                    RootView, Overview, Health, Applications (+ detail sheet), Flows, Interfaces,
-                              LocalNetwork, FluxVM, Security, Investigator, Alerts, Settings, MenuBar,
+                              LocalNetwork, NetworkMap/Domains/DNS/Routes/VPN + CommandPalette (ExploreViews), FluxVM, Security, Investigator, Alerts, Settings, MenuBar,
                               Components (Panel, MetricTile, Meter, Monogram), Theme (Palette)
 ```
 

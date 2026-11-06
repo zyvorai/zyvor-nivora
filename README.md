@@ -81,7 +81,11 @@ python3 agent/nivoractl.py flows --filter 'app:Safari port:443 >1mbps'
 python3 agent/nivoractl.py rule-add --action block --domain example.com --duration 900
 ```
 
-`nivoractl` reads `NIVORA_TOKEN`; on macOS it also looks for the token stored by `install-macos.sh`.
+`nivoractl` reads `NIVORA_TOKEN`; on macOS it also looks for the token stored by `install-macos.sh`. Add `--json` for compact JSON, `--watch 2` to repeat, `nivoractl version --check` to look for a newer release (the only call that leaves your Mac, and only when you ask), and `nivoractl completion zsh|bash|fish` for shell completions. `make man` builds the `nivoractl(1)` man page.
+
+**Ask from your tools.** `agent/nivora_mcp.py` is a read-only MCP server (stdio): tools for summary, flows, findings, explain, diff, incident, trust, privacy, egress, usage, listeners, FluxVM, profiles and timeline, plus `nivora://` resources and `incident_review` / `network_checkup` prompts. Config snippets are in [docs/API.md](docs/API.md#mcp).
+
+**Alerts and local data (all optional, off by default).** `--alert-webhook URL` and `--alert-syslog` deliver new findings once per cooldown; `--retain-*` set history retention; `trackers.txt` adds tracker domains and `geo.csv` adds country/ASN labels to flows, both beside the database. Details in [docs/API.md](docs/API.md#alerts-retention-and-local-data-files).
 
 </details>
 
@@ -114,7 +118,9 @@ The dashboard, native app, CLI and exports all use one JSON schema regardless of
 | **Applications / Flows** | Sortable tables, **filter grammar** with chips and saved views, grouping by app/host/interface, baseline compare, flow inspector, CSV/JSON export |
 | **Health** | Explained 0–100 score and history |
 | **Time Machine** | Day-grouped history of interface, DNS, route, VPN, listener, new-device and traffic changes, filterable by kind; diff any two points in time |
+| **Network Map / Domains** | Applications → interfaces → destinations with line weight by live traffic; every remote host with the apps, ports and bytes behind it |
 | **Interfaces / Local Network** | Wi-Fi, Ethernet, VPN and virtual interfaces; ARP/NDP neighbours; listeners and exposure |
+| **DNS / Routes / VPN** | Resolvers and diagnosis, the routing table with defaults, and macOS network services |
 | **FluxVM** | VMs and sandboxes beside host traffic |
 | **Security** | Observe-first findings, leased rules (block rules expire after an hour), shadow rules that count what a block would match, policy-as-code (dry-run by default) |
 | **Insights** | Per-app trust score, privacy report card, situation profiles, multi-Mac fleet, sandbox/VM egress, path check and incident narrative |
@@ -128,7 +134,7 @@ app:Safari  host:example.com  port:443  port:8000-9000  proto:tcp  iface:en0
 state:established  source:nettop  >1mbps  <500kbps  !iface:lo0  app:"Google Chrome"
 ```
 
-Keyboard: `⌘1…⌘9` panes · `⌘/` shortcuts · `⌘R` refresh · `⌘P` pause · `⇧⌘1/2` live/demo data.
+Keyboard: `⌘K` command palette (panes, apps, actions) · `⌘1…⌘9` panes · `⌘/` shortcuts · `⌘R` refresh · `⌘P` pause · `⇧⌘1/2` live/demo data.
 
 ## Privacy and safety
 
@@ -148,6 +154,8 @@ See [SECURITY.md](SECURITY.md).
 | Native app (SwiftUI) and unit tests | Builds and runs unsigned with Xcode; XCTest suite passes |
 | Content filter (system extension) and capture helper | **Compile-verified only.** Signing, entitlement approval, activation and root capture are untested; they need a provisioned, signed Mac |
 | Insights pane, Shortcuts/Siri actions, widget | Build and unit tests pass; the widget in the macOS widget gallery and the Shortcuts/Siri phrases are **not exercised** |
+| Network Map, Domains, DNS, Routes, VPN panes and the ⌘K palette | Build, unit tests (pure helpers) pass and the map, Domains and DNS panes were checked on screen with demo data; Routes, VPN and the palette's keyboard flow were not exercised by hand |
+| Alert webhook/syslog, `geo.csv`, `trackers.txt`, `nivoractl` completions, MCP resources and prompts | Unit-tested; webhook delivery checked against a local listener. Syslog output and shell completions were not exercised in a live shell |
 | Release DMG from GitHub (free) | Ad-hoc sealed, unsigned by a Developer ID, not notarised (Gatekeeper asks for Open Anyway) |
 | Signed and notarized build (`scripts/package-signed.sh`) | Verified on macOS 27.2, Apple silicon: Apple notarization accepted, stapled, Gatekeeper accepts the DMG and the app (also with a download quarantine flag), the app launches and its bundled collector serves data the app decodes (checked against a real FluxVM). It deliberately leaves out the content filter and capture helper. Not exercised: other macOS versions, Intel (the app is arm64 only) |
 
@@ -163,6 +171,7 @@ See [SECURITY.md](SECURITY.md).
 | [docs/FLUXVM.md](docs/FLUXVM.md) | FluxVM integration |
 | [docs/UX-CONTRACT.md](docs/UX-CONTRACT.md) | Design tokens and interaction rules |
 | [docs/TESTING.md](docs/TESTING.md) | Test suite and release steps |
+| [docs/RELEASING.md](docs/RELEASING.md) | Release checklist, SBOM and attestation, notarizing on the Mac mini, Pages runner |
 | [CONTRIBUTING.md](CONTRIBUTING.md) · [CHANGELOG.md](CHANGELOG.md) | Contributing and history |
 
 ## Test
