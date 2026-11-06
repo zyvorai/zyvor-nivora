@@ -2,9 +2,12 @@ name: release
 
 # Pushing a tag like v0.3.0 builds an UNSIGNED Nivora.app, packages it as a DMG and drafts a GitHub release.
 # Signing, notarisation and Apple entitlement approval are separate steps that need the team's credentials.
+# Run it by hand (Actions > release > Run workflow) for a dry run: same build, test, SBOM and attestation steps,
+# but no tag check and no draft release. The artifacts are only uploaded to the run.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -21,6 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
       - name: Tag matches package.json
+        if: github.event_name == 'push'
         run: |
           want="v$(python3 -c "import json;print(json.load(open('package.json'))['version'])")"
           test "$GITHUB_REF_NAME" = "$want" || { echo "tag $GITHUB_REF_NAME != $want" >&2; exit 1; }
@@ -32,7 +36,8 @@ jobs:
         run: shasum -a 256 Nivora-*.dmg > SHA256SUMS.txt
       - name: SBOM and cask for this release
         run: |
-          python3 scripts/build-sbom.py "Nivora-${GITHUB_REF_NAME#v}.sbom.cdx.json"
+          VERSION="$(python3 -c "import json;print(json.load(open('package.json'))['version'])")"
+          python3 scripts/build-sbom.py "Nivora-${VERSION}.sbom.cdx.json"
           python3 scripts/update-cask.py SHA256SUMS.txt
           cp packaging/homebrew/nivora.rb nivora.rb
       - uses: actions/attest-build-provenance@v2
@@ -49,6 +54,7 @@ jobs:
             Nivora-*.sbom.cdx.json
             nivora.rb
       - name: Draft release
+        if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
