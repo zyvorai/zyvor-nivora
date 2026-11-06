@@ -4,8 +4,8 @@
 # UNVERIFIED: not installed through Homebrew. The DMG is unsigned and not notarised, so Gatekeeper still
 # asks for "Open Anyway" (see docs/INSTALL.md).
 cask "nivora" do
-  version "0.5.1"
-  sha256  "0e0ccfc302f5f7c7b0dd5726a18d7015fbca95dac4b4b2d4b8ac9b6971860837"
+  version "0.5.2"
+  sha256  "9ee24b4386c78d97e6f34fb878341e7e9dca3e775d7c2df2895bd6de0eeba99d"
 
   url "https://github.com/zyvorai/zyvor-nivora/releases/download/v#{version}/Nivora-#{version}.dmg"
   name "Nivora"

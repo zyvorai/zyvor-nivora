@@ -32,11 +32,14 @@ class ReleaseTools(unittest.TestCase):
         with self.assertRaises(SystemExit):
             mod.find_sha("bb  Nivora-0.1.0.dmg", "0.2.0")
 
-    def test_cask_matches_package_version(self):
+    def test_cask_is_a_real_release_not_newer_than_the_package(self):
+        import re
         cask = (ROOT / "packaging/homebrew/nivora.rb").read_text()
         ver = json.loads((ROOT / "package.json").read_text())["version"]
-        self.assertIn(f'version "{ver}"', cask)
-
+        cask_ver = re.search(r'version "([^"]+)"', cask).group(1)
+        key = lambda v: tuple(int(x) for x in v.split("."))
+        self.assertLessEqual(key(cask_ver), key(ver), "the cask must not point at an unreleased version")
+        self.assertRegex(re.search(r'sha256\s+"([^"]+)"', cask).group(1), r"^[0-9a-f]{64}$")
 
 class NotarizeAndPagesTests(unittest.TestCase):
     def test_notarize_dry_run_touches_nothing_and_is_valid_bash(self):
