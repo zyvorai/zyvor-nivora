@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Release: the public v0.5.2 and v0.5.3 releases and the Homebrew cask serve the free unsigned DMG again; the signed and notarized build stays the paid build and is delivered to buyers, not published. `docs/RELEASING.md` says so. (v0.5.2's unsigned DMG was rebuilt from its tag, so its checksum differs from the one first published.)
+
 - Release: `scripts/notarize-mini.sh` and `scripts/package-signed.sh` now notarize and staple the app itself before building the DMG, so the ticket travels with the app and an offline first launch passes Gatekeeper. Verified on the mini: the app inside the new DMG validates with `stapler validate`.
 
 ## 0.5.3 — 2026-11-06
