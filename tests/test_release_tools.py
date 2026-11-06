@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BUSL-1.1
 import importlib.util
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -35,6 +36,32 @@ class ReleaseTools(unittest.TestCase):
         cask = (ROOT / "packaging/homebrew/nivora.rb").read_text()
         ver = json.loads((ROOT / "package.json").read_text())["version"]
         self.assertIn(f'version "{ver}"', cask)
+
+
+class NotarizeAndPagesTests(unittest.TestCase):
+    def test_notarize_dry_run_touches_nothing_and_is_valid_bash(self):
+        out = subprocess.run([str(ROOT / "scripts/notarize-mini.sh"), "--dry-run"], capture_output=True, text=True, check=True).stdout
+        ver = json.loads((ROOT / "package.json").read_text())["version"]
+        self.assertIn("Developer ID Application: ZYVORAI LABS PRIVATE LIMITED (NX667LTDQ2)", out)
+        self.assertIn("Macora-Notary", out)
+        self.assertIn(f"Nivora-{ver}.dmg", out)
+        for needed in ("--options runtime", "notarytool submit", "stapler staple", "spctl --assess"):
+            self.assertIn(needed, out)
+        script = out[out.index("#!/usr/bin/env bash"):]
+        subprocess.run(["bash", "-n"], input=script, text=True, check=True)
+
+    def test_notarize_never_handles_the_api_key(self):
+        src = (ROOT / "scripts/notarize-mini.sh").read_text()
+        code = "\n".join(l for l in src.splitlines() if not l.lstrip().startswith("#"))
+        self.assertNotIn(".p8", code)
+        self.assertNotIn("Downloads", code)
+        self.assertNotIn("--deep \"$APP_ID", code)
+
+    def test_pages_runner_falls_back_to_github_hosted(self):
+        wf = (ROOT / ".github/workflows/pages.yml").read_text()
+        self.assertIn("vars.PAGES_RUNNER", wf)
+        self.assertIn("'ubuntu-latest'", wf)
+        self.assertNotIn("runs-on:  [self-hosted", wf)
 
 
 if __name__ == "__main__":
