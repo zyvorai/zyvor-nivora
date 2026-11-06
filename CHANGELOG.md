@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.5.3 — 2026-11-06
+
 - Docs: README, architecture, testing, UX contract, native README, releasing guide and site refreshed for alerts/retention/geo, CLI and MCP additions, the new native panes and the ⌘K palette. `scripts/notarize-mini.sh` now removes the content filter, capture helper and launchd plist before signing, matching `scripts/package-signed.sh` (a Developer ID signature cannot carry them).
 
 - Paid builds: free for personal, non-business use; ₹299 incl. GST (about US$2.99) buys business use, in two builds: the signed and notarized app, and the unsigned developer build that includes the content-filter and capture-helper code (those parts stay compile-verified only). Site, README and INSTALL describe both; `docs/COMMERCIAL-LICENSE.md` is the licence draft. `site-check` fails while a payment-link placeholder remains.
