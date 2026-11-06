@@ -25,7 +25,7 @@ Nivora should feel like a sibling of Vytrix, not a generic network dashboard. Co
 
 ## 0.3 interaction rules
 
-- **Everything is reachable from the keyboard.** `⌘K`/`Ctrl K` opens the command palette (views, apps, "Ask Investigator"); `/` focuses search, `p` pauses, `r` refreshes, `g` then `o/h/m/a/f` jumps to a view, `?` lists shortcuts, `Esc` closes panels.
+- **Everything is reachable from the keyboard.** `⌘K`/`Ctrl K` opens the command palette (views, apps, "Ask Investigator"); `/` focuses search, `p` pauses, `r` refreshes, `g` then `o/h/m/a/f` jumps to a view (web; the native app uses `⌘K` and `⌘1…⌘9` instead), `?` lists shortcuts, `Esc` closes panels.
 - **Click an application to see its evidence.** The right-hand sheet shows live rates, a short history sparkline, destinations, ports, flows and leased rule buttons.
 - **Tables are sortable and searchable.** Sorted columns expose `aria-sort`; matches are highlighted.
 - **Feedback is non-blocking.** Toasts replace `alert()`; first load shows skeletons; failures show a retry state and a "Disconnected — retrying" status.
