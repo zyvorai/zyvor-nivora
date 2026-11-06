@@ -28,7 +28,19 @@ struct NivoraSnapshot: Decodable {
         let app: String?; let remote: String?
     }
     struct VPN: Decodable, Identifiable { var id: String { service_id }; let name: String; let service_id: String; let status: String; let active: Bool }
-    struct DNS: Decodable { let servers: [String] }
+    struct DNS: Decodable {
+        struct Resolver: Decodable, Identifiable {
+            var id: Int { index }
+            let index: Int; let nameservers: [String]?; let interface: String?; let domain: String?; let search: [String]?
+        }
+        let servers: [String]; let resolvers: [Resolver]?
+    }
+    struct Topology: Decodable {
+        struct Node: Decodable, Identifiable { let id: String; let kind: String; let label: String }
+        struct Edge: Decodable { let source: String; let target: String; let kind: String; let bytes: Int; let bps: Double; let flows: Int }
+        let nodes: [Node]; let edges: [Edge]
+    }
+    struct DNSDiagnosis: Decodable { let notes: [String]?; let `public`: Bool? }
     struct Capabilities: Decodable { let nettop: Bool; let network_extension: Bool; let fluxvm: Bool; let blocking: Bool }
     struct Traffic: Decodable { let rx_bps: Double; let tx_bps: Double; let total_bps: Double; let active_flows: Int; let internet_flows: Int; let vpn_flows: Int; let top_interface: String }
     struct Health: Decodable {
@@ -122,6 +134,8 @@ struct NivoraSnapshot: Decodable {
     let privacy: Privacy?
     let egress: Egress?
     let profile: Profile?
+    let topology: Topology?
+    let dns_diagnosis: DNSDiagnosis?
 }
 
 struct QueryResponse: Decodable { let answer: String }

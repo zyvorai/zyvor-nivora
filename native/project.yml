@@ -161,6 +161,8 @@ targets:
       - path: Tests
         excludes: ["Fixtures"]
       - path: App/Model/Snapshot.swift
+      - path: App/Model/Pane.swift
+      - path: App/Model/Explore.swift
       - path: App/Model/Alerts.swift
       - path: App/Model/Filter.swift
       - path: App/Model/Welcome.swift

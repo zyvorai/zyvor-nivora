@@ -7,6 +7,7 @@ struct RootView: View {
     @State private var section: Pane?
     @State private var showWelcome = WelcomeGate.shouldShow(welcomed: UserDefaults.standard.bool(forKey: WelcomeGate.defaultsKey))
     @State private var showShortcuts = false
+    @State private var showPalette = false
 
     var body: some View {
         NavigationSplitView {
@@ -46,6 +47,11 @@ struct RootView: View {
                     case .applications: ApplicationsView()
                     case .flows: FlowsView()
                     case .timeline: TimelineView()
+                    case .map: NetworkMapView()
+                    case .domains: DomainsView()
+                    case .dns: DNSView()
+                    case .routes: RoutesView()
+                    case .vpn: VPNView()
                     case .interfaces: InterfacesView()
                     case .local: LocalNetworkView()
                     case .fluxvm: FluxVMView()
@@ -77,6 +83,8 @@ struct RootView: View {
         }
         .sheet(isPresented: $showWelcome) { WelcomeView() }
         .sheet(isPresented: $showShortcuts) { ShortcutsView() }
+        .sheet(isPresented: $showPalette) { CommandPaletteView() }
+        .onReceive(NotificationCenter.default.publisher(for: .nivoraShowPalette)) { _ in showPalette = true }
         .onReceive(NotificationCenter.default.publisher(for: .nivoraShowShortcuts)) { _ in showShortcuts = true }
         .task { await filter.load() }
         .onAppear { if section == nil { section = store.pane ?? .overview } }
@@ -121,4 +129,7 @@ struct HostFooter: View {
 
 struct FlowSelection: Identifiable { let id: String }
 
-extension Notification.Name { static let nivoraShowShortcuts = Notification.Name("nivora.showShortcuts") }
+extension Notification.Name {
+    static let nivoraShowShortcuts = Notification.Name("nivora.showShortcuts")
+    static let nivoraShowPalette = Notification.Name("nivora.showPalette")
+}

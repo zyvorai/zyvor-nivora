@@ -10,6 +10,8 @@
 
 - CLI/MCP: `nivoractl` is table-driven and gains `--json`, `--watch`, `version [--check]` (opt-in GitHub check) and `completion zsh|bash|fish`; `make man` generates `nivoractl(1)` from the argparse definition. The MCP server adds read-only tools for trust, privacy, egress, usage, listeners, FluxVM, profiles and timeline, `nivora://` resources, `incident_review` and `network_checkup` prompts, reports the real version, and its config snippets are in `docs/API.md`.
 
+- Native: Network Map, Domains, DNS, Routes and VPN panes (matching the web UI), a ⌘K command palette over panes, apps and actions, and two Shortcuts actions ("Top apps", "Unblock an app"). Pure helpers (`Explore.swift`, `Pane.swift`) are unit-tested; 6 new Swift tests. Built and unit-tested with Xcode 27.2 and screenshot-checked on demo data; the new Shortcuts phrases and the palette's keyboard flow were not exercised by hand.
+
 - Site: terminal tabs with real `nivoractl` output captured at build time, a verified-vs-not table copied from the README, a command palette (`/` or ⌘K) over sections, docs and demo panes, and a Homebrew install line.
 
 - Site: `/docs/` hub built from `docs/*.md`, `CHANGELOG.md` and `SECURITY.md` by `scripts/build-docs.py` (stdlib Markdown subset, heading anchors, on-page TOC, search over titles and headings).
