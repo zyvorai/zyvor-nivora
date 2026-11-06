@@ -43,6 +43,14 @@ if codesign -d --entitlements - "$APP" 2>/dev/null | grep -q "com.apple.develope
   echo "refusing: restricted entitlements found in the signed app" >&2; exit 1
 fi
 
+if [[ -n "$NOTARY" ]]; then
+  # Notarize and staple the app itself so its ticket travels with it when dragged out of the DMG.
+  ditto -c -k --keepParent "$APP" "$WORK/Nivora-app.zip"
+  xcrun notarytool submit "$WORK/Nivora-app.zip" --keychain-profile "$NOTARY" --wait
+  xcrun stapler staple "$APP"
+  xcrun stapler validate "$APP"
+fi
+
 mkdir -p "$OUT_DIR" "$WORK/dmg"
 DMG="$OUT_DIR/Nivora-$VER.dmg"
 rm -f "$DMG" "$DMG.sha256"

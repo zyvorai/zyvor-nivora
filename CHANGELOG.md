@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Release: `scripts/notarize-mini.sh` and `scripts/package-signed.sh` now notarize and staple the app itself before building the DMG, so the ticket travels with the app and an offline first launch passes Gatekeeper. Verified on the mini: the app inside the new DMG validates with `stapler validate`.
+
 ## 0.5.3 — 2026-11-06
 
 - Docs: README, architecture, testing, UX contract, native README, releasing guide and site refreshed for alerts/retention/geo, CLI and MCP additions, the new native panes and the ⌘K palette. `scripts/notarize-mini.sh` now removes the content filter, capture helper and launchd plist before signing, matching `scripts/package-signed.sh` (a Developer ID signature cannot carry them).
