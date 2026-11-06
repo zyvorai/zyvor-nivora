@@ -36,7 +36,10 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on:  [self-hosted, mini]
+    # GitHub-hosted by default. To deploy from the self-hosted Mac mini instead, set the repository variable
+    # PAGES_RUNNER to ["self-hosted","mini"] (Settings > Secrets and variables > Actions > Variables).
+    # Removing the variable falls back to ubuntu-latest, so a down runner never blocks a deploy.
+    runs-on: ${{ vars.PAGES_RUNNER && fromJSON(vars.PAGES_RUNNER) || 'ubuntu-latest' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

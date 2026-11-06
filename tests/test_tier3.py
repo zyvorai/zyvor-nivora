@@ -166,7 +166,8 @@ class OrphanTests(unittest.TestCase):
                    f"--token t --database {d}/h.sqlite --rules {d}/r.json >{d}/collector.log 2>&1 & echo $!")
             out = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, timeout=10).stdout.strip()
             pid = int(out)
-            deadline = time.time() + 10
+            # Generous: hosted macOS runners can be ~10x slower than a laptop, and the collector must first start up.
+            deadline = time.time() + 60
             alive = True
             while time.time() < deadline and alive:
                 time.sleep(0.3)
