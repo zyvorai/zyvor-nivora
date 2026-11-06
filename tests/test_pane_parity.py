@@ -10,13 +10,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Intentional gaps, tracked for the native-parity work. Shrink these, never grow them quietly.
-WEB_ONLY = {"map", "domains", "dns", "routes", "vpn"}
+# Intentional gaps. Shrink these, never grow them quietly.
+WEB_ONLY: set[str] = set()
 NATIVE_ONLY = {"alerts"}
 
 
 def native_panes():
-    src = (ROOT / "native/App/Model/NivoraStore.swift").read_text()
+    src = (ROOT / "native/App/Model/Pane.swift").read_text()
     body = src.split("enum Pane: String", 1)[1].split("var id:", 1)[0]
     names = set()
     for line in body.splitlines():

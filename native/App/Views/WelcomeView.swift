@@ -56,7 +56,7 @@ struct WelcomeView: View {
 struct ShortcutsView: View {
     @Environment(\.dismiss) private var dismiss
     private let rows: [(String, String)] = [
-        ("⌘1 … ⌘9", "Jump to a pane"), ("⌘,", "Settings"), ("⌘R", "Refresh now"), ("⌘P", "Pause or resume sampling"),
+        ("⌘K", "Command palette: panes, apps, actions"), ("⌘1 … ⌘9", "Jump to a pane"), ("⌘,", "Settings"), ("⌘R", "Refresh now"), ("⌘P", "Pause or resume sampling"),
         ("⇧⌘1 / ⇧⌘2", "Monitor this Mac / demo data"), ("⌘F", "Filter flows and apps (app: host: port: proto: >1mbps)"),
         ("⌘/", "This list"),
     ]

@@ -54,6 +54,8 @@ struct NivoraApp: App {
                         .keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: .command)
                 }
                 Divider()
+                Button("Command Palette…") { NotificationCenter.default.post(name: .nivoraShowPalette, object: nil) }
+                    .keyboardShortcut("k", modifiers: .command)
                 Button("Settings") { store.pane = .settings }.keyboardShortcut(",", modifiers: .command)
             }
             CommandGroup(replacing: .help) {
