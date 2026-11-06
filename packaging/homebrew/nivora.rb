@@ -5,7 +5,7 @@
 # asks for "Open Anyway" (see docs/INSTALL.md).
 cask "nivora" do
   version "0.5.2"
-  sha256  "9ee24b4386c78d97e6f34fb878341e7e9dca3e775d7c2df2895bd6de0eeba99d"
+  sha256  "1f3d3cf559c97ff81fd71aba7d0809a1b53583f6adaccdb3ae866d1a3ba6b4d1"
 
   url "https://github.com/zyvorai/zyvor-nivora/releases/download/v#{version}/Nivora-#{version}.dmg"
   name "Nivora"
