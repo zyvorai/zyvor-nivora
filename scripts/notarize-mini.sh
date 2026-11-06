@@ -55,6 +55,14 @@ rmdir Nivora.app/Contents/Library 2>/dev/null || true
 sign Nivora.app
 codesign --verify --deep --strict --verbose=2 Nivora.app
 
+# Notarize and staple the app itself first. The DMG ticket alone does not travel with the app once it is dragged
+# out, so an offline first launch would need Apple's servers; a stapled app passes Gatekeeper without them.
+rm -f Nivora-app.zip && ditto -c -k --keepParent Nivora.app Nivora-app.zip
+xcrun notarytool submit Nivora-app.zip --keychain-profile "\$PROFILE" --wait
+xcrun stapler staple Nivora.app
+xcrun stapler validate Nivora.app
+rm -f Nivora-app.zip
+
 rm -rf stage Nivora-\$VER.dmg && mkdir stage
 cp -R Nivora.app stage/Nivora.app && ln -s /Applications stage/Applications
 hdiutil create -volname Nivora -srcfolder stage -ov -format UDZO Nivora-\$VER.dmg
